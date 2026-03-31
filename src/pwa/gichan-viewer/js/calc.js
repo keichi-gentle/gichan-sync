@@ -122,7 +122,7 @@ export function calculateFeedingIntervals(events) {
       feedings[i]._feedingIntervalMs = ms;
       const h = Math.floor(ms / 3600000);
       const m = Math.floor((ms % 3600000) / 60000);
-      feedings[i].feedingInterval = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+      feedings[i].feedingInterval = `${h}시간 ${m}분`;
     }
   }
 }

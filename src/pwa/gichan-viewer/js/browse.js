@@ -16,7 +16,7 @@ export function renderBrowse(events, container) {
   startDate = fmtISO(week);
   endDate = fmtISO(today);
 
-  container.innerHTML = buildFilterUI() + '<div id="browse-list"></div><div id="browse-paging"></div>';
+  container.innerHTML = '<div id="browse-filters" class="browse-filters-sticky">' + buildFilterUI() + '</div><div id="browse-list"></div><div id="browse-paging"></div>';
   bindEvents(container);
   applyFilter();
 }
@@ -117,7 +117,7 @@ function buildEventCard(evt) {
       <span class="ec-category ${catClass}">${catLabel(evt.category)}</span>
     </div>
     <div class="ec-detail ${detailClass}">${evt.detail}</div>
-    <div class="ec-amount">${evt.amount}${evt.feedingInterval ? ` · 텀 ${evt.feedingInterval}` : ''}${evt.note ? ` · ${evt.note}` : ''}</div>
+    <div class="ec-amount">${evt.amount}${evt.feedingInterval ? ` · 수유텀 ${evt.feedingInterval}` : ''}${evt.note ? ` · ${evt.note}` : ''}</div>
   </div>`;
 }
 

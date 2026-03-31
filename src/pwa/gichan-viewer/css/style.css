@@ -152,6 +152,11 @@ nav button svg { width: 22px; height: 22px; }
 .summary-card .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
 
 /* ═══ Browse Tab ═══ */
+.browse-filters-sticky {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg-dark); padding-bottom: 4px;
+}
+
 .filter-bar {
   display: flex; flex-wrap: wrap; gap: 8px;
   margin-bottom: 10px;
