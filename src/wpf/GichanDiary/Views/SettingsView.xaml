@@ -1,0 +1,271 @@
+<UserControl x:Class="GichanDiary.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:GichanDiary.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:SettingsViewModel, IsDesignTimeCreatable=False}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+        <StackPanel Margin="16,12">
+
+            <!-- ═══ File Settings: system color title ═══ -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Path Data="{DynamicResource IconExcel}" Stroke="{DynamicResource CatSystemBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="파일 설정" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
+                    </StackPanel>
+
+                    <!-- Excel file path: label left, control right (inline row) -->
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Excel 파일 경로" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <DockPanel Grid.Column="1">
+                            <Button DockPanel.Dock="Right" Content="찾아보기" Command="{Binding BrowseExcelPathCommand}"
+                                    Style="{DynamicResource SecondaryButton}" MinWidth="80" Height="48" Margin="8,0,0,0"
+                                    FontSize="19"/>
+                            <TextBox Text="{Binding ExcelFilePath, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="19" VerticalContentAlignment="Center"/>
+                        </DockPanel>
+                    </Grid>
+
+                    <!-- Auto backup: label left, toggle right -->
+                    <Grid Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="자동 백업" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <CheckBox Grid.Column="1" IsChecked="{Binding AutoBackupEnabled}" VerticalAlignment="Center"
+                                  Foreground="{DynamicResource CatFeedBrush}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Baby Info: system color title ═══ -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Path Data="{DynamicResource IconBaby}" Stroke="{DynamicResource CatSystemBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="아기 정보" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
+                    </StackPanel>
+
+                    <!-- Name + Birth date: single row -->
+                    <Grid Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="이름" Grid.Column="0" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <TextBox Grid.Column="1" Text="{Binding BabyName, UpdateSourceTrigger=PropertyChanged}"
+                                 FontSize="19" VerticalContentAlignment="Center" Width="300" HorizontalAlignment="Left"/>
+                        <TextBlock Text="생년월일" Grid.Column="2" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Center" Margin="20,0,8,0"/>
+                        <DatePicker Grid.Column="3" SelectedDate="{Binding BabyBirthDate}" FontSize="19"
+                                    Width="180" HorizontalAlignment="Left"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Feeding Settings: feed color title ═══ -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Path Data="{DynamicResource IconFeed}" Stroke="{DynamicResource CatFeedBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="수유 설정" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource CatFeedBrush}"/>
+                    </StackPanel>
+
+                    <!-- Formula products: tags with X + add -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="분유 제품" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Top" Margin="0,8,0,0"/>
+                        <StackPanel Grid.Column="1">
+                            <ItemsControl ItemsSource="{Binding FormulaProducts}" Margin="0,0,0,8">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{DynamicResource BgInputBrush}" BorderBrush="{DynamicResource CatFeedBrush}" BorderThickness="1" CornerRadius="8" Padding="6,4" Margin="0,0,6,6">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding}" FontSize="19" VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource CatFeedBrush}" Margin="0,0,6,0"/>
+                                                <Button Content="X" FontSize="19" Cursor="Hand"
+                                                        Foreground="{DynamicResource CatFeedBrush}"
+                                                        Background="Transparent" BorderThickness="0"
+                                                        Command="{Binding DataContext.RemoveProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        MinHeight="28" MinWidth="28" Padding="2,0"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Content="+ 추가" Command="{Binding AddProductCommand}"
+                                        Style="{DynamicResource SecondaryButton}" MinWidth="80" Height="28" Margin="8,0,0,0"
+                                        FontSize="17" Padding="8,2"/>
+                                <TextBox Text="{Binding NewProductName, UpdateSourceTrigger=PropertyChanged}"
+                                         FontSize="19" VerticalContentAlignment="Center" Width="280" HorizontalAlignment="Left"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Default formula product -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="기본 분유" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding FormulaProducts}"
+                                  SelectedItem="{Binding DefaultFormulaProduct}"
+                                  FontSize="19" Width="200" HorizontalAlignment="Left"/>
+                    </Grid>
+
+                    <!-- Default formula amount -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="기본 분유량" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <RepeatButton Content="-" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding DecrementFormulaAmountCommand}"/>
+                            <TextBlock Text="{Binding DefaultFormulaAmount}" FontSize="21" FontWeight="Bold"
+                                       VerticalAlignment="Center" Margin="8,0" MinWidth="24" TextAlignment="Center"/>
+                            <RepeatButton Content="+" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding IncrementFormulaAmountCommand}"/>
+                            <TextBlock Text="ml" FontSize="19" VerticalAlignment="Center" Margin="4,0,0,0"
+                                       Foreground="{DynamicResource TextMidBrush}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Fixed feeding interval -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="수유텀 고정시간" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <RepeatButton Content="-" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding DecrementFixedHoursCommand}"/>
+                            <TextBlock Text="{Binding FixedFeedingHours}" FontSize="21" FontWeight="Bold"
+                                       VerticalAlignment="Center" Margin="8,0" MinWidth="24" TextAlignment="Center"/>
+                            <RepeatButton Content="+" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding IncrementFixedHoursCommand}"/>
+                            <TextBlock Text="시간" FontSize="19" VerticalAlignment="Center" Margin="4,0,16,0"
+                                       Foreground="{DynamicResource TextMidBrush}"/>
+
+                            <RepeatButton Content="-" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding DecrementFixedMinutesCommand}"/>
+                            <TextBlock Text="{Binding FixedFeedingMinutes}" FontSize="21" FontWeight="Bold"
+                                       VerticalAlignment="Center" Margin="8,0" MinWidth="24" TextAlignment="Center"/>
+                            <RepeatButton Content="+" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding IncrementFixedMinutesCommand}"/>
+                            <TextBlock Text="분" FontSize="19" VerticalAlignment="Center" Margin="4,0,0,0"
+                                       Foreground="{DynamicResource TextMidBrush}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Average feeding count -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="평균 수유텀 범위" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <RepeatButton Content="-" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding DecrementAvgCountCommand}"/>
+                            <TextBlock Text="{Binding AverageFeedingCount}" FontSize="21" FontWeight="Bold"
+                                       VerticalAlignment="Center" Margin="8,0" MinWidth="24" TextAlignment="Center"/>
+                            <RepeatButton Content="+" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding IncrementAvgCountCommand}"/>
+                            <TextBlock Text="최근 N회" FontSize="19" VerticalAlignment="Center" Margin="4,0,0,0"
+                                       Foreground="{DynamicResource TextMidBrush}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Default breastfeed amount -->
+                    <Grid Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="기본 유축량" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <RepeatButton Content="-" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding DecrementBreastfeedCommand}"/>
+                            <TextBlock Text="{Binding DefaultBreastfeedAmount}" FontSize="21" FontWeight="Bold"
+                                       VerticalAlignment="Center" Margin="8,0" MinWidth="24" TextAlignment="Center"/>
+                            <RepeatButton Content="+" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding IncrementBreastfeedCommand}"/>
+                            <TextBlock Text="ml" FontSize="19" VerticalAlignment="Center" Margin="4,0,0,0"
+                                       Foreground="{DynamicResource TextMidBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Display Settings: system color title ═══ -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Path Data="{DynamicResource IconDashboard}" Stroke="{DynamicResource CatSystemBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="화면 설정" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
+                    </StackPanel>
+
+                    <Grid Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="페이지당 표시 건수" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <RepeatButton Content="-" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding DecrementPageSizeCommand}"/>
+                            <TextBlock Text="{Binding PageSize}" FontSize="21" FontWeight="Bold"
+                                       VerticalAlignment="Center" Margin="8,0" MinWidth="24" TextAlignment="Center"/>
+                            <RepeatButton Content="+" Style="{DynamicResource SpinnerRepeatButton}"
+                                    Command="{Binding IncrementPageSizeCommand}"/>
+                            <TextBlock Text="건" FontSize="19" VerticalAlignment="Center" Margin="4,0,0,0"
+                                       Foreground="{DynamicResource TextMidBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Save Button ═══ -->
+            <Button Content="설정 저장" Command="{Binding SaveCommand}"
+                    Style="{DynamicResource PrimaryButton}" HorizontalAlignment="Center"
+                    Width="200" Margin="0,0,0,8" FontSize="20"/>
+            <TextBlock Text="{Binding StatusMessage}" FontSize="19" Foreground="{DynamicResource CatFeedBrush}"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

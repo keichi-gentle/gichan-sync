@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- 젖병 아이콘 -->
+  <path d="M6 6h6v2a1 1 0 01-1 1H7a1 1 0 01-1-1V6z"/>
+  <rect x="6" y="9" width="6" height="10" rx="2"/>
+  <line x1="6" y1="13" x2="12" y2="13"/>
+  <path d="M8 3v3M10 3v3"/>
+  <path d="M8 19v2M10 19v2"/>
+</svg>

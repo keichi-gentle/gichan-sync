@@ -1,0 +1,467 @@
+<Window x:Class="GichanDiary.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:GichanDiary.ViewModels"
+        xmlns:views="clr-namespace:GichanDiary.Views"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}"
+        Width="1690" Height="950"
+        ToolTipService.ShowDuration="120000"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="CanResizeWithGrip"
+        Background="{DynamicResource BgDarkBrush}"
+        Foreground="{DynamicResource TextLightBrush}"
+        d:DataContext="{d:DesignInstance vm:MainViewModel, IsDesignTimeCreatable=False}">
+
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:EventEntryViewModel}">
+            <views:EventEntryView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <views:DashboardView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:EventListViewModel}">
+            <views:EventListView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ReportViewModel}">
+            <views:ReportView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ImportExportViewModel}">
+            <views:ImportExportView/>
+        </DataTemplate>
+    </Window.Resources>
+
+    <DockPanel LastChildFill="True">
+        <!-- Custom Title Bar -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource BgTitleBarBrush}" Height="42" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid>
+                <TextBlock Text="{Binding WindowTitle}"
+                           Foreground="{DynamicResource TextLightBrush}" FontSize="17" FontWeight="SemiBold"
+                           VerticalAlignment="Center" Margin="14,0,0,0"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch">
+                    <Button Content="&#x2500;" Click="MinimizeClick"
+                            Width="50" Background="Transparent" BorderThickness="0"
+                            Foreground="{DynamicResource TextLightBrush}" FontSize="18" Cursor="Hand"/>
+                    <Button Content="&#x25A1;" Click="MaximizeClick"
+                            Width="50" Background="Transparent" BorderThickness="0"
+                            Foreground="{DynamicResource TextLightBrush}" FontSize="18" Cursor="Hand"/>
+                    <Button Content="&#x2715;" Click="CloseClick"
+                            Width="50" Background="Transparent" BorderThickness="0"
+                            Foreground="{DynamicResource TextLightBrush}" FontSize="18" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bg" Background="Transparent" Padding="0">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="bg" Property="Background" Value="#C42B1C"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══ Scoreboard (Top) ═══ -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource BgScoreboardBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1"
+                Padding="16,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="340"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="1.4*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Time area: 3단 (시간 / 날짜 / 테마버튼) -->
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <!-- 1단: 시간 -->
+                    <TextBlock Text="{Binding CurrentTime}"
+                               FontSize="40" FontWeight="Bold"
+                               Foreground="{DynamicResource CatSystemBrush}"
+                               FontFamily="Consolas"
+                               HorizontalAlignment="Center"/>
+                    <!-- 2단: 날짜 + 일차 -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
+                        <TextBlock Text="{Binding DateDisplay}" FontSize="30"
+                                   Foreground="{DynamicResource CatSystemBrush}"/>
+                        <TextBlock Text="{Binding DayDisplay}" FontSize="30" Margin="10,0,0,0"
+                                   Foreground="{DynamicResource CatSystemBrush}" FontWeight="Bold"/>
+                    </StackPanel>
+                    <!-- 3단: 테마 전환 버튼 (우측하단) -->
+                    <Button Command="{Binding ToggleThemeCommand}" Style="{x:Null}"
+                            HorizontalAlignment="Right" Margin="0,6,8,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{DynamicResource BgDarkBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                        CornerRadius="8" Padding="16,8" Cursor="Hand">
+                                    <TextBlock x:Name="txt" Text="Theme 전환"
+                                               FontSize="17" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextMidBrush}"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource TextLightBrush}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatSystemBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+
+                <!-- Divider 1 -->
+                <Rectangle Grid.Column="1" Width="2" Fill="{DynamicResource BorderBrush}"
+                           Margin="8,4" VerticalAlignment="Stretch"/>
+
+                <!-- Feed section: label 22px=16pt, value 24px=18pt, sub 22px=16pt -->
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="12,0">
+                    <TextBlock Text="최근 수유" FontSize="21" FontWeight="Bold"
+                               Foreground="{DynamicResource TextLightBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding LastFeedInfo}" FontSize="23" FontWeight="Bold"
+                               Foreground="{DynamicResource CatFeedBrush}"/>
+                    <TextBlock Text="{Binding FeedElapsed}" FontSize="21"
+                               Foreground="{DynamicResource CatFeedBrush}" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <!-- Divider 2 -->
+                <Rectangle Grid.Column="3" Width="2" Fill="{DynamicResource BorderBrush}"
+                           Margin="8,4" VerticalAlignment="Stretch"/>
+
+                <!-- Next Feed section: label 22px=16pt, value 24px=18pt, countdown 26px=20pt, progress 8px -->
+                <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="12,0">
+                    <TextBlock Text="다음 수유" FontSize="21" FontWeight="Bold"
+                               Foreground="{DynamicResource TextLightBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding NextFeedTime}" FontSize="23" FontWeight="Bold"
+                               Foreground="{DynamicResource CatFeedBrush}"/>
+                    <TextBlock Text="{Binding NextFeedRemain}" FontSize="25" FontWeight="Bold"
+                               Margin="0,2,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource CatFeedBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNextFeedUrgent}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard x:Name="BlinkStoryboard">
+                                                <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="Opacity"
+                                                        From="1.0" To="0.5" Duration="0:0:1"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <StopStoryboard BeginStoryboardName="BlinkStoryboard"/>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <!-- Progress bar: 8px height -->
+                    <ProgressBar Margin="0,4,0,0" Height="8"
+                                 Minimum="0" Maximum="100"
+                                 Value="{Binding FeedProgressPercent, Mode=OneWay}"
+                                 Foreground="{DynamicResource CatFeedBrush}"
+                                 Background="{DynamicResource ProgressBarBgBrush}"
+                                 BorderThickness="0"/>
+                </StackPanel>
+
+                <!-- Divider 3 -->
+                <Rectangle Grid.Column="5" Width="2" Fill="{DynamicResource BorderBrush}"
+                           Margin="8,4" VerticalAlignment="Stretch"/>
+
+                <!-- Today Feed section: label 22px=16pt, value 24px=18pt, sub 22px=16pt -->
+                <StackPanel Grid.Column="6" VerticalAlignment="Center" Margin="12,0">
+                    <TextBlock Text="오늘 수유" FontSize="21" FontWeight="Bold"
+                               Foreground="{DynamicResource TextLightBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding TodayFeedSummary}" FontSize="23" FontWeight="Bold"
+                               Foreground="{DynamicResource CatFeedBrush}"/>
+                    <TextBlock Text="{Binding AvgFeedInterval}" FontSize="21"
+                               Foreground="{DynamicResource CatFeedBrush}" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <!-- Divider 4 -->
+                <Rectangle Grid.Column="7" Width="2" Fill="{DynamicResource BorderBrush}"
+                           Margin="8,4" VerticalAlignment="Stretch"/>
+
+                <!-- Bowel section: split into two halves with divider -->
+                <Grid Grid.Column="8" Margin="12,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Section label spanning both halves -->
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="3"
+                               Text="최근 배변" FontSize="21" FontWeight="Bold"
+                               Foreground="{DynamicResource TextLightBrush}" Margin="0,0,0,4"/>
+
+                    <!-- Urine half -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock Text="소변" FontSize="21" FontWeight="Bold"
+                                   Foreground="{DynamicResource CatUrineBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding LastUrineTime}" FontSize="21" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextLightBrush}"/>
+                        <TextBlock Text="{Binding UrineElapsed}" FontSize="20"
+                                   Foreground="{DynamicResource CatUrineBrush}" Margin="0,1,0,0"/>
+                        <TextBlock Text="{Binding TodayUrineCount}" FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextLightBrush}" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <!-- Mini divider -->
+                    <Rectangle Grid.Row="1" Grid.Column="1" Width="1" Fill="{DynamicResource BorderBrush}"
+                               Margin="8,6" VerticalAlignment="Stretch"/>
+
+                    <!-- Stool half -->
+                    <StackPanel Grid.Row="1" Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="대변" FontSize="21" FontWeight="Bold"
+                                   Foreground="{DynamicResource CatStoolBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding LastStoolTime}" FontSize="21" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextLightBrush}"/>
+                        <TextBlock Text="{Binding StoolElapsed}" FontSize="20"
+                                   Foreground="{DynamicResource CatStoolBrush}" Margin="0,1,0,0"/>
+                        <TextBlock Text="{Binding TodayStoolCount}" FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextLightBrush}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ═══ Body ═══ -->
+        <DockPanel LastChildFill="True">
+            <!-- Sidebar (left): 200px, icon 28px=21pt, text 20px=15pt -->
+            <Border DockPanel.Dock="Left" Width="200" Background="{DynamicResource BgSidebarBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+                <StackPanel Margin="0,8">
+                    <!-- Tab buttons -->
+                    <Button Command="{Binding ShowDashboardCommand}" Style="{x:Null}">
+                        <Button.Template>
+                            <ControlTemplate>
+                                <Border x:Name="bd" Padding="14,12,18,12" Cursor="Hand"
+                                        Background="Transparent"
+                                        BorderThickness="4,0,0,0" BorderBrush="Transparent">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path x:Name="ico" Data="{DynamicResource IconDashboard}" Stroke="{DynamicResource TextMidBrush}"
+                                              StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="txt" Text="현황" FontSize="20" FontWeight="Bold"
+                                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTab}" Value="현황">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarActiveBrush}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatSystemBrush}"/>
+                                        <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource CatSystemBrush}"/>
+                                        <Setter TargetName="ico" Property="Stroke" Value="{DynamicResource CatSystemBrush}"/>
+                                    </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarHoverBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button Command="{Binding ShowEntryCommand}" Style="{x:Null}">
+                        <Button.Template>
+                            <ControlTemplate>
+                                <Border x:Name="bd" Padding="14,12,18,12" Cursor="Hand"
+                                        Background="Transparent"
+                                        BorderThickness="4,0,0,0" BorderBrush="Transparent">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path x:Name="ico" Data="{DynamicResource IconEntry}" Stroke="{DynamicResource TextMidBrush}"
+                                              StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="txt" Text="기록" FontSize="20" FontWeight="Bold"
+                                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTab}" Value="기록">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarActiveBrush}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatFeedBrush}"/>
+                                        <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource CatFeedBrush}"/>
+                                        <Setter TargetName="ico" Property="Stroke" Value="{DynamicResource CatFeedBrush}"/>
+                                    </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarHoverBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button Command="{Binding ShowListCommand}" Style="{x:Null}">
+                        <Button.Template>
+                            <ControlTemplate>
+                                <Border x:Name="bd" Padding="14,12,18,12" Cursor="Hand"
+                                        Background="Transparent"
+                                        BorderThickness="4,0,0,0" BorderBrush="Transparent">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path x:Name="ico" Data="{DynamicResource IconList}" Stroke="{DynamicResource TextMidBrush}"
+                                              StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="txt" Text="조회" FontSize="20" FontWeight="Bold"
+                                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTab}" Value="조회">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarActiveBrush}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatHygieneBrush}"/>
+                                        <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource CatHygieneBrush}"/>
+                                        <Setter TargetName="ico" Property="Stroke" Value="{DynamicResource CatHygieneBrush}"/>
+                                    </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarHoverBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button Command="{Binding ShowReportCommand}" Style="{x:Null}">
+                        <Button.Template>
+                            <ControlTemplate>
+                                <Border x:Name="bd" Padding="14,12,18,12" Cursor="Hand"
+                                        Background="Transparent"
+                                        BorderThickness="4,0,0,0" BorderBrush="Transparent">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path x:Name="ico" Data="{DynamicResource IconReport}" Stroke="{DynamicResource TextMidBrush}"
+                                              StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="txt" Text="리포트" FontSize="20" FontWeight="Bold"
+                                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTab}" Value="리포트">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarActiveBrush}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatBowelBrush}"/>
+                                        <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource CatBowelBrush}"/>
+                                        <Setter TargetName="ico" Property="Stroke" Value="{DynamicResource CatBowelBrush}"/>
+                                    </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarHoverBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button Command="{Binding ShowExcelCommand}" Style="{x:Null}">
+                        <Button.Template>
+                            <ControlTemplate>
+                                <Border x:Name="bd" Padding="14,12,18,12" Cursor="Hand"
+                                        Background="Transparent"
+                                        BorderThickness="4,0,0,0" BorderBrush="Transparent">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path x:Name="ico" Data="{DynamicResource IconExcel}" Stroke="{DynamicResource TextMidBrush}"
+                                              StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="txt" Text="엑셀" FontSize="20" FontWeight="Bold"
+                                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTab}" Value="엑셀">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarActiveBrush}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatBodyBrush}"/>
+                                        <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource CatBodyBrush}"/>
+                                        <Setter TargetName="ico" Property="Stroke" Value="{DynamicResource CatBodyBrush}"/>
+                                    </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarHoverBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button Command="{Binding ShowSettingsCommand}" Style="{x:Null}">
+                        <Button.Template>
+                            <ControlTemplate>
+                                <Border x:Name="bd" Padding="14,12,18,12" Cursor="Hand"
+                                        Background="Transparent"
+                                        BorderThickness="4,0,0,0" BorderBrush="Transparent">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path x:Name="ico" Data="{DynamicResource IconSettings}" Stroke="{DynamicResource TextMidBrush}"
+                                              StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,10,0"/>
+                                        <TextBlock x:Name="txt" Text="설정" FontSize="20" FontWeight="Bold"
+                                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTab}" Value="설정">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarActiveBrush}"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatEtcBrush}"/>
+                                        <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource CatEtcBrush}"/>
+                                        <Setter TargetName="ico" Property="Stroke" Value="{DynamicResource CatEtcBrush}"/>
+                                    </DataTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgSidebarHoverBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Content area with toast overlay -->
+            <Grid>
+                <ContentControl Content="{Binding CurrentView}" Margin="0"/>
+
+                <!-- Toast notification overlay — 상단 30% 위치, 테마 반영 -->
+                <Border x:Name="ToastBorder"
+                        HorizontalAlignment="Center" VerticalAlignment="Top"
+                        Margin="0,80,0,0"
+                        MinWidth="420" MinHeight="100"
+                        Padding="48,28"
+                        CornerRadius="16"
+                        Background="{DynamicResource BgCardBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        Opacity="0"
+                        IsHitTestVisible="False"
+                        Visibility="Collapsed">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="24" Opacity="0.5" ShadowDepth="5" Color="Black"/>
+                    </Border.Effect>
+                    <TextBlock x:Name="ToastText"
+                               Foreground="{DynamicResource TextLightBrush}"
+                               FontSize="26" FontWeight="Bold"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               TextAlignment="Center"
+                               MaxWidth="600"/>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </DockPanel>
+</Window>

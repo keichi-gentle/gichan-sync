@@ -1,0 +1,295 @@
+<UserControl x:Class="GichanDiary.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:GichanDiary.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:DashboardViewModel, IsDesignTimeCreatable=False}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="340"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*" MinWidth="340"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ═══ Feed Card (수유) ═══ -->
+            <Border Grid.Row="0" Grid.Column="0" Style="{DynamicResource CardBorder}">
+                <StackPanel>
+                    <!-- Card title: 20px=15pt bold with icon -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <Path Data="{DynamicResource IconFeed}" Stroke="{DynamicResource CatFeedBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="수유 정보" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource CatFeedBrush}"/>
+                    </StackPanel>
+
+                    <!-- Mini stats row: bg-dark, 28px=21pt number, 18px=14pt label -->
+                    <UniformGrid Columns="3" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource BgDarkBrush}" CornerRadius="10" Padding="10,8" Margin="0,0,4,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="오늘 수유" FontSize="19" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TodayFeedCount}" FontSize="26" FontWeight="Bold"
+                                           Foreground="{DynamicResource CatFeedBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{DynamicResource BgDarkBrush}" CornerRadius="10" Padding="10,8" Margin="2,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="오늘 수유량" FontSize="19" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TodayFeedTotal}" FontSize="26" FontWeight="Bold"
+                                           Foreground="{DynamicResource CatFeedBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{DynamicResource BgDarkBrush}" CornerRadius="10" Padding="10,8" Margin="4,0,0,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="평균 수유텀" FontSize="19" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding AvgFeedInterval}" FontSize="26" FontWeight="Bold"
+                                           Foreground="{DynamicResource CatFeedBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+
+                    <!-- Detail rows: label 160px 통일 -->
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="최근 수유" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" FontSize="19" FontWeight="SemiBold">
+                            <Run Text="{Binding LastFeedTime, Mode=OneWay}"/> <Run Text="{Binding LastFeedDetail, Mode=OneWay}"/>
+                        </TextBlock>
+                    </Grid>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="경과 시간" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding FeedElapsed}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatFeedBrush}"/>
+                    </Grid>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding NextFeed1Label}" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding NextFeed1}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatFeedBrush}"/>
+                    </Grid>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding NextFeed2Label}" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding NextFeed2}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatFeedBrush}"/>
+                    </Grid>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="메모" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding FeedMemo}" FontSize="19" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextMidBrush}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Bowel Card (배변) ═══ -->
+            <Border Grid.Row="0" Grid.Column="2" Style="{DynamicResource CardBorder}">
+                <StackPanel>
+                    <!-- Card title: 20px=15pt -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <Path Data="{DynamicResource IconBowel}" Stroke="{DynamicResource CatBowelBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="기저귀(배변)" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource CatBowelBrush}"/>
+                    </StackPanel>
+
+                    <!-- Mini stats row -->
+                    <UniformGrid Columns="2" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource BgDarkBrush}" CornerRadius="10" Padding="10,8" Margin="0,0,4,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="오늘 소변" FontSize="19" Foreground="{DynamicResource CatUrineBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TodayUrineCount}" FontSize="26" FontWeight="Bold"
+                                           Foreground="{DynamicResource CatUrineBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{DynamicResource BgDarkBrush}" CornerRadius="10" Padding="10,8" Margin="4,0,0,0">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="오늘 대변" FontSize="19" Foreground="{DynamicResource CatStoolBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TodayStoolCount}" FontSize="26" FontWeight="Bold"
+                                           Foreground="{DynamicResource CatStoolBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+
+                    <!-- Detail rows: 소변=UrineBrush, 대변=StoolBrush -->
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="최근 소변" FontSize="19" Foreground="{DynamicResource CatUrineBrush}"/>
+                        <TextBlock Grid.Column="1" FontSize="19" FontWeight="SemiBold">
+                            <Run Text="{Binding LastUrineTime, Mode=OneWay}"/>
+                        </TextBlock>
+                    </Grid>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="소변 경과" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding UrineElapsed}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatUrineBrush}"/>
+                    </Grid>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="최근 대변" FontSize="19" Foreground="{DynamicResource CatStoolBrush}"/>
+                        <TextBlock Grid.Column="1" FontSize="19" FontWeight="SemiBold">
+                            <Run Text="{Binding LastStoolTime, Mode=OneWay}"/>
+                        </TextBlock>
+                    </Grid>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="대변 경과" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding StoolElapsed}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatStoolBrush}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Hygiene Card (위생) ═══ -->
+            <Border Grid.Row="2" Grid.Column="0" Style="{DynamicResource CardBorder}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <Path Data="{DynamicResource IconHygiene}" Stroke="{DynamicResource CatHygieneBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="위생 관리" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource CatHygieneBrush}"/>
+                    </StackPanel>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="세안" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastWash}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatHygieneBrush}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding LastWashElapsed}" FontSize="17" Margin="20,0,0,0"
+                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="목욕" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastBath}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatHygieneBrush}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding LastBathElapsed}" FontSize="17" Margin="20,0,0,0"
+                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="손발톱" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastNails}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatHygieneBrush}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding LastNailsElapsed}" FontSize="17" Margin="20,0,0,0"
+                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Body Card (신체) ═══ -->
+            <Border Grid.Row="2" Grid.Column="2" Style="{DynamicResource CardBorder}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <Path Data="{DynamicResource IconBody}" Stroke="{DynamicResource CatBodyBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="신체 측정" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource CatBodyBrush}"/>
+                    </StackPanel>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="키" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastHeight}" FontSize="19" FontWeight="SemiBold"/>
+                    </Grid>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="몸무게" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastWeight}" FontSize="19" FontWeight="SemiBold"/>
+                    </Grid>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="머리둘레" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastHeadCirc}" FontSize="19" FontWeight="SemiBold"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Health Card (건강) ═══ -->
+            <Border Grid.Row="4" Grid.Column="0" Style="{DynamicResource CardBorder}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <Path Data="{DynamicResource IconHealth}" Stroke="{DynamicResource CatHealthBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="건강 관리" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource CatHealthBrush}"/>
+                    </StackPanel>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="최근" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastHealthInfo}" FontSize="19" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Etc Card (기타) ═══ -->
+            <Border Grid.Row="4" Grid.Column="2" Style="{DynamicResource CardBorder}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <Path Data="{DynamicResource IconEtc}" Stroke="{DynamicResource CatEtcBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="기타" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource CatEtcBrush}"/>
+                    </StackPanel>
+                    <Grid Margin="0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="최근" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastEtcInfo}" FontSize="19" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

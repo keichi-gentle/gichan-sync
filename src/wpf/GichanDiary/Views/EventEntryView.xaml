@@ -1,0 +1,689 @@
+<UserControl x:Class="GichanDiary.Views.EventEntryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:GichanDiary.ViewModels"
+             xmlns:conv="clr-namespace:GichanDiary.Converters"
+             xmlns:helpers="clr-namespace:GichanDiary.Helpers"
+             xmlns:models="clr-namespace:GichanDiary.Models"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:EventEntryViewModel, IsDesignTimeCreatable=False}">
+
+    <UserControl.Resources>
+        <conv:EnumEqualToVisibilityConverter x:Key="EnumEqualToVisibility"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+        <conv:BoolToOpacityConverter x:Key="BoolToOpacity"/>
+
+        <!-- Toggle button style for hygiene items -->
+        <Style x:Key="HygieneToggle" TargetType="ToggleButton">
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="FontSize" Value="19"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextLightBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="14,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatHygieneBrush}"/>
+                                <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatHygieneTintBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Formula product toggle style -->
+        <Style x:Key="FormulaProductToggle" TargetType="Button">
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="FontSize" Value="19"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextLightBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="14,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+        <StackPanel>
+
+            <!-- Date / Time Section -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,10">
+                <WrapPanel VerticalAlignment="Center">
+                    <!-- Date label + picker -->
+                    <TextBlock Text="날짜" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <DatePicker SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
+                                FontSize="19" Width="180" Margin="0,0,16,0"
+                                VerticalAlignment="Center" VerticalContentAlignment="Center"
+                                Padding="8,0"
+                                Background="{DynamicResource BgInputBrush}"
+                                Foreground="{DynamicResource TextLightBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"/>
+
+                    <!-- Time label -->
+                    <TextBlock Text="시간" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                               VerticalAlignment="Center" Margin="14,0,8,0"/>
+
+                    <!-- Hour: [-] ComboBox [+] -->
+                    <RepeatButton Style="{DynamicResource SpinnerRepeatButton}" Content="-"
+                            Command="{Binding DecrementHourCommand}"/>
+                    <ComboBox ItemsSource="{Binding HourOptions}"
+                              SelectedIndex="{Binding SelectedHour, Mode=TwoWay}"
+                              Width="80" FontSize="23"
+                              Background="{DynamicResource BgInputBrush}"
+                              Foreground="{DynamicResource TextLightBrush}"
+                              BorderBrush="{DynamicResource BorderBrush}"
+                              VerticalContentAlignment="Center"
+                              Margin="0"/>
+                    <RepeatButton Style="{DynamicResource SpinnerRepeatButton}" Content="+"
+                            Command="{Binding IncrementHourCommand}"/>
+
+                    <TextBlock Text=":" FontSize="23" FontWeight="Bold" VerticalAlignment="Center"
+                               Margin="4,0"/>
+
+                    <!-- Minute: [-] ComboBox [+] -->
+                    <RepeatButton Style="{DynamicResource SpinnerRepeatButton}" Content="-"
+                            Command="{Binding DecrementMinuteCommand}"/>
+                    <ComboBox ItemsSource="{Binding MinuteOptions}"
+                              SelectedIndex="{Binding SelectedMinute, Mode=TwoWay}"
+                              Width="80" FontSize="23"
+                              Background="{DynamicResource BgInputBrush}"
+                              Foreground="{DynamicResource TextLightBrush}"
+                              BorderBrush="{DynamicResource BorderBrush}"
+                              VerticalContentAlignment="Center"
+                              Margin="0"/>
+                    <RepeatButton Style="{DynamicResource SpinnerRepeatButton}" Content="+"
+                            Command="{Binding IncrementMinuteCommand}" Margin="0,0,16,0"/>
+
+                    <!-- Day display: 20px=15pt -->
+                    <TextBlock Text="{Binding CalculatedDayDisplay}"
+                               FontSize="20" FontWeight="Bold" VerticalAlignment="Center"
+                               Foreground="{DynamicResource CatSystemBrush}"/>
+                </WrapPanel>
+            </Border>
+
+            <!-- Category Buttons Section -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Row 0: Label left, Save/Reset right -->
+                    <TextBlock Grid.Row="0" Text="카테고리 선택" FontSize="20" FontWeight="Bold" Margin="0,0,0,12"
+                               Foreground="{DynamicResource CatSystemBrush}" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,0,12">
+                        <Button Style="{DynamicResource PrimaryButton}"
+                                Content="저장" Height="36" Width="120" Padding="16,0" Margin="0,0,8,0"
+                                Command="{Binding SaveCommand}"
+                                Background="{DynamicResource CatFeedBrush}"
+                                FontSize="17"/>
+                        <Button Style="{DynamicResource SecondaryButton}"
+                                Content="초기화" Height="36" Width="120" Padding="16,0"
+                                Command="{Binding ResetCommand}"
+                                FontSize="17"/>
+                    </StackPanel>
+
+                    <!-- Row 1: Category buttons -->
+                    <UniformGrid Grid.Row="1" Rows="1" Columns="6">
+                        <!-- 수유 -->
+                        <Button Command="{Binding SelectCategoryCommand}"
+                                CommandParameter="{x:Static models:EventCategory.수유}"
+                                Margin="0,0,6,0" Height="56" MinWidth="80" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="bd" Background="Transparent"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="10" Padding="8">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <Path x:Name="ico" Data="{DynamicResource IconFeed}" Stroke="{DynamicResource CatFeedBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                        <TextBlock x:Name="txt" Text="수유" FontSize="19" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource CatFeedBrush}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedCategory}" Value="수유">
+                                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatFeedBrush}"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatFeedTintBrush}"/>
+                                                    </DataTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- 배변 -->
+                        <Button Command="{Binding SelectCategoryCommand}"
+                                CommandParameter="{x:Static models:EventCategory.배변}"
+                                Margin="3,0" Height="56" MinWidth="80" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="bd" Background="Transparent"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="10" Padding="8">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <Path x:Name="ico" Data="{DynamicResource IconBowel}" Stroke="{DynamicResource CatBowelBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                        <TextBlock x:Name="txt" Text="배변" FontSize="19" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource CatBowelBrush}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedCategory}" Value="배변">
+                                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatBowelBrush}"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatBowelTintBrush}"/>
+                                                    </DataTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- 위생관리 -->
+                        <Button Command="{Binding SelectCategoryCommand}"
+                                CommandParameter="{x:Static models:EventCategory.위생관리}"
+                                Margin="3,0" Height="56" MinWidth="80" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="bd" Background="Transparent"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="10" Padding="8">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <Path x:Name="ico" Data="{DynamicResource IconHygiene}" Stroke="{DynamicResource CatHygieneBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                        <TextBlock x:Name="txt" Text="위생" FontSize="19" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource CatHygieneBrush}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedCategory}" Value="위생관리">
+                                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatHygieneBrush}"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatHygieneTintBrush}"/>
+                                                    </DataTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- 신체측정 -->
+                        <Button Command="{Binding SelectCategoryCommand}"
+                                CommandParameter="{x:Static models:EventCategory.신체측정}"
+                                Margin="3,0" Height="56" MinWidth="80" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="bd" Background="Transparent"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="10" Padding="8">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <Path x:Name="ico" Data="{DynamicResource IconBody}" Stroke="{DynamicResource CatBodyBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                        <TextBlock x:Name="txt" Text="신체" FontSize="19" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource CatBodyBrush}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedCategory}" Value="신체측정">
+                                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatBodyBrush}"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatBodyTintBrush}"/>
+                                                    </DataTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- 건강관리 -->
+                        <Button Command="{Binding SelectCategoryCommand}"
+                                CommandParameter="{x:Static models:EventCategory.건강관리}"
+                                Margin="3,0" Height="56" MinWidth="80" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="bd" Background="Transparent"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="10" Padding="8">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <Path x:Name="ico" Data="{DynamicResource IconHealth}" Stroke="{DynamicResource CatHealthBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                        <TextBlock x:Name="txt" Text="건강" FontSize="19" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource CatHealthBrush}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedCategory}" Value="건강관리">
+                                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatHealthBrush}"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatHealthTintBrush}"/>
+                                                    </DataTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- 기타 -->
+                        <Button Command="{Binding SelectCategoryCommand}"
+                                CommandParameter="{x:Static models:EventCategory.기타}"
+                                Margin="6,0,0,0" Height="56" MinWidth="80" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="bd" Background="Transparent"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="10" Padding="8">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <Path x:Name="ico" Data="{DynamicResource IconEtc}" Stroke="{DynamicResource CatEtcBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
+                                                        <TextBlock x:Name="txt" Text="기타" FontSize="19" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource CatEtcBrush}"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedCategory}" Value="기타">
+                                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatEtcBrush}"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatEtcTintBrush}"/>
+                                                    </DataTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </UniformGrid>
+                </Grid>
+            </Border>
+
+            <!-- Dynamic Form Area -->
+
+            <!-- Feeding Form -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,10"
+                    Visibility="{Binding SelectedCategory, Converter={StaticResource EnumEqualToVisibility}, ConverterParameter=수유}">
+                <StackPanel>
+                    <TextBlock Text="수유 상세" FontSize="20" FontWeight="Bold" Margin="0,0,0,12"
+                               Foreground="{DynamicResource CatFeedBrush}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Column 1: Formula panel -->
+                        <Border Grid.Column="0" Background="{DynamicResource BgInputBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="12" Padding="10">
+                            <StackPanel>
+                                <CheckBox IsChecked="{Binding IsFormulaEnabled}" Margin="0,0,0,8" Cursor="Hand">
+                                    <TextBlock Text="분유" FontSize="20" FontWeight="Bold"
+                                               Foreground="{DynamicResource CatFeedBrush}"/>
+                                </CheckBox>
+
+                                <!-- Product selection: label + ComboBox -->
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6"
+                                            IsEnabled="{Binding IsFormulaEnabled}"
+                                            Opacity="{Binding IsFormulaEnabled, Converter={StaticResource BoolToOpacity}}">
+                                    <TextBlock Text="제품" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                               VerticalAlignment="Center" Width="70" Margin="0,0,12,0"/>
+                                    <ComboBox ItemsSource="{Binding FormulaProductOptions}"
+                                              SelectedItem="{Binding SelectedFormulaProduct}"
+                                              Width="180"/>
+                                </StackPanel>
+
+                                <!-- Formula amount spinner -->
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                            IsEnabled="{Binding IsFormulaEnabled}"
+                                            Opacity="{Binding IsFormulaEnabled, Converter={StaticResource BoolToOpacity}}">
+                                    <TextBlock Text="분유량" FontSize="19" Width="70" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextMidBrush}" Margin="0,0,12,0"/>
+                                    <RepeatButton Style="{DynamicResource SpinnerRepeatButton}" Content="-"
+                                            Command="{Binding DecrementFormulaAmountCommand}"/>
+                                    <ComboBox ItemsSource="{Binding FormulaAmountOptions}"
+                                              SelectedItem="{Binding FormulaAmount, Mode=TwoWay}"
+                                              Width="135" FontSize="21"
+                                              Background="{DynamicResource BgInputBrush}"
+                                              Foreground="{DynamicResource TextLightBrush}"
+                                              BorderBrush="{DynamicResource BorderBrush}"
+                                              VerticalContentAlignment="Center"
+                                              Margin="4,0"/>
+                                    <RepeatButton Style="{DynamicResource SpinnerRepeatButton}" Content="+"
+                                            Command="{Binding IncrementFormulaAmountCommand}"/>
+                                    <TextBlock Text="ml" FontSize="18" VerticalAlignment="Center" Margin="4,0,0,0"
+                                               Foreground="{DynamicResource TextMidBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Column 2: Breastmilk panel -->
+                        <Border Grid.Column="2" Background="{DynamicResource BgInputBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="12" Padding="10">
+                            <StackPanel>
+                                <CheckBox IsChecked="{Binding IsBreastfeedEnabled}" Margin="0,0,0,8" Cursor="Hand">
+                                    <TextBlock Text="모유(유축)" FontSize="20" FontWeight="Bold"
+                                               Foreground="{DynamicResource CatFeedBrush}"/>
+                                </CheckBox>
+
+                                <!-- Breastfeed amount spinner -->
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                            IsEnabled="{Binding IsBreastfeedEnabled}"
+                                            Opacity="{Binding IsBreastfeedEnabled, Converter={StaticResource BoolToOpacity}}">
+                                    <TextBlock Text="모유량" FontSize="19" Width="70" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextMidBrush}" Margin="0,0,12,0"/>
+                                    <RepeatButton Style="{DynamicResource SpinnerRepeatButton}" Content="-"
+                                            Command="{Binding DecrementBreastfeedAmountCommand}"/>
+                                    <ComboBox ItemsSource="{Binding BreastfeedAmountOptions}"
+                                              SelectedItem="{Binding BreastfeedAmount, Mode=TwoWay}"
+                                              Width="135" FontSize="21"
+                                              Background="{DynamicResource BgInputBrush}"
+                                              Foreground="{DynamicResource TextLightBrush}"
+                                              BorderBrush="{DynamicResource BorderBrush}"
+                                              VerticalContentAlignment="Center"
+                                              Margin="4,0"/>
+                                    <RepeatButton Style="{DynamicResource SpinnerRepeatButton}" Content="+"
+                                            Command="{Binding IncrementBreastfeedAmountCommand}"/>
+                                    <TextBlock Text="ml" FontSize="18" VerticalAlignment="Center" Margin="4,0,0,0"
+                                               Foreground="{DynamicResource TextMidBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Column 3: Feeding count panel -->
+                        <Border Grid.Column="4" Background="{DynamicResource BgInputBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="12" Padding="10">
+                            <StackPanel>
+                                <TextBlock Text="분할 수유 횟수" FontSize="20" FontWeight="Bold" Margin="0,0,0,8"
+                                           Foreground="{DynamicResource CatFeedBrush}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                    <RepeatButton Style="{DynamicResource SpinnerRepeatButton}" Content="-"
+                                            Command="{Binding DecrementFeedingCountCommand}"/>
+                                    <TextBlock Text="{Binding FeedingCount}"
+                                               FontSize="23" FontWeight="Bold" Width="40"
+                                               TextAlignment="Center" VerticalAlignment="Center" Margin="4,0"/>
+                                    <RepeatButton Style="{DynamicResource SpinnerRepeatButton}" Content="+"
+                                            Command="{Binding IncrementFeedingCountCommand}"/>
+                                    <TextBlock Text="회" FontSize="18" VerticalAlignment="Center" Margin="4,0,0,0"
+                                               Foreground="{DynamicResource TextMidBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Memo -->
+                    <TextBlock Text="메모" FontSize="19" Margin="0,12,0,4"
+                               Foreground="{DynamicResource TextMidBrush}"/>
+                    <TextBox Text="{Binding Memo, UpdateSourceTrigger=PropertyChanged}"
+                             MinHeight="60" AcceptsReturn="True" TextWrapping="Wrap"/>
+
+                    <!-- Auto calc display area -->
+                    <Border Background="{DynamicResource BgDarkBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                            CornerRadius="10" Padding="12,16" Margin="0,12,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Margin="0,0,30,0">
+                                <TextBlock Text="수유텀" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                                <TextBlock Text="{Binding FeedingIntervalDisplay}" FontSize="20" FontWeight="Bold"
+                                           Foreground="{DynamicResource CatFeedBrush}"/>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="오늘 누적" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                                <TextBlock Text="{Binding DailyFeedTotalDisplay}" FontSize="20" FontWeight="Bold"
+                                           Foreground="{DynamicResource CatFeedBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Bowel Form -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,10"
+                    Visibility="{Binding SelectedCategory, Converter={StaticResource EnumEqualToVisibility}, ConverterParameter=배변}">
+                <StackPanel>
+                    <TextBlock Text="배변 상세" FontSize="20" FontWeight="Bold" Margin="0,0,0,12"
+                               Foreground="{DynamicResource CatBowelBrush}"/>
+                    <!-- Dual panel -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: Urine panel -->
+                        <Border Grid.Column="0" Background="{DynamicResource BgInputBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="12" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="소변" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"
+                                           Foreground="{DynamicResource CatUrineBrush}"/>
+                                <CheckBox Content="소변 있음" FontSize="19" IsChecked="{Binding HasUrine}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Right: Stool panel -->
+                        <Border Grid.Column="2" Background="{DynamicResource BgInputBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="12" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="대변" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"
+                                           Foreground="{DynamicResource CatStoolBrush}"/>
+                                <CheckBox Content="대변 있음" FontSize="19" IsChecked="{Binding HasStool}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Immediate notice -->
+                    <CheckBox Content="배변 직후 인지" FontSize="19"
+                              IsChecked="{Binding ImmediateNotice}" Margin="0,12,0,0"/>
+
+                    <!-- Memo -->
+                    <TextBlock Text="메모" FontSize="19" Margin="0,12,0,4"
+                               Foreground="{DynamicResource TextMidBrush}"/>
+                    <TextBox Text="{Binding Memo, UpdateSourceTrigger=PropertyChanged}"
+                             MinHeight="60" AcceptsReturn="True" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Hygiene Form -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,10"
+                    Visibility="{Binding SelectedCategory, Converter={StaticResource EnumEqualToVisibility}, ConverterParameter=위생관리}">
+                <StackPanel>
+                    <TextBlock Text="위생관리 상세" FontSize="20" FontWeight="Bold" Margin="0,0,0,12"
+                               Foreground="{DynamicResource CatHygieneBrush}"/>
+
+                    <WrapPanel Margin="0,0,0,12">
+                        <ToggleButton Style="{DynamicResource HygieneToggle}" Content="샤워"
+                                      IsChecked="{Binding HygieneShower}" Margin="0,0,6,6"/>
+                        <ToggleButton Style="{DynamicResource HygieneToggle}" Content="세안"
+                                      IsChecked="{Binding HygieneFaceWash}" Margin="0,0,6,6"/>
+                        <ToggleButton Style="{DynamicResource HygieneToggle}" Content="손발톱"
+                                      IsChecked="{Binding HygieneNails}" Margin="0,0,6,6"/>
+                        <ToggleButton Style="{DynamicResource HygieneToggle}" Content="코"
+                                      IsChecked="{Binding HygieneNose}" Margin="0,0,6,6"/>
+                        <ToggleButton Style="{DynamicResource HygieneToggle}" Content="눈꼽"
+                                      IsChecked="{Binding HygieneEyeCrust}" Margin="0,0,6,6"/>
+                        <ToggleButton Style="{DynamicResource HygieneToggle}" Content="입안"
+                                      IsChecked="{Binding HygieneMouth}" Margin="0,0,6,6"/>
+                        <ToggleButton Style="{DynamicResource HygieneToggle}" Content="배꼽"
+                                      IsChecked="{Binding HygieneNavel}" Margin="0,0,6,6"/>
+                        <ToggleButton Style="{DynamicResource HygieneToggle}" Content="기타"
+                                      IsChecked="{Binding HygieneOther}" Margin="0,0,6,6"/>
+                    </WrapPanel>
+
+                    <!-- Memo -->
+                    <TextBlock Text="메모" FontSize="19" Margin="0,0,0,4"
+                               Foreground="{DynamicResource TextMidBrush}"/>
+                    <TextBox Text="{Binding Memo, UpdateSourceTrigger=PropertyChanged}"
+                             MinHeight="60" AcceptsReturn="True" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Body Measurement Form -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,10"
+                    Visibility="{Binding SelectedCategory, Converter={StaticResource EnumEqualToVisibility}, ConverterParameter=신체측정}">
+                <StackPanel>
+                    <TextBlock Text="신체측정 상세" FontSize="20" FontWeight="Bold" Margin="0,0,0,12"
+                               Foreground="{DynamicResource CatBodyBrush}"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Height -->
+                        <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                            <TextBlock Text="키 (cm)" FontSize="19" Margin="0,0,0,4"
+                                       Foreground="{DynamicResource TextMidBrush}"/>
+                            <TextBox Text="{Binding HeightCm, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <!-- Weight -->
+                        <StackPanel Grid.Column="1" Margin="4,0">
+                            <TextBlock Text="몸무게 (kg)" FontSize="19" Margin="0,0,0,4"
+                                       Foreground="{DynamicResource TextMidBrush}"/>
+                            <TextBox Text="{Binding WeightKg, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <!-- Head circumference -->
+                        <StackPanel Grid.Column="2" Margin="8,0,0,0">
+                            <TextBlock Text="머리둘레 (cm)" FontSize="19" Margin="0,0,0,4"
+                                       Foreground="{DynamicResource TextMidBrush}"/>
+                            <TextBox Text="{Binding HeadCircCm, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Memo -->
+                    <TextBlock Text="메모" FontSize="19" Margin="0,12,0,4"
+                               Foreground="{DynamicResource TextMidBrush}"/>
+                    <TextBox Text="{Binding Memo, UpdateSourceTrigger=PropertyChanged}"
+                             MinHeight="60" AcceptsReturn="True" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Health Form -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,10"
+                    Visibility="{Binding SelectedCategory, Converter={StaticResource EnumEqualToVisibility}, ConverterParameter=건강관리}">
+                <StackPanel>
+                    <TextBlock Text="건강관리 상세" FontSize="20" FontWeight="Bold" Margin="0,0,0,12"
+                               Foreground="{DynamicResource CatHealthBrush}"/>
+
+                    <TextBlock Text="종류" FontSize="19" Margin="0,0,0,4"
+                               Foreground="{DynamicResource TextMidBrush}"/>
+                    <TextBox Text="{Binding HealthType, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <!-- Memo -->
+                    <TextBlock Text="메모" FontSize="19" Margin="0,12,0,4"
+                               Foreground="{DynamicResource TextMidBrush}"/>
+                    <TextBox Text="{Binding Memo, UpdateSourceTrigger=PropertyChanged}"
+                             MinHeight="60" AcceptsReturn="True" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Other Form -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,10"
+                    Visibility="{Binding SelectedCategory, Converter={StaticResource EnumEqualToVisibility}, ConverterParameter=기타}">
+                <StackPanel>
+                    <TextBlock Text="기타 상세" FontSize="20" FontWeight="Bold" Margin="0,0,0,12"
+                               Foreground="{DynamicResource CatEtcBrush}"/>
+
+                    <!-- Memo -->
+                    <TextBlock Text="메모" FontSize="19" Margin="0,0,0,4"
+                               Foreground="{DynamicResource TextMidBrush}"/>
+                    <TextBox Text="{Binding Memo, UpdateSourceTrigger=PropertyChanged}"
+                             MinHeight="60" AcceptsReturn="True" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Status message -->
+            <TextBlock Text="{Binding StatusMessage}" FontSize="19"
+                       HorizontalAlignment="Center" Margin="0,0,0,16"
+                       Foreground="{DynamicResource CatSystemBrush}"/>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,65 @@
+================================================================================
+기찬싱크 (GichanSync) - 요구사항 정의서
+================================================================================
+
+프로젝트 개요: 기찬다이어리(WPF)와 기찬뷰어(PWA) 간 Firebase Firestore 실시간 동기화
+상위 프로젝트: LifeRecord (기찬다이어리 WPF), ExtendPrj (기찬뷰어 PWA)
+관계: 3번째 프로젝트 — 기존 2개 프로젝트를 복사하여 Firebase 기능 추가
+
+================================================================================
+
+1. 실시간 동기화
+   - PC(WPF)에서 기록 입력/수정/삭제 시 Firebase Firestore에 저장
+   - 폰(PWA)에서 Firestore 실시간 리스너로 즉시 반영 (5초 이내)
+   - WPF는 10초 폴링으로 외부 변경 감지
+   - 오프라인 시 로컬 캐시로 동작, 온라인 복구 시 자동 동기화
+
+2. 인증
+   - Google OAuth 로그인 (gogokeichi@gmail.com)
+   - WPF: 브라우저 기반 OAuth 데스크톱 플로우
+   - PWA: Firebase Auth signInWithPopup
+   - 리프레시 토큰 자동 갱신
+
+3. 데이터 저장
+   - 기존 Excel 백업 유지 (이중 쓰기: Firestore + Excel)
+   - Firestore 스키마: users/{uid}/events/{id}, users/{uid}/settings/app
+   - BabyEvent 17필드 + createdAt/updatedAt/source 메타데이터
+
+4. 모드 전환
+   - ExcelOnly 모드: 기존 동작 그대로 (Firebase 없이)
+   - FirebaseSync 모드: Firestore + Excel 이중 쓰기
+   - 설정에서 토글, 미로그인 시 자동 ExcelOnly
+
+5. 마이그레이션
+   - 기존 Excel 데이터(339행) → Firestore 일괄 마이그레이션 도구
+   - .NET 콘솔 앱, ClosedXML + Firestore REST API
+   - 중복 실행 시 upsert (GUID 기반)
+
+6. PWA 강화
+   - Google 로그인/로그아웃 UI
+   - Firestore onSnapshot 실시간 구독
+   - Excel 수동 Import는 폴백으로 유지
+   - (Phase 4) 간단한 수유 기록 입력 기능
+
+7. WPF 강화
+   - IDataService 추상화 (ExcelOnly / FirebaseSync 전환)
+   - 설정 탭에 클라우드 동기화 섹션 추가
+   - 동기화 상태 표시 (연결됨/오프라인/동기화 중)
+
+8. 기술 스택
+   - Firebase Firestore (Spark 무료 플랜)
+   - Firebase Authentication (Google 프로바이더)
+   - WPF: Firestore REST API (HttpClient), Google.Apis.Auth NuGet
+   - PWA: Firebase JS SDK v10+ (CDN ES Modules)
+   - 마이그레이션: .NET 8 콘솔 앱 + ClosedXML
+
+9. 보안
+   - Firestore 규칙: 본인 UID 문서만 접근 가능
+   - WPF 리프레시 토큰: Windows DPAPI 암호화 저장
+   - Firebase API Key는 공개 가능 (Firestore 규칙이 보호)
+
+10. 비기능 요구사항
+    - 무료 (Firebase Spark 플랜 범위 내)
+    - 기존 프로젝트 소스코드 불변 (복사본에서만 작업)
+    - ExcelOnly 모드에서 기존 테스트 45개 전체 통과
+    - 리전: asia-northeast1 (도쿄, 최저 지연)

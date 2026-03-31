@@ -1,0 +1,215 @@
+<UserControl x:Class="GichanDiary.Views.ReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:GichanDiary.ViewModels"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:ReportViewModel, IsDesignTimeCreatable=False}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+        <StackPanel Margin="16,12">
+
+            <!-- ═══ Period Filter Bar ═══ -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,12">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatSystemBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="분석 기간" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="7일" FontSize="19" Margin="4,0" Padding="16,8"
+                                Style="{DynamicResource SecondaryButton}"
+                                Command="{Binding SetPeriodCommand}" CommandParameter="7일"/>
+                        <Button Content="14일" FontSize="19" Margin="4,0" Padding="16,8"
+                                Style="{DynamicResource SecondaryButton}"
+                                Command="{Binding SetPeriodCommand}" CommandParameter="14일"/>
+                        <Button Content="30일" FontSize="19" Margin="4,0" Padding="16,8"
+                                Style="{DynamicResource SecondaryButton}"
+                                Command="{Binding SetPeriodCommand}" CommandParameter="30일"/>
+                        <Button Content="전체" FontSize="19" Margin="4,0" Padding="16,8"
+                                Style="{DynamicResource SecondaryButton}"
+                                Command="{Binding SetPeriodCommand}" CommandParameter="전체"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ Today Summary ═══ -->
+            <UniformGrid Columns="5" Margin="0,0,0,12">
+                <Border Background="{DynamicResource BgCardBrush}" CornerRadius="14"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        Padding="12,10" Margin="0,0,4,0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="오늘 수유" FontSize="18" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding TodayFeedCount}" FontSize="24" FontWeight="Bold"
+                                   Foreground="{DynamicResource CatFeedBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource BgCardBrush}" CornerRadius="14"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        Padding="12,10" Margin="2,0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="오늘 수유량" FontSize="18" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding TodayFeedTotal}" FontSize="24" FontWeight="Bold"
+                                   Foreground="{DynamicResource CatFeedBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource BgCardBrush}" CornerRadius="14"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        Padding="12,10" Margin="2,0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="오늘 배변" FontSize="18" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding TodayBowelSummary}" FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource CatBowelBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource BgCardBrush}" CornerRadius="14"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        Padding="12,10" Margin="2,0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="평균 수유텀" FontSize="18" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding AvgFeedInterval}" FontSize="24" FontWeight="Bold"
+                                   Foreground="{DynamicResource CatFeedBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource BgCardBrush}" CornerRadius="14"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                        Padding="12,10" Margin="4,0,0,0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="일평균 수유량" FontSize="18" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding AvgFeedAmount}" FontSize="24" FontWeight="Bold"
+                                   Foreground="{DynamicResource CatFeedBrush}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ═══ 1회 수유량 변화 추이 (최상단) ═══ -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,12">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatFeedBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="1회 수유량 변화 추이" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatFeedBrush}"/>
+                    </StackPanel>
+                    <lvc:CartesianChart Series="{Binding FeedAmountSeries}"
+                                         XAxes="{Binding FeedAmountXAxes}"
+                                         YAxes="{Binding FeedAmountYAxes}"
+                                         Height="250"
+                                         Background="Transparent"
+                                         TooltipBackgroundPaint="{Binding TooltipBgPaint}"
+                                         TooltipTextPaint="{Binding TooltipTextPaint}"
+                                         TooltipPosition="Top"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ 일별 수유량 추이 ═══ -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,12">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatFeedBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="일별 수유량 추이" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatFeedBrush}"/>
+                    </StackPanel>
+                    <lvc:CartesianChart Series="{Binding DailyFeedSeries}"
+                                         XAxes="{Binding DailyFeedXAxes}"
+                                         YAxes="{Binding DailyFeedYAxes}"
+                                         Height="250"
+                                         Background="Transparent"
+                                         TooltipBackgroundPaint="{Binding TooltipBgPaint}"
+                                         TooltipTextPaint="{Binding TooltipTextPaint}"
+                                         TooltipPosition="Top"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ 수유텀 분포 + 일별 배변 횟수 (나란히) ═══ -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{DynamicResource CardBorder}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatSystemBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                            <TextBlock Text="수유텀 분포" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
+                        </StackPanel>
+                        <lvc:CartesianChart Series="{Binding FeedIntervalSeries}"
+                                             XAxes="{Binding FeedIntervalXAxes}"
+                                             YAxes="{Binding FeedIntervalYAxes}"
+                                             Height="250"
+                                             Background="Transparent"
+                                             TooltipBackgroundPaint="{Binding TooltipBgPaint}"
+                                             TooltipTextPaint="{Binding TooltipTextPaint}"
+                                             TooltipPosition="Top"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{DynamicResource CardBorder}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatBowelBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                            <TextBlock Text="일별 배변 횟수" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatBowelBrush}"/>
+                        </StackPanel>
+                        <lvc:CartesianChart Series="{Binding DailyBowelSeries}"
+                                             XAxes="{Binding DailyBowelXAxes}"
+                                             YAxes="{Binding DailyBowelYAxes}"
+                                             Height="250"
+                                             Background="Transparent"
+                                             LegendPosition="Bottom"
+                                             LegendTextPaint="{Binding LegendTextPaint}"
+                                             TooltipBackgroundPaint="{Binding TooltipBgPaint}"
+                                             TooltipTextPaint="{Binding TooltipTextPaint}"
+                                             TooltipPosition="Top"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ═══ 카테고리별 이벤트 비율 + 일별 카테고리별 이벤트 (나란히) ═══ -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{DynamicResource CardBorder}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatSystemBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                            <TextBlock Text="{Binding CategoryPieTitle}" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
+                        </StackPanel>
+                        <lvc:PieChart Series="{Binding CategoryPieSeries}"
+                                       Height="220"
+                                       Background="Transparent"
+                                       LegendPosition="Bottom"
+                                       LegendTextPaint="{Binding LegendTextPaint}"
+                                       TooltipBackgroundPaint="{Binding TooltipBgPaint}"
+                                       TooltipTextPaint="{Binding TooltipTextPaint}"
+                                       TooltipPosition="Top"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{DynamicResource CardBorder}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatSystemBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                            <TextBlock Text="일별 이벤트 현황" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
+                        </StackPanel>
+                        <lvc:CartesianChart Series="{Binding DailyCategorySeries}"
+                                             XAxes="{Binding DailyCategoryXAxes}"
+                                             YAxes="{Binding DailyCategoryYAxes}"
+                                             Height="220"
+                                             Background="Transparent"
+                                             LegendPosition="Bottom"
+                                             LegendTextPaint="{Binding LegendTextPaint}"
+                                             TooltipBackgroundPaint="{Binding TooltipBgPaint}"
+                                             TooltipTextPaint="{Binding TooltipTextPaint}"
+                                             TooltipPosition="Top"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

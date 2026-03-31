@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- 기저귀 아이콘 -->
+  <path d="M4 7c0-1 1-2 2-2h12c1 0 2 1 2 2v4c0 5-4 8-8 8s-8-3-8-8V7z"/>
+  <path d="M8 5v4M12 5v4M16 5v4"/>
+</svg>

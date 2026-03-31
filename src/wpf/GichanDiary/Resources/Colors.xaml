@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Category Colors -->
+    <Color x:Key="CatFeedColor">#1E8070</Color>
+    <Color x:Key="CatBowelColor">#B88020</Color>
+    <Color x:Key="CatHygieneColor">#305898</Color>
+    <Color x:Key="CatBodyColor">#704890</Color>
+    <Color x:Key="CatHealthColor">#A04040</Color>
+    <Color x:Key="CatEtcColor">#506068</Color>
+    <Color x:Key="CatSystemColor">#A09070</Color>
+
+    <!-- 소변/대변 구분 (배변 하위 색상) -->
+    <Color x:Key="CatUrineColor">#D4B840</Color>
+    <Color x:Key="CatStoolColor">#8B4513</Color>
+
+    <!-- Background Colors (밝기 상향) -->
+    <Color x:Key="BgDarkColor">#242A3C</Color>
+    <Color x:Key="BgCardColor">#2A3248</Color>
+    <Color x:Key="BgSidebarColor">#1E2438</Color>
+    <Color x:Key="BgInputColor">#1A2030</Color>
+
+    <!-- UI Colors -->
+    <Color x:Key="BorderColor">#2A3050</Color>
+    <Color x:Key="TextLightColor">#C8D0DC</Color>
+    <Color x:Key="TextMidColor">#8090A8</Color>
+    <Color x:Key="WhiteColor">#FFFFFF</Color>
+
+    <!-- Category Brushes -->
+    <SolidColorBrush x:Key="CatFeedBrush" Color="{StaticResource CatFeedColor}"/>
+    <SolidColorBrush x:Key="CatBowelBrush" Color="{StaticResource CatBowelColor}"/>
+    <SolidColorBrush x:Key="CatHygieneBrush" Color="{StaticResource CatHygieneColor}"/>
+    <SolidColorBrush x:Key="CatBodyBrush" Color="{StaticResource CatBodyColor}"/>
+    <SolidColorBrush x:Key="CatHealthBrush" Color="{StaticResource CatHealthColor}"/>
+    <SolidColorBrush x:Key="CatEtcBrush" Color="{StaticResource CatEtcColor}"/>
+    <SolidColorBrush x:Key="CatSystemBrush" Color="{StaticResource CatSystemColor}"/>
+
+    <SolidColorBrush x:Key="CatUrineBrush" Color="{StaticResource CatUrineColor}"/>
+    <SolidColorBrush x:Key="CatStoolBrush" Color="{StaticResource CatStoolColor}"/>
+
+    <!-- Background Brushes -->
+    <SolidColorBrush x:Key="BgDarkBrush" Color="{StaticResource BgDarkColor}"/>
+    <SolidColorBrush x:Key="BgCardBrush" Color="{StaticResource BgCardColor}"/>
+    <SolidColorBrush x:Key="BgSidebarBrush" Color="{StaticResource BgSidebarColor}"/>
+    <SolidColorBrush x:Key="BgInputBrush" Color="{StaticResource BgInputColor}"/>
+
+    <!-- UI Brushes -->
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
+    <SolidColorBrush x:Key="TextLightBrush" Color="{StaticResource TextLightColor}"/>
+    <SolidColorBrush x:Key="TextMidBrush" Color="{StaticResource TextMidColor}"/>
+    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource WhiteColor}"/>
+
+    <!-- Title Bar / Scoreboard / Sidebar Brushes (밝기 상향) -->
+    <SolidColorBrush x:Key="BgTitleBarBrush" Color="#303850"/>
+    <SolidColorBrush x:Key="BgScoreboardBrush" Color="#1C2438"/>
+    <SolidColorBrush x:Key="ProgressBarBgBrush" Color="#182030"/>
+    <SolidColorBrush x:Key="BgSidebarHoverBrush" Color="#2A3350"/>
+    <SolidColorBrush x:Key="BgSidebarActiveBrush" Color="#2A3350"/>
+
+    <!-- DataGrid 선택 행 -->
+    <SolidColorBrush x:Key="DataGridSelectedBrush" Color="#1A3858"/>
+    <SolidColorBrush x:Key="DataGridHoverBrush" Color="#1E3048"/>
+    <SolidColorBrush x:Key="DataGridSelectedBorderBrush" Color="#4A90D0"/>
+
+    <!-- 카테고리 선택 배경 tint (Dark) -->
+    <SolidColorBrush x:Key="CatFeedTintBrush" Color="#1A2E30"/>
+    <SolidColorBrush x:Key="CatBowelTintBrush" Color="#2E2A1A"/>
+    <SolidColorBrush x:Key="CatHygieneTintBrush" Color="#1A2240"/>
+    <SolidColorBrush x:Key="CatBodyTintBrush" Color="#241A38"/>
+    <SolidColorBrush x:Key="CatHealthTintBrush" Color="#301A1A"/>
+    <SolidColorBrush x:Key="CatEtcTintBrush" Color="#222830"/>
+
+</ResourceDictionary>
