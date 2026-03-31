@@ -69,3 +69,28 @@
   향후 필요 작업:
   - Phase 2에서 Firestore 보안 규칙을 본인 UID 전용으로 교체
   - 규칙: users/{userId}/{document=**} → auth.uid == userId 조건
+
+■ Phase 2 작업 내용
+
+  PWA Firebase 연동 코드 작성:
+  - firebase-config.js: gichan-diary 프로젝트 설정값
+  - firebase-auth.js: Google signInWithPopup 인증, 상태 관리
+  - firebase-sync.js: Firestore onSnapshot 실시간 리스너, 이벤트 매핑
+  - app.js 수정: Firebase 초기화, 인증→구독 자동 연결, 실시간 갱신
+  - settings.js 수정: Google 로그인/로그아웃 UI, 동기화 상태 표시, 버전 2.0.0-sync
+  - index.html 수정: Firebase SDK CDN (v10.12.0) 로드, 오프라인 캐시 활성화
+  - sw.js 수정: 캐시 v10-sync, Firebase 모듈 추가
+
+  요구사항 확장:
+  - 폰에서 WPF의 Excel Import/Export 제외한 모든 기능 사용 가능 (입력/수정/삭제/설정)
+  - 설정값(수유텀, 평균횟수 등) Firestore settings에 동기화
+
+  마이그레이션 도구 구현 및 실행:
+  - src/migration/ExcelToFirestore/ — .NET 8 콘솔 앱
+  - ClosedXML로 Excel 읽기 → Firestore REST API PATCH (upsert)
+  - DB_20260330_1002.xlsx (449행) → Firestore 마이그레이션 완료 (449건 성공, 0 에러)
+  - Firebase Auth UID: KrTxuQMTE9Ve2PXJcVTUJmhQntB3
+
+  검증 완료:
+  - 로컬 PWA(localhost:9090) Google 로그인 → 449건 실시간 표시 확인
+  - Firebase Console → Firestore에 users/{uid}/events/ 449개 문서 확인

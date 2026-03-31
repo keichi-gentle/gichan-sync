@@ -35,11 +35,15 @@
    - .NET 콘솔 앱, ClosedXML + Firestore REST API
    - 중복 실행 시 upsert (GUID 기반)
 
-6. PWA 강화
+6. PWA 강화 (WPF 동등 기능)
    - Google 로그인/로그아웃 UI
    - Firestore onSnapshot 실시간 구독
-   - Excel 수동 Import는 폴백으로 유지
-   - (Phase 4) 간단한 수유 기록 입력 기능
+   - Excel Import/Export를 제외한 WPF의 모든 기능을 폰에서 사용 가능:
+     · 기록 입력 (수유/배변/위생/신체/건강/기타 전 카테고리)
+     · 기록 수정/삭제
+     · 설정 변경 (수유텀, 평균 횟수, 분유 제품, 기본 수유량 등)
+     · 설정값은 Firestore settings에 동기화 → 양쪽 앱에서 공유
+   - Excel 수동 Import는 오프라인 폴백으로만 유지
 
 7. WPF 강화
    - IDataService 추상화 (ExcelOnly / FirebaseSync 전환)
