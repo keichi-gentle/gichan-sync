@@ -1,4 +1,5 @@
 import * as C from './calc.js';
+import { getSetting } from './storage.js';
 
 let timerInterval = null;
 let cachedEvents = [];
@@ -27,6 +28,17 @@ function render(container) {
   const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
   const dayNames = ['일','월','화','수','목','금','토'];
   const dayOfWeek = dayNames[now.getDay()];
+
+  // Day number from birth date
+  let dayNumberStr = '';
+  const birthDateStr = getSetting('babyBirthDate');
+  if (birthDateStr) {
+    const birth = new Date(birthDateStr);
+    if (!isNaN(birth)) {
+      const dayNum = Math.floor((now - birth) / 86400000) + 1;
+      dayNumberStr = ` · ${dayNum}일차`;
+    }
+  }
 
   // Feed
   const lastFeed = events.filter(e => C.isFeeding(e) && C.getFullDateTime(e))
@@ -85,7 +97,7 @@ function render(container) {
     <div class="scoreboard">
       <div class="sb-clock">
         <div class="sb-time">${timeStr}</div>
-        <div class="sb-date">${dateStr} (${dayOfWeek})</div>
+        <div class="sb-date">${dateStr} (${dayOfWeek})${dayNumberStr}</div>
       </div>
 
       <div class="sb-sections">

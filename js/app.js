@@ -22,6 +22,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load cached data first (instant display)
   currentEvents = await loadEvents();
   initScoreboard(currentEvents, document.getElementById('scoreboard'));
+
+  // Set title from baby name
+  const babyName = getSetting('babyName', '');
+  document.getElementById('app-title').textContent = babyName ? `주요 이벤트 일지 - ${babyName}` : '주요 이벤트 일지';
+
   switchTab('dashboard');
 
   // Initialize Firebase auth (non-blocking)
@@ -187,5 +192,5 @@ function onImport(events) {
   currentEvents = events;
   updateScoreboardEvents(events);
   const name = getSetting('babyName', '');
-  document.getElementById('app-title').textContent = name ? `${name} 뷰어` : '기찬뷰어';
+  document.getElementById('app-title').textContent = name ? `주요 이벤트 일지 - ${name}` : '주요 이벤트 일지';
 }

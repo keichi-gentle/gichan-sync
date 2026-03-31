@@ -46,6 +46,10 @@ export function renderSettings(container, onImport, firebaseReady = false) {
         <label>아기 이름</label>
         <input type="text" id="set-babyname" value="${babyName}" placeholder="이름 입력" style="width:120px;text-align:right;">
       </div>
+      <div class="setting-row">
+        <label>생년월일</label>
+        <input type="date" id="set-birthdate" value="${getSetting('babyBirthDate', '')}" style="width:150px;">
+      </div>
     </div>
 
     <div class="setting-group">
@@ -173,6 +177,13 @@ function bindEvents(container) {
     const v = e.target.value.trim();
     setSetting('babyName', v);
     syncSetting('babyName', v);
+    updateTitle(v);
+  });
+
+  container.querySelector('#set-birthdate')?.addEventListener('change', (e) => {
+    const v = e.target.value;
+    setSetting('babyBirthDate', v);
+    syncSetting('babyBirthDate', v);
   });
 
   // Stepper buttons
@@ -208,6 +219,11 @@ function bindEvents(container) {
     setSetting('defaultFormulaProduct', v);
     syncSetting('defaultFormulaProduct', v);
   });
+}
+
+function updateTitle(name) {
+  const titleEl = document.getElementById('app-title');
+  if (titleEl) titleEl.textContent = name ? `주요 이벤트 일지 - ${name}` : '주요 이벤트 일지';
 }
 
 async function syncSetting(key, value) {
