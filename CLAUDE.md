@@ -54,8 +54,13 @@
 - Phase 2 (PWA Firebase 연동 + 마이그레이션): ✅ 완료 (449건)
 - Phase 3 (WPF Firebase 연동): ✅ 완료 (서비스+ViewModel 전환, 테스트 45개 통과)
 - Phase 4 (PWA 전체 기능): ✅ 완료 (입력/수정/삭제/설정 동기화)
-- Phase 5 (마무리): Firestore 보안 규칙 교체 필요
-- Phase 6 (사용자 역할 관리): 설계 완료, 구현 대기
+- Phase 5 (마무리): Firestore 보안 규칙 교체 필요 (테스트 모드 30일 만료 전)
+- Phase 6 (사용자 역할 관리): ✅ 완료 (admin/editor/observer + 관리 UI + 폰 피드백 반영)
+
+## 배포 정보
+- GitHub 저장소: https://github.com/keichi-gentle/gichan-sync
+- PWA 접속 URL: https://keichi-gentle.github.io/gichan-sync/
+- gh-pages 배포: git subtree split --prefix src/pwa/gichan-viewer → gh-pages
 
 ## Firebase Auth UID
 - KrTxuQMTE9Ve2PXJcVTUJmhQntB3 (gogokeichi@gmail.com)
