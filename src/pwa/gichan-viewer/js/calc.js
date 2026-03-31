@@ -103,6 +103,30 @@ export function getCategoryColor(category) {
   return s.getPropertyValue(map[category] || '--cat-etc').trim();
 }
 
+/**
+ * 수유텀 일괄 계산: 시간순 정렬 후 각 수유 이벤트의 직전 수유와의 간격을 설정.
+ * UI 정렬과 무관하게 항상 시간순(오름차순) 기준으로 계산.
+ * 최초 수유 이벤트는 수유텀 null.
+ */
+export function calculateFeedingIntervals(events) {
+  const feedings = events
+    .filter(e => isFeeding(e) && getFullDateTime(e))
+    .sort((a, b) => getFullDateTime(a) - getFullDateTime(b));
+
+  for (let i = 0; i < feedings.length; i++) {
+    if (i === 0) {
+      feedings[i].feedingInterval = null;
+      feedings[i]._feedingIntervalMs = null;
+    } else {
+      const ms = getFullDateTime(feedings[i]) - getFullDateTime(feedings[i - 1]);
+      feedings[i]._feedingIntervalMs = ms;
+      const h = Math.floor(ms / 3600000);
+      const m = Math.floor((ms % 3600000) / 60000);
+      feedings[i].feedingInterval = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    }
+  }
+}
+
 function toDateStr(d) {
   if (!d) return '';
   if (d instanceof Date) return d.toISOString().slice(0, 10);

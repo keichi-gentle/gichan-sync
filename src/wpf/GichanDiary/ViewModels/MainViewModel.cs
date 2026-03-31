@@ -76,6 +76,7 @@ public partial class MainViewModel : ObservableObject
         _dataService.EventsChanged += (events) =>
         {
             _events = events;
+            _calcService.CalculateFeedingIntervals(_events);
             RefreshScoreboard();
         };
     }
@@ -92,6 +93,7 @@ public partial class MainViewModel : ObservableObject
             try
             {
                 _events = await _dataService.LoadEventsAsync();
+                _calcService.CalculateFeedingIntervals(_events);
             }
             catch (System.IO.IOException)
             {
@@ -430,6 +432,7 @@ public partial class MainViewModel : ObservableObject
                 try
                 {
                     _events = await _dataService.LoadEventsAsync();
+                    _calcService.CalculateFeedingIntervals(_events);
                 }
                 catch (Exception)
                 {
@@ -449,6 +452,7 @@ public partial class MainViewModel : ObservableObject
             try
             {
                 _events = await _dataService.LoadEventsAsync();
+                _calcService.CalculateFeedingIntervals(_events);
             }
             catch (Exception)
             {

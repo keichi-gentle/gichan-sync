@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GichanDiary.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eca730048d24c0a341fedd9c4800e1bd73b187fd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a976ebdac184e7c7d1573a39bf59fee68c0a743f")]
 [assembly: System.Reflection.AssemblyProductAttribute("GichanDiary.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GichanDiary.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

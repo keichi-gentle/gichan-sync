@@ -58,6 +58,31 @@ public class CalculationService : ICalculationService
         return last?.FullDateTime.HasValue == true ? DateTime.Now - last.FullDateTime.Value : null;
     }
 
+    /// <summary>
+    /// 수유 이벤트의 수유텀(FeedingInterval)을 일괄 계산.
+    /// 시간순 정렬 후 각 수유 이벤트의 직전 수유와의 시간 간격을 설정.
+    /// 최초 수유 이벤트는 수유텀 없음 (null).
+    /// </summary>
+    public void CalculateFeedingIntervals(List<BabyEvent> events)
+    {
+        var feedings = events
+            .Where(e => e.IsFeeding && e.FullDateTime.HasValue)
+            .OrderBy(e => e.FullDateTime)
+            .ToList();
+
+        for (int i = 0; i < feedings.Count; i++)
+        {
+            if (i == 0)
+            {
+                feedings[i].FeedingInterval = null;
+            }
+            else
+            {
+                feedings[i].FeedingInterval = feedings[i].FullDateTime!.Value - feedings[i - 1].FullDateTime!.Value;
+            }
+        }
+    }
+
     public DailySummary GetDailySummary(List<BabyEvent> events, DateTime date)
     {
         var dayEvents = events.Where(e => e.Date.Date == date.Date).ToList();

@@ -13,4 +13,5 @@ public interface ICalculationService
     TimeSpan? GetLastUrineElapsed(List<BabyEvent> events);
     TimeSpan? GetLastStoolElapsed(List<BabyEvent> events);
     DailySummary GetDailySummary(List<BabyEvent> events, DateTime date);
+    void CalculateFeedingIntervals(List<BabyEvent> events);
 }
