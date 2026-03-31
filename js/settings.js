@@ -215,9 +215,28 @@ async function syncSetting(key, value) {
   if (!user) return;
   try {
     await saveSettingsToFirestore({ [key]: value });
+    showSaveToast('✓ 자동 저장됨');
   } catch (err) {
+    showSaveToast('✗ 저장 실패', true);
     console.warn('Setting sync failed:', err);
   }
+}
+
+let toastTimer = null;
+function showSaveToast(msg, isError = false) {
+  let el = document.getElementById('save-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'save-toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.cssText = `position:fixed;top:60px;left:50%;transform:translateX(-50%);
+    padding:8px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;
+    transition:opacity 0.3s;opacity:1;
+    background:${isError ? 'var(--cat-health)' : 'var(--cat-feed)'};color:var(--white);`;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.style.opacity = '0'; }, 1500);
 }
 
 // ── User Management (Admin only) ──
