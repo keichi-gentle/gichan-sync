@@ -6,6 +6,7 @@ import { renderSettings } from './settings.js';
 import { initScoreboard, updateScoreboardEvents } from './scoreboard.js';
 import { initAuth, onAuthChange } from './firebase-auth.js';
 import { subscribeToEvents, unsubscribeEvents } from './firebase-sync.js';
+import { renderEntry } from './event-entry.js';
 
 let currentEvents = [];
 let currentTab = 'dashboard';
@@ -118,6 +119,7 @@ export function switchTab(tab) {
   const container = document.getElementById(`page-${tab}`);
   switch (tab) {
     case 'dashboard': renderDashboard(currentEvents, container); break;
+    case 'entry': renderEntry(container); break;
     case 'browse': renderBrowse(currentEvents, container); break;
     case 'report': renderReport(currentEvents, container); break;
     case 'settings': renderSettings(container, onImport, firebaseReady); break;
