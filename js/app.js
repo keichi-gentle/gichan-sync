@@ -66,8 +66,9 @@ async function initFirebase() {
 function onFirestoreUpdate(events) {
   currentEvents = events;
   updateScoreboardEvents(events);
-  // Cache to IndexedDB for offline use
   saveEvents(events);
+  // Auto-extract formula products from event data
+  extractFormulaProducts(events);
   // Re-render current tab
   const container = document.getElementById(`page-${currentTab}`);
   if (container) {
@@ -124,6 +125,19 @@ export function switchTab(tab) {
     case 'browse': renderBrowse(currentEvents, container); break;
     case 'report': renderReport(currentEvents, container); break;
     case 'settings': renderSettings(container, onImport, firebaseReady); break;
+  }
+}
+
+function extractFormulaProducts(events) {
+  const products = new Set(getSetting('formulaProducts', []));
+  events.forEach(e => {
+    if (e.formulaProduct && e.formulaProduct.trim()) products.add(e.formulaProduct.trim());
+  });
+  if (products.size > 0) {
+    setSetting('formulaProducts', [...products]);
+    if (!getSetting('defaultFormulaProduct')) {
+      setSetting('defaultFormulaProduct', [...products][0]);
+    }
   }
 }
 

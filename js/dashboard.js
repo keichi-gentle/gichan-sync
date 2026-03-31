@@ -49,10 +49,10 @@ function buildBowelCard(events, now) {
   const stoolEl = C.formatElapsed(C.getLastStoolElapsed(events));
 
   return card('배변', 'cat-bowel', [
-    row('소변 경과', urineEl),
-    row('대변 경과', stoolEl),
-    row('오늘 소변', `${summary.urineCount}회`),
-    row('오늘 대변', `${summary.stoolCount}회`),
+    colorRow('소변 경과', urineEl, '--cat-urine'),
+    colorRow('대변 경과', stoolEl, '--cat-stool'),
+    colorRow('오늘 소변', `${summary.urineCount}회`, '--cat-urine'),
+    colorRow('오늘 대변', `${summary.stoolCount}회`, '--cat-stool'),
   ]);
 }
 
@@ -109,6 +109,10 @@ function buildEtcCard(events) {
 // HTML helpers
 function card(title, colorClass, rows) {
   return `<div class="card"><div class="card-title ${colorClass}">${title}</div>${rows.join('')}</div>`;
+}
+
+function colorRow(label, value, colorVar) {
+  return `<div class="card-row"><span class="label" style="color:var(${colorVar})">${label}</span><span class="value" style="color:var(${colorVar})">${value}</span></div>`;
 }
 
 function row(label, value) {

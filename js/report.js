@@ -19,7 +19,7 @@ export function renderReport(events, container) {
 
 function buildPeriodButtons() {
   return `<div class="period-buttons">
-    ${['7일','14일','30일','전체'].map(p =>
+    ${['1일','3일','7일','14일','30일','전체'].map(p =>
       `<button class="period-btn${p === '7일' ? ' active' : ''}" data-period="${p}">${p}</button>`
     ).join('')}
   </div>`;
@@ -69,7 +69,7 @@ function renderSummary(events, period) {
     <div class="summary-wrap">
       <div class="summary-card"><div class="label">오늘 수유 횟수</div><div class="value cat-feed">${todayCount}회</div></div>
       <div class="summary-card"><div class="label">오늘 수유량</div><div class="value cat-feed">${todayTotal}ml</div></div>
-      <div class="summary-card"><div class="label">오늘 배변</div><div class="value cat-bowel">소${summary.urineCount}/대${summary.stoolCount}</div></div>
+      <div class="summary-card"><div class="label">오늘 배변</div><div class="value"><span style="color:var(--cat-urine)">소${summary.urineCount}</span> / <span style="color:var(--cat-stool)">대${summary.stoolCount}</span></div></div>
       <div class="summary-card"><div class="label">일평균 수유량</div><div class="value cat-feed">${avgDaily}ml</div></div>
       <div class="summary-card"><div class="label">평균 수유텀</div><div class="value cat-feed">${avgInterval}</div></div>
     </div>`;
