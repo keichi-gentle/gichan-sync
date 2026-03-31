@@ -12,6 +12,22 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="lib/xlsx.mini.min.js"></script>
   <script src="lib/chart.umd.min.js"></script>
+  <!-- Firebase SDK (modular) -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, enableIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { firebaseConfig } from './js/firebase-config.js';
+
+    const app = initializeApp(firebaseConfig);
+    window.__firebase = {
+      app,
+      auth: getAuth(app),
+      db: getFirestore(app),
+    };
+    // Enable offline persistence
+    enableIndexedDbPersistence(window.__firebase.db).catch(() => {});
+  </script>
 </head>
 <body>
   <div id="app">
