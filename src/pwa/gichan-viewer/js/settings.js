@@ -38,7 +38,7 @@ export function renderSettings(container, onImport, firebaseReady = false) {
       <div class="setting-row">
         <label>페이지당 표시 건수</label>
         <select id="set-pagesize">
-          ${[10,20,30,50].map(n => `<option value="${n}" ${n===pageSize?'selected':''}>${n}건</option>`).join('')}
+          ${[10,20,30,50,100].map(n => `<option value="${n}" ${n===pageSize?'selected':''}>${n}건</option>`).join('')}
         </select>
       </div>
       <div class="setting-row">
@@ -50,24 +50,46 @@ export function renderSettings(container, onImport, firebaseReady = false) {
     <div class="setting-group">
       <h3>수유 설정</h3>
       <div class="setting-row">
-        <label>고정 수유텀 (시간)</label>
-        <input type="number" id="set-interval" value="${(getSetting('fixedFeedingInterval', 10800) / 3600).toFixed(1)}" step="0.5" min="1" max="8" style="width:70px;text-align:right;">
+        <label>고정 수유텀</label>
+        <div class="stepper">
+          <button class="step-btn" data-target="set-interval" data-step="-0.5">−</button>
+          <span id="set-interval-display">${(getSetting('fixedFeedingInterval', 10800) / 3600).toFixed(1)}시간</span>
+          <input type="hidden" id="set-interval" value="${(getSetting('fixedFeedingInterval', 10800) / 3600).toFixed(1)}">
+          <button class="step-btn" data-target="set-interval" data-step="0.5">+</button>
+        </div>
       </div>
       <div class="setting-row">
-        <label>평균 수유텀 계산 횟수</label>
-        <input type="number" id="set-avgcount" value="${getSetting('averageFeedingCount', 10)}" min="3" max="30" style="width:70px;text-align:right;">
+        <label>평균 계산 횟수</label>
+        <div class="stepper">
+          <button class="step-btn" data-target="set-avgcount" data-step="-1">−</button>
+          <span id="set-avgcount-display">${getSetting('averageFeedingCount', 10)}회</span>
+          <input type="hidden" id="set-avgcount" value="${getSetting('averageFeedingCount', 10)}">
+          <button class="step-btn" data-target="set-avgcount" data-step="1">+</button>
+        </div>
       </div>
       <div class="setting-row">
-        <label>기본 분유량 (ml)</label>
-        <input type="number" id="set-defformula" value="${getSetting('defaultFormulaAmount', 100)}" step="5" min="0" max="300" style="width:70px;text-align:right;">
+        <label>기본 분유량</label>
+        <div class="stepper">
+          <button class="step-btn" data-target="set-defformula" data-step="-5">−</button>
+          <span id="set-defformula-display">${getSetting('defaultFormulaAmount', 100)}ml</span>
+          <input type="hidden" id="set-defformula" value="${getSetting('defaultFormulaAmount', 100)}">
+          <button class="step-btn" data-target="set-defformula" data-step="5">+</button>
+        </div>
       </div>
       <div class="setting-row">
-        <label>기본 모유량 (ml)</label>
-        <input type="number" id="set-defbreast" value="${getSetting('defaultBreastfeedAmount', 20)}" step="5" min="0" max="100" style="width:70px;text-align:right;">
+        <label>기본 모유량</label>
+        <div class="stepper">
+          <button class="step-btn" data-target="set-defbreast" data-step="-5">−</button>
+          <span id="set-defbreast-display">${getSetting('defaultBreastfeedAmount', 20)}ml</span>
+          <input type="hidden" id="set-defbreast" value="${getSetting('defaultBreastfeedAmount', 20)}">
+          <button class="step-btn" data-target="set-defbreast" data-step="5">+</button>
+        </div>
       </div>
       <div class="setting-row">
         <label>분유 제품</label>
-        <input type="text" id="set-product" value="${getSetting('defaultFormulaProduct', '트루맘 클래식')}" style="width:140px;text-align:right;">
+        <select id="set-product" style="flex:1;">
+          ${(getSetting('formulaProducts', ['트루맘 클래식'])).map(p => `<option value="${p}" ${p===getSetting('defaultFormulaProduct','트루맘 클래식')?'selected':''}>${p}</option>`).join('')}
+        </select>
       </div>
     </div>
 
@@ -148,37 +170,38 @@ function bindEvents(container) {
     syncSetting('babyName', v);
   });
 
-  // Feeding settings
-  container.querySelector('#set-interval')?.addEventListener('change', (e) => {
-    const secs = Math.round(parseFloat(e.target.value) * 3600);
-    setSetting('fixedFeedingInterval', secs);
-    syncSetting('fixedFeedingInterval', secs);
+  // Stepper buttons
+  container.querySelectorAll('.step-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.dataset.target;
+      const step = parseFloat(btn.dataset.step);
+      const input = container.querySelector(`#${targetId}`);
+      if (!input) return;
+      let val = parseFloat(input.value) + step;
+      val = Math.max(0, val);
+      input.value = val;
+
+      const displayEl = container.querySelector(`#${targetId}-display`);
+      const settingMap = {
+        'set-interval': { key: 'fixedFeedingInterval', transform: v => Math.round(v * 3600), display: v => `${v}시간` },
+        'set-avgcount': { key: 'averageFeedingCount', transform: v => Math.round(v), display: v => `${Math.round(v)}회` },
+        'set-defformula': { key: 'defaultFormulaAmount', transform: v => Math.round(v), display: v => `${Math.round(v)}ml` },
+        'set-defbreast': { key: 'defaultBreastfeedAmount', transform: v => Math.round(v), display: v => `${Math.round(v)}ml` },
+      };
+      const cfg = settingMap[targetId];
+      if (cfg) {
+        if (displayEl) displayEl.textContent = cfg.display(val);
+        setSetting(cfg.key, cfg.transform(val));
+        syncSetting(cfg.key, cfg.transform(val));
+      }
+    });
   });
 
-  container.querySelector('#set-avgcount')?.addEventListener('change', (e) => {
-    const v = parseInt(e.target.value);
-    setSetting('averageFeedingCount', v);
-    syncSetting('averageFeedingCount', v);
-  });
-
-  container.querySelector('#set-defformula')?.addEventListener('change', (e) => {
-    const v = parseInt(e.target.value);
-    setSetting('defaultFormulaAmount', v);
-    syncSetting('defaultFormulaAmount', v);
-  });
-
-  container.querySelector('#set-defbreast')?.addEventListener('change', (e) => {
-    const v = parseInt(e.target.value);
-    setSetting('defaultBreastfeedAmount', v);
-    syncSetting('defaultBreastfeedAmount', v);
-  });
-
+  // Formula product
   container.querySelector('#set-product')?.addEventListener('change', (e) => {
     const v = e.target.value.trim();
     setSetting('defaultFormulaProduct', v);
-    setSetting('formulaProducts', [v]);
     syncSetting('defaultFormulaProduct', v);
-    syncSetting('formulaProducts', [v]);
   });
 }
 

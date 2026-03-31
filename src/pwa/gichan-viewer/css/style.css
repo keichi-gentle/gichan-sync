@@ -178,6 +178,12 @@ nav button svg { width: 22px; height: 22px; }
 }
 
 .cat-chip.active { border-width: 2px; }
+
+/* 기록탭 배변/위생 토글 강화 */
+#e-urine.active { border-color: var(--cat-urine); color: var(--white); background: var(--cat-urine); border-width: 2px; }
+#e-stool.active { border-color: var(--cat-stool); color: var(--white); background: var(--cat-stool); border-width: 2px; }
+#e-immediate.active { border-color: var(--cat-bowel); color: var(--white); background: var(--cat-bowel); border-width: 2px; }
+#e-fields [data-hygiene].active { border-color: var(--cat-hygiene); color: var(--white); background: var(--cat-hygiene); border-width: 2px; }
 .cat-chip[data-cat="수유"].active { border-color: var(--cat-feed); color: var(--cat-feed); background: var(--cat-feed-tint); }
 .cat-chip[data-cat="배변"].active { border-color: var(--cat-bowel); color: var(--cat-bowel); background: var(--cat-bowel-tint); }
 .cat-chip[data-cat="위생관리"].active { border-color: var(--cat-hygiene); color: var(--cat-hygiene); background: var(--cat-hygiene-tint); }
@@ -297,6 +303,26 @@ select, input[type="text"] {
 .cat-etc { color: var(--cat-etc); }
 .cat-urine { color: var(--cat-urine); }
 .cat-stool { color: var(--cat-stool); }
+
+/* ═══ Stepper Control ═══ */
+.stepper {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.step-btn {
+  width: 36px; height: 36px;
+  background: var(--bg-input); color: var(--text-light);
+  border: 1px solid var(--border); border-radius: 8px;
+  font-size: 18px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.step-btn:active { background: var(--cat-feed); color: var(--white); }
+
+.stepper span {
+  min-width: 70px; text-align: center;
+  font-size: 15px; font-weight: 600; color: var(--text-light);
+}
 
 /* ═══ Event Entry ═══ */
 .entry-row {
