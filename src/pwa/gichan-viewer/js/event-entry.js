@@ -1,6 +1,7 @@
 // Event Entry — write new events to Firestore
 import { getCurrentUser } from './firebase-auth.js';
 import { getSetting } from './storage.js';
+import { getRolesData } from './roles.js';
 
 const CATEGORIES = ['수유', '배변', '위생관리', '신체측정', '건강관리', '기타'];
 const HYGIENE_TYPES = ['샤워', '세안', '손발톱정리', '코청소', '눈꼽청소', '입안청소', '배꼽청소', '기타'];
@@ -182,7 +183,8 @@ async function saveEvent(container) {
     const { doc, setDoc, collection, Timestamp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
     const db = window.__firebase.db;
     const docId = editingEvent?.id || crypto.randomUUID();
-    const docRef = doc(db, 'users', user.uid, 'events', docId);
+    const dataUid = getRolesData()?.dataUid || user.uid;
+    const docRef = doc(db, 'users', dataUid, 'events', docId);
 
     const data = {
       id: docId,
@@ -297,7 +299,8 @@ export async function deleteEvent(eventId) {
   if (!user || !eventId) return false;
   const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
   const db = window.__firebase.db;
-  await deleteDoc(doc(db, 'users', user.uid, 'events', eventId));
+  const dataUid = getRolesData()?.dataUid || user.uid;
+  await deleteDoc(doc(db, 'users', dataUid, 'events', eventId));
   return true;
 }
 

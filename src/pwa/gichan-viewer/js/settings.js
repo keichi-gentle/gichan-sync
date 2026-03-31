@@ -2,6 +2,7 @@ import { parseExcelFile } from './excel-parser.js';
 import { saveEvents, getSetting, setSetting } from './storage.js';
 import { signIn, signOut, getCurrentUser } from './firebase-auth.js';
 import { saveSettingsToFirestore, getDefaultSettings } from './firebase-settings.js';
+import { canManageUsers, getRolesData, saveRoles } from './roles.js';
 
 let onImportCallback = null;
 
@@ -93,14 +94,18 @@ export function renderSettings(container, onImport, firebaseReady = false) {
       </div>
     </div>
 
+    ${canManageUsers() ? buildUserManagementSection() : ''}
+
     <div class="setting-group">
       <h3>앱 정보</h3>
       <div class="setting-row"><label>버전</label><span>2.0.0-sync</span></div>
       <div class="setting-row"><label>상위 프로젝트</label><span>기찬다이어리 (WPF)</span></div>
       <div class="setting-row"><label>데이터 소스</label><span>${user ? 'Firebase 실시간' : 'IndexedDB (로컬)'}</span></div>
+      <div class="setting-row"><label>역할</label><span>${getSetting('userRole', '-')}</span></div>
     </div>`;
 
   bindEvents(container);
+  if (canManageUsers()) bindUserManagementEvents(container);
 }
 
 function buildAuthSection(user) {
@@ -213,4 +218,98 @@ async function syncSetting(key, value) {
   } catch (err) {
     console.warn('Setting sync failed:', err);
   }
+}
+
+// ── User Management (Admin only) ──
+
+function buildUserManagementSection() {
+  const roles = getRolesData() || { admin: [], editor: [], observer: [] };
+  const toList = (v) => Array.isArray(v) ? v : [];
+
+  const buildList = (title, list, roleKey) => {
+    const items = toList(list).map(email =>
+      `<div class="setting-row">
+        <span style="font-size:13px;">${email}</span>
+        ${roleKey !== 'admin' ? `<button class="step-btn rm-user" data-role="${roleKey}" data-email="${email}" style="width:28px;height:28px;font-size:14px;color:var(--cat-health);">✕</button>` : ''}
+      </div>`
+    ).join('');
+
+    return `<div style="margin-bottom:8px;">
+      <div style="font-weight:600;color:var(--text-mid);font-size:13px;margin-bottom:4px;">${title}</div>
+      ${items || '<div class="setting-row"><span style="font-size:13px;color:var(--text-mid);">(없음)</span></div>'}
+      ${roleKey !== 'admin' ? `<div class="setting-row">
+        <input type="email" id="add-${roleKey}" placeholder="이메일 입력" style="flex:1;font-size:13px;">
+        <button class="step-btn add-user" data-role="${roleKey}" style="width:28px;height:28px;font-size:16px;color:var(--cat-feed);">+</button>
+      </div>` : ''}
+    </div>`;
+  };
+
+  return `<div class="setting-group">
+    <h3 style="color:var(--cat-health);">사용자 관리 (관리자 전용)</h3>
+    ${buildList('관리자', roles.admin, 'admin')}
+    ${buildList('편집자', roles.editor, 'editor')}
+    ${buildList('옵져버', roles.observer, 'observer')}
+    <div id="user-mgmt-status" style="text-align:center;font-size:13px;margin-top:4px;"></div>
+  </div>`;
+}
+
+function bindUserManagementEvents(container) {
+  // Add user
+  container.querySelectorAll('.add-user').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const role = btn.dataset.role;
+      const input = container.querySelector(`#add-${role}`);
+      const email = input?.value?.trim();
+      if (!email || !email.includes('@')) return;
+
+      const roles = { ...getRolesData() };
+      if (!Array.isArray(roles[role])) roles[role] = [];
+      if (roles[role].includes(email)) return;
+      roles[role].push(email);
+
+      const status = container.querySelector('#user-mgmt-status');
+      try {
+        await saveRoles(window.__firebase.db, roles);
+        status.textContent = `✓ ${email} → ${role} 추가 완료`;
+        status.style.color = 'var(--cat-feed)';
+        input.value = '';
+        // Re-render
+        const mgmtSection = container.querySelector('.setting-group:has(#user-mgmt-status)');
+        if (mgmtSection) {
+          mgmtSection.outerHTML = buildUserManagementSection();
+          bindUserManagementEvents(container);
+        }
+      } catch (err) {
+        status.textContent = `✗ 오류: ${err.message}`;
+        status.style.color = 'var(--cat-health)';
+      }
+    });
+  });
+
+  // Remove user
+  container.querySelectorAll('.rm-user').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const role = btn.dataset.role;
+      const email = btn.dataset.email;
+      if (!confirm(`${email}을(를) ${role}에서 삭제하시겠습니까?`)) return;
+
+      const roles = { ...getRolesData() };
+      roles[role] = (roles[role] || []).filter(e => e !== email);
+
+      const status = container.querySelector('#user-mgmt-status');
+      try {
+        await saveRoles(window.__firebase.db, roles);
+        status.textContent = `✓ ${email} 삭제 완료`;
+        status.style.color = 'var(--cat-feed)';
+        const mgmtSection = container.querySelector('.setting-group:has(#user-mgmt-status)');
+        if (mgmtSection) {
+          mgmtSection.outerHTML = buildUserManagementSection();
+          bindUserManagementEvents(container);
+        }
+      } catch (err) {
+        status.textContent = `✗ 오류: ${err.message}`;
+        status.style.color = 'var(--cat-health)';
+      }
+    });
+  });
 }
