@@ -298,6 +298,48 @@ select, input[type="text"] {
 .cat-urine { color: var(--cat-urine); }
 .cat-stool { color: var(--cat-stool); }
 
+/* ═══ Event Entry ═══ */
+.entry-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; gap: 10px;
+}
+
+.entry-row label { font-size: 14px; color: var(--text-mid); min-width: 60px; }
+
+.entry-row input[type="date"],
+.entry-row input[type="number"],
+.entry-row input[type="text"],
+.entry-row select {
+  background: var(--bg-input); color: var(--text-light);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; font-size: 14px;
+}
+
+.time-pick {
+  display: flex; align-items: center; gap: 4px;
+}
+
+.time-pick select {
+  background: var(--bg-input); color: var(--text-light);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px; font-size: 14px; width: 70px;
+}
+
+.time-pick span { font-size: 18px; font-weight: 700; }
+
+.entry-section {
+  background: var(--bg-dark); border-radius: 10px;
+  padding: 10px 12px; margin: 8px 0;
+}
+
+.toggle-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+
+.toggle-row input[type="checkbox"] {
+  width: 20px; height: 20px; accent-color: var(--cat-feed);
+}
+
 /* ═══ Scoreboard (fixed top) ═══ */
 .scoreboard {
   background: var(--bg-sidebar);

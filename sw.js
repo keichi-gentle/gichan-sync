@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gichan-viewer-v10-sync';
+const CACHE_NAME = 'gichan-viewer-v11-entry';
 const ASSETS = [
   './',
   './index.html',
@@ -15,6 +15,7 @@ const ASSETS = [
   './js/firebase-config.js',
   './js/firebase-auth.js',
   './js/firebase-sync.js',
+  './js/event-entry.js',
   './lib/xlsx.mini.min.js',
   './lib/chart.umd.min.js',
   './manifest.json',
