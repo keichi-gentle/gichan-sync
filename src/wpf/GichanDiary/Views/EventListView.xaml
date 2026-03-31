@@ -141,8 +141,8 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                     <DataGridTextColumn Header="양" Binding="{Binding Amount}" Width="80"/>
-                    <DataGridTextColumn Header="비고" Binding="{Binding Note}" Width="*"/>
                     <DataGridTextColumn Header="수유텀" Binding="{Binding FeedingInterval, Converter={StaticResource TimeSpanToString}}" Width="110"/>
+                    <DataGridTextColumn Header="비고" Binding="{Binding Note}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

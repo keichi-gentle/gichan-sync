@@ -260,6 +260,33 @@
                 </StackPanel>
             </Border>
 
+            <!-- ═══ App Info ═══ -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,12">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="앱 정보" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
+                    </StackPanel>
+                    <Grid Margin="0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="버전" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="3.0.1" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextLightBrush}"/>
+                    </Grid>
+                    <Grid Margin="0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="동기화" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
+                        <TextBlock Grid.Column="1" Text="Firebase (테스트 모드)" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatFeedBrush}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <!-- ═══ Save Button ═══ -->
             <Button Content="설정 저장" Command="{Binding SaveCommand}"
                     Style="{DynamicResource PrimaryButton}" HorizontalAlignment="Center"

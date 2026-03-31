@@ -24,9 +24,11 @@ export function renderBrowse(events, container) {
 function buildFilterUI() {
   return `
     <div class="filter-bar">
-      <input type="date" id="f-start" value="${startDate}">
-      <input type="date" id="f-end" value="${endDate}">
-      <input type="text" id="f-keyword" placeholder="키워드 검색">
+      <input type="date" id="f-start" value="${startDate}" style="flex:1;">
+      <input type="date" id="f-end" value="${endDate}" style="flex:1;">
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="f-keyword" placeholder="키워드 검색" style="flex:1;">
       <button class="sort-btn" id="f-sort">최신순 ▼</button>
     </div>
     <div class="category-filters" id="cat-filters">
