@@ -8,7 +8,7 @@ namespace GichanDiary.ViewModels;
 
 public partial class EventEntryViewModel : ObservableObject
 {
-    private readonly IExcelService _excelService;
+    private readonly IDataService _dataService;
     private readonly ICalculationService _calcService;
     private readonly ISettingsService _settingsService;
     private readonly AppSettings _settings;
@@ -99,11 +99,11 @@ public partial class EventEntryViewModel : ObservableObject
     // ══ Constructor ═══════════════════════════════════════
 
     public EventEntryViewModel(
-        IExcelService excelService,
+        IDataService dataService,
         ICalculationService calcService,
         ISettingsService settingsService)
     {
-        _excelService = excelService;
+        _dataService = dataService;
         _calcService = calcService;
         _settingsService = settingsService;
         _settings = settingsService.Load();
@@ -342,13 +342,13 @@ public partial class EventEntryViewModel : ObservableObject
             {
                 evt.ExcelRowIndex = EditingEvent.ExcelRowIndex;
                 evt.Id = EditingEvent.Id;
-                await _excelService.UpdateEventAsync(_settings.ExcelFilePath, evt);
+                await _dataService.UpdateEventAsync(evt);
                 StatusMessage = "수정 완료!";
                 Services.LogService.Event($"기록 수정: {evt.Category} {evt.Detail} {evt.Amount}");
             }
             else
             {
-                await _excelService.AppendEventAsync(_settings.ExcelFilePath, evt);
+                await _dataService.AddEventAsync(evt);
                 StatusMessage = "저장 완료!";
                 Services.LogService.Event($"기록 추가: {evt.Category} {evt.Detail} {evt.Amount}");
             }

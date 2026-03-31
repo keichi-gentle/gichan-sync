@@ -50,6 +50,16 @@ public partial class App : Application
         services.AddSingleton<ICalculationService, CalculationService>();
         services.AddSingleton<ITimerService, TimerService>();
 
+        // Firebase services
+        services.AddSingleton(_ => new FirebaseAuthService(appDir));
+        services.AddSingleton<FirestoreService>();
+        services.AddSingleton<SyncCoordinator>();
+        services.AddSingleton<IDataService>(sp =>
+        {
+            var coordinator = sp.GetRequiredService<SyncCoordinator>();
+            return coordinator.GetDataService();
+        });
+
         // ViewModels
         services.AddTransient<MainViewModel>();
 

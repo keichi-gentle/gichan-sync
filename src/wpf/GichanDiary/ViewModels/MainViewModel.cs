@@ -9,6 +9,7 @@ public partial class MainViewModel : ObservableObject
 {
     private static readonly string[] KoreanDayNames = { "일", "월", "화", "수", "목", "금", "토" };
 
+    private readonly IDataService _dataService;
     private readonly IExcelService _excelService;
     private readonly ICalculationService _calcService;
     private readonly ISettingsService _settingsService;
@@ -58,17 +59,25 @@ public partial class MainViewModel : ObservableObject
     // ── Constructor ──────────────────────────────────────
 
     public MainViewModel(
+        IDataService dataService,
         IExcelService excelService,
         ICalculationService calcService,
         ISettingsService settingsService,
         ITimerService timerService)
     {
+        _dataService = dataService;
         _excelService = excelService;
         _calcService = calcService;
         _settingsService = settingsService;
         _timerService = timerService;
 
         _timerService.Tick += OnTimerTick;
+
+        _dataService.EventsChanged += (events) =>
+        {
+            _events = events;
+            RefreshScoreboard();
+        };
     }
 
     // ── Initialization (called after construction) ───────
@@ -82,19 +91,19 @@ public partial class MainViewModel : ObservableObject
         {
             try
             {
-                _events = await _excelService.LoadEventsAsync(_settings.ExcelFilePath);
+                _events = await _dataService.LoadEventsAsync();
             }
             catch (System.IO.IOException)
             {
                 System.Windows.MessageBox.Show(
-                    $"Excel 파일이 다른 프로그램에서 열려 있습니다.\n파일을 닫은 후 프로그램을 재시작해 주세요.\n\n경로: {_settings.ExcelFilePath}",
+                    $"데이터 파일이 다른 프로그램에서 열려 있습니다.\n파일을 닫은 후 프로그램을 재시작해 주세요.",
                     "파일 잠금 오류", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show(
-                    $"Excel 파일을 읽는 중 오류가 발생했습니다:\n{ex.Message}",
-                    "파일 로드 오류", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                    $"데이터를 읽는 중 오류가 발생했습니다:\n{ex.Message}",
+                    "데이터 로드 오류", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
 
@@ -357,7 +366,7 @@ public partial class MainViewModel : ObservableObject
     private void ShowEntry()
     {
         SelectedTab = "기록";
-        var entryVm = new EventEntryViewModel(_excelService, _calcService, _settingsService);
+        var entryVm = new EventEntryViewModel(_dataService, _calcService, _settingsService);
         entryVm.EventSaved += OnEventSaved;
         CurrentView = entryVm;
     }
@@ -366,7 +375,7 @@ public partial class MainViewModel : ObservableObject
     private void ShowList()
     {
         SelectedTab = "조회";
-        var vm = new EventListViewModel(_excelService, _calcService, _settingsService);
+        var vm = new EventListViewModel(_dataService, _calcService, _settingsService);
         vm.DataChanged += OnEventSaved;
         vm.EditRequested += EditEvent;
         vm.Refresh(_events);
@@ -376,7 +385,7 @@ public partial class MainViewModel : ObservableObject
     public void EditEvent(BabyEvent evt)
     {
         SelectedTab = "기록";
-        var entryVm = new EventEntryViewModel(_excelService, _calcService, _settingsService);
+        var entryVm = new EventEntryViewModel(_dataService, _calcService, _settingsService);
         entryVm.LoadForEdit(evt);
         entryVm.EventSaved += async () =>
         {
@@ -420,7 +429,7 @@ public partial class MainViewModel : ObservableObject
             {
                 try
                 {
-                    _events = await _excelService.LoadEventsAsync(_settings.ExcelFilePath);
+                    _events = await _dataService.LoadEventsAsync();
                 }
                 catch (Exception)
                 {
@@ -439,7 +448,7 @@ public partial class MainViewModel : ObservableObject
         {
             try
             {
-                _events = await _excelService.LoadEventsAsync(_settings.ExcelFilePath);
+                _events = await _dataService.LoadEventsAsync();
             }
             catch (Exception)
             {

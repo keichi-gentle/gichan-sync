@@ -8,7 +8,7 @@ namespace GichanDiary.ViewModels;
 
 public partial class EventListViewModel : ObservableObject
 {
-    private readonly IExcelService _excelService;
+    private readonly IDataService _dataService;
     private readonly ICalculationService _calcService;
     private readonly ISettingsService _settingsService;
     private readonly AppSettings _settings;
@@ -58,9 +58,9 @@ public partial class EventListViewModel : ObservableObject
     partial void OnFilterEtcChanged(bool value) => ApplyFilter();
     partial void OnSearchKeywordChanged(string value) => ApplyFilter();
 
-    public EventListViewModel(IExcelService excelService, ICalculationService calcService, ISettingsService settingsService)
+    public EventListViewModel(IDataService dataService, ICalculationService calcService, ISettingsService settingsService)
     {
-        _excelService = excelService;
+        _dataService = dataService;
         _calcService = calcService;
         _settingsService = settingsService;
         _settings = settingsService.Load();
@@ -185,7 +185,7 @@ public partial class EventListViewModel : ObservableObject
         {
             try
             {
-                await _excelService.DeleteEventAsync(_settings.ExcelFilePath, ev);
+                await _dataService.DeleteEventAsync(ev);
                 Services.LogService.Event($"기록 삭제: {ev.FullDateTime:yyyy/MM/dd HH:mm} {ev.Detail}");
                 _allEvents.Remove(ev);
                 ApplyFilter();
