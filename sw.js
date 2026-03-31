@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gichan-viewer-v13-feedback';
+const CACHE_NAME = 'gichan-viewer-v14-roles';
 const ASSETS = [
   './',
   './index.html',
@@ -17,6 +17,7 @@ const ASSETS = [
   './js/firebase-sync.js',
   './js/event-entry.js',
   './js/firebase-settings.js',
+  './js/roles.js',
   './lib/xlsx.mini.min.js',
   './lib/chart.umd.min.js',
   './manifest.json',

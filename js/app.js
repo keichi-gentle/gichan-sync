@@ -8,6 +8,7 @@ import { initAuth, onAuthChange } from './firebase-auth.js';
 import { subscribeToEvents, unsubscribeEvents } from './firebase-sync.js';
 import { subscribeToSettings, unsubscribeSettings } from './firebase-settings.js';
 import { renderEntry } from './event-entry.js';
+import { loadRoles, determineRole, getRole, canWrite, canManageUsers } from './roles.js';
 
 let currentEvents = [];
 let currentTab = 'dashboard';
@@ -45,17 +46,36 @@ async function initFirebase() {
     await initAuth(fb.auth);
     firebaseReady = true;
 
-    onAuthChange((user) => {
+    onAuthChange(async (user) => {
       if (user) {
-        subscribeToEvents(fb.db, user.uid, onFirestoreUpdate);
-        subscribeToSettings(fb.db, user.uid);
+        // Load roles and determine user's role
+        await loadRoles(fb.db);
+        const role = determineRole(user.email);
+
+        if (!role) {
+          // Not registered — show access denied
+          document.querySelector('.tab-content').innerHTML =
+            '<div class="empty-state" style="padding-top:60px;"><h2>접근 권한이 없습니다</h2><p>관리자에게 계정 등록을 요청하세요.</p><p style="color:var(--text-mid);margin-top:8px;">' + user.email + '</p></div>';
+          updateTabVisibility(null);
+          return;
+        }
+
+        updateTabVisibility(role);
+
+        // All users share admin's data (UID from roles doc)
+        const { getRolesData } = await import('./roles.js');
+        const rolesData = getRolesData();
+        const dataUid = rolesData?.dataUid || user.uid;
+        subscribeToEvents(fb.db, dataUid, onFirestoreUpdate);
+        subscribeToSettings(fb.db, dataUid);
         setSetting('firebaseUid', user.uid);
         setSetting('firebaseEmail', user.email);
+        setSetting('userRole', role);
       } else {
         unsubscribeEvents();
         unsubscribeSettings();
+        updateTabVisibility(null);
       }
-      // Re-render settings tab if visible
       if (currentTab === 'settings') switchTab('settings');
     });
   } catch (err) {
@@ -125,6 +145,28 @@ export function switchTab(tab) {
     case 'browse': renderBrowse(currentEvents, container); break;
     case 'report': renderReport(currentEvents, container); break;
     case 'settings': renderSettings(container, onImport, firebaseReady); break;
+  }
+}
+
+function updateTabVisibility(role) {
+  const entryTab = document.querySelector('nav button[data-tab="entry"]');
+  const settingsTab = document.querySelector('nav button[data-tab="settings"]');
+
+  if (!role) {
+    // Not logged in — show all (offline mode)
+    if (entryTab) entryTab.style.display = '';
+    if (settingsTab) settingsTab.style.display = '';
+    return;
+  }
+
+  if (role === 'observer') {
+    if (entryTab) entryTab.style.display = 'none';
+    if (settingsTab) settingsTab.style.display = 'none';
+    // If currently on hidden tab, switch to dashboard
+    if (currentTab === 'entry' || currentTab === 'settings') switchTab('dashboard');
+  } else {
+    if (entryTab) entryTab.style.display = '';
+    if (settingsTab) settingsTab.style.display = '';
   }
 }
 
