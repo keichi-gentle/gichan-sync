@@ -62,7 +62,17 @@
    - WPF 리프레시 토큰: Windows DPAPI 암호화 저장
    - Firebase API Key는 공개 가능 (Firestore 규칙이 보호)
 
-10. 비기능 요구사항
+10. 사용자 역할 관리
+    - 3가지 역할: admin(관리자), editor(편집자), observer(옵져버)
+    - admin: 전체 기능 + 사용자 관리 (계정 추가/삭제/역할 변경)
+    - editor: 입력/수정/삭제/설정 가능, 사용자 관리 불가
+    - observer: 읽기 전용 (현황/조회/리포트만, 기록/설정 탭 숨김)
+    - 역할 정보: Firestore /config/roles 문서에 저장
+    - 사용자 관리 권한: admin(gogokeichi@gmail.com)만 가능
+    - 등록되지 않은 이메일은 접근 거부
+    - PWA 설정탭에 관리자 전용 "사용자 관리" UI
+
+11. 비기능 요구사항
     - 무료 (Firebase Spark 플랜 범위 내)
     - 기존 프로젝트 소스코드 불변 (복사본에서만 작업)
     - ExcelOnly 모드에서 기존 테스트 45개 전체 통과

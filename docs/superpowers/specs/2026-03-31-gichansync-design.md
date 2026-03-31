@@ -120,7 +120,71 @@ public interface IDataService {
 - Excel → Firestore batch write (최대 500건/배치)
 - GUID 기반 upsert (중복 실행 안전)
 
-## 8. Phase 계획
+## 8. 사용자 역할 관리
+
+### 역할 정의
+
+| 역할 | 권한 | 탭 구성 |
+|------|------|--------|
+| **admin** | 전체 (입력/수정/삭제/설정/사용자관리) | 현황/기록/조회/리포트/설정 (5탭) |
+| **editor** | 입력/수정/삭제/설정 (사용자관리 제외) | 현황/기록/조회/리포트/설정 (5탭, 사용자관리 숨김) |
+| **observer** | 읽기 전용 | 현황/조회/리포트 (3탭, 기록/설정 숨김) |
+
+### Firestore 스키마
+
+```
+/config/roles  (단일 문서)
+  admin: ['gogokeichi@gmail.com']
+  editor: ['편집자@gmail.com']
+  observer: ['관찰자@gmail.com']
+  updatedAt: timestamp
+```
+
+### 보안 규칙
+
+```
+// 역할 설정 — 모든 로그인 사용자 읽기, admin만 쓰기
+match /config/roles {
+  allow read: if request.auth != null;
+  allow write: if request.auth.token.email == 'gogokeichi@gmail.com';
+}
+
+// 이벤트 데이터 — admin/editor 쓰기, 모든 역할 읽기
+match /users/{userId}/events/{eventId} {
+  allow read: if request.auth != null;
+  allow write: if request.auth.token.email in
+    resource.data.admin || request.auth.token.email in resource.data.editor;
+}
+```
+
+### PWA 동작
+
+1. 로그인 후 `/config/roles` 읽기 → 이메일로 역할 판별
+2. 역할에 따라 탭 표시/숨김
+3. admin만 설정탭에 "사용자 관리" 섹션 표시
+   - 편집자/옵져버 이메일 추가/삭제 UI
+   - Firestore `/config/roles` 문서 직접 수정
+4. 등록되지 않은 이메일 → 접근 거부 메시지
+
+### 관리자 전용 UI (설정탭 내)
+
+```
+┌─────────────────────────────┐
+│ 사용자 관리 (관리자 전용)      │
+├─────────────────────────────┤
+│ 편집자                       │
+│ [user1@gmail.com]    [삭제]  │
+│ [+ 편집자 추가]              │
+├─────────────────────────────┤
+│ 옵져버                       │
+│ [user2@gmail.com]    [삭제]  │
+│ [+ 옵져버 추가]              │
+└─────────────────────────────┘
+```
+
+---
+
+## 9. Phase 계획
 
 | Phase | 내용 | 세션 수 |
 |-------|------|--------|
@@ -129,3 +193,4 @@ public interface IDataService {
 | 3 | WPF Firebase 연동 (IDataService + 이중 쓰기) | 2-3 |
 | 4 | PWA 입력 기능 (선택) | 1 |
 | 5 | 마무리 (충돌 해결, 에러 처리, 문서) | 1 |
+| 6 | 사용자 역할 관리 (admin/editor/observer + 관리 UI) | 1 |

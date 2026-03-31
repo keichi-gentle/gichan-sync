@@ -42,12 +42,20 @@
   - messagingSenderId: 1051684985650
   - appId: 1:1051684985650:web:097ea9c25942f7be77952b
 
+## 사용자 역할
+- admin: gogokeichi@gmail.com — 전체 권한 + 사용자 관리
+- editor: (미지정) — 입력/수정/삭제/설정 (사용자 관리 제외)
+- observer: (미지정) — 읽기 전용 (기록/설정 탭 숨김)
+- 역할 저장: Firestore /config/roles 문서
+- 역할 관리: admin만 가능 (PWA 설정탭 내 관리자 전용 UI)
+
 ## Phase 진행 상태
 - Phase 1 (기반 설정): ✅ 완료
 - Phase 2 (PWA Firebase 연동 + 마이그레이션): ✅ 완료 (449건)
-- Phase 3 (WPF Firebase 연동): 서비스 계층 완료, ViewModel 전환 미완
+- Phase 3 (WPF Firebase 연동): ✅ 완료 (서비스+ViewModel 전환, 테스트 45개 통과)
 - Phase 4 (PWA 전체 기능): ✅ 완료 (입력/수정/삭제/설정 동기화)
 - Phase 5 (마무리): Firestore 보안 규칙 교체 필요
+- Phase 6 (사용자 역할 관리): 설계 완료, 구현 대기
 
 ## Firebase Auth UID
 - KrTxuQMTE9Ve2PXJcVTUJmhQntB3 (gogokeichi@gmail.com)
