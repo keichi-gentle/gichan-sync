@@ -142,3 +142,4 @@ E:\GitF\LocalOnly\Gi_chan\GichanSync\src\wpf\GichanDiary\obj\Debug\net8.0-window
 E:\GitF\LocalOnly\Gi_chan\GichanSync\src\wpf\GichanDiary\obj\Debug\net8.0-windows\GichanDiary.pdb
 E:\GitF\LocalOnly\Gi_chan\GichanSync\src\wpf\GichanDiary\obj\Debug\net8.0-windows\GichanDiary.genruntimeconfig.cache
 E:\GitF\LocalOnly\Gi_chan\GichanSync\src\wpf\GichanDiary\obj\Debug\net8.0-windows\ref\GichanDiary.dll
+E:\GitF\LocalOnly\Gi_chan\GichanSync\src\wpf\GichanDiary\obj\Debug\net8.0-windows\GichanDiary.sourcelink.json

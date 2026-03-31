@@ -20,14 +20,17 @@ public class FirestoreService
     private string BaseUrl => $"https://firestore.googleapis.com/v1/projects/{PROJECT_ID}/databases/(default)/documents";
     private string EventsUrl => $"{BaseUrl}/users/{_userId}/events";
 
-    public void SetCredentials(string userId, string idToken)
+    public void SetCredentials(string userId, string? idToken = null)
     {
         _userId = userId;
         _idToken = idToken;
-        _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", idToken);
+        if (!string.IsNullOrEmpty(idToken))
+            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", idToken);
+        else
+            _http.DefaultRequestHeaders.Authorization = null;
     }
 
-    public bool IsConfigured => !string.IsNullOrEmpty(_userId) && !string.IsNullOrEmpty(_idToken);
+    public bool IsConfigured => !string.IsNullOrEmpty(_userId);
 
     // ── CRUD ──
 

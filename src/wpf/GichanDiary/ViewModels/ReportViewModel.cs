@@ -17,7 +17,7 @@ public partial class ReportViewModel : ObservableObject
 
     // ── Period filter ──────────────────────────────────────
     [ObservableProperty] private string _selectedPeriod = "7일";
-    public List<string> PeriodOptions { get; } = new() { "7일", "14일", "30일", "전체" };
+    public List<string> PeriodOptions { get; } = new() { "1일", "3일", "7일", "14일", "30일", "전체" };
 
     // ── Today summary ──────────────────────────────────────
     [ObservableProperty] private string _todayFeedCount = "0회";

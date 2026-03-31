@@ -173,6 +173,18 @@ public partial class App : Application
             }
         }
 
+        // Firebase 동기화 활성화 (테스트 모드)
+        try
+        {
+            var coordinator = _serviceProvider.GetRequiredService<SyncCoordinator>();
+            var syncEnabled = await coordinator.TryEnableFirebaseSync();
+            LogService.System($"Firebase 동기화: {(syncEnabled ? "활성화" : "비활성화 (ExcelOnly)")}");
+        }
+        catch (Exception ex)
+        {
+            LogService.System($"Firebase 동기화 초기화 실패 (ExcelOnly로 계속): {ex.Message}");
+        }
+
         // Initialize and show
         try
         {

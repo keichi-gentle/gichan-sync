@@ -270,3 +270,4 @@ E:\GitF\LocalOnly\Gi_chan\GichanSync\src\wpf\GichanDiary.Tests\obj\Debug\net8.0-
 E:\GitF\LocalOnly\Gi_chan\GichanSync\src\wpf\GichanDiary.Tests\obj\Debug\net8.0-windows\GichanDiary.Tests.pdb
 E:\GitF\LocalOnly\Gi_chan\GichanSync\src\wpf\GichanDiary.Tests\obj\Debug\net8.0-windows\GichanDiary.Tests.genruntimeconfig.cache
 E:\GitF\LocalOnly\Gi_chan\GichanSync\src\wpf\GichanDiary.Tests\obj\Debug\net8.0-windows\ref\GichanDiary.Tests.dll
+E:\GitF\LocalOnly\Gi_chan\GichanSync\src\wpf\GichanDiary.Tests\obj\Debug\net8.0-windows\GichanDiary.Tests.sourcelink.json

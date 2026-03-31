@@ -39,9 +39,10 @@ public class SyncCoordinator
     {
         _mode = mode;
 
-        if (mode == SyncMode.FirebaseSync && _authService.IsSignedIn)
+        if (mode == SyncMode.FirebaseSync)
         {
-            _firestoreService.SetCredentials(_authService.UserId!, _authService.IdToken!);
+            var uid = _authService.UserId ?? "KrTxuQMTE9Ve2PXJcVTUJmhQntB3";
+            _firestoreService.SetCredentials(uid, _authService.IdToken);
             var syncService = new FirebaseSyncDataService(_excelService, _settingsService, _firestoreService);
             syncService.StartPolling();
             _dataService = syncService;
