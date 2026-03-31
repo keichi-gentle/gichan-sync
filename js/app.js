@@ -9,6 +9,7 @@ import { subscribeToEvents, unsubscribeEvents } from './firebase-sync.js';
 import { subscribeToSettings, unsubscribeSettings } from './firebase-settings.js';
 import { renderEntry } from './event-entry.js';
 import { loadRoles, determineRole, getRole, canWrite, canManageUsers } from './roles.js';
+import { calculateFeedingIntervals } from './calc.js';
 
 let currentEvents = [];
 let currentTab = 'dashboard';
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load cached data first (instant display)
   currentEvents = await loadEvents();
+  calculateFeedingIntervals(currentEvents);
   initScoreboard(currentEvents, document.getElementById('scoreboard'));
 
   // Set title from baby name
@@ -90,9 +92,9 @@ async function initFirebase() {
 
 function onFirestoreUpdate(events) {
   currentEvents = events;
+  calculateFeedingIntervals(currentEvents);
   updateScoreboardEvents(events);
   saveEvents(events);
-  // Auto-extract formula products from event data
   extractFormulaProducts(events);
   // Re-render current tab
   const container = document.getElementById(`page-${currentTab}`);

@@ -117,7 +117,7 @@ function buildEventCard(evt) {
       <span class="ec-category ${catClass}">${catLabel(evt.category)}</span>
     </div>
     <div class="ec-detail ${detailClass}">${evt.detail}</div>
-    <div class="ec-amount">${evt.amount}${evt.note ? ` · ${evt.note}` : ''}</div>
+    <div class="ec-amount">${evt.amount}${evt.feedingInterval ? ` · 텀 ${evt.feedingInterval}` : ''}${evt.note ? ` · ${evt.note}` : ''}</div>
   </div>`;
 }
 
