@@ -117,10 +117,10 @@
                       AlternatingRowBackground="{DynamicResource BgDarkBrush}"
                       HorizontalGridLinesBrush="{DynamicResource BorderBrush}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="일차" Binding="{Binding DayNumber}" Width="Auto"/>
-                    <DataGridTextColumn Header="날짜" Binding="{Binding Date, StringFormat=MM/dd}" Width="Auto"/>
-                    <DataGridTextColumn Header="시간" Binding="{Binding Time, StringFormat=hh\\:mm}" Width="Auto"/>
-                    <DataGridTextColumn Header="구분" Binding="{Binding Category}" Width="Auto">
+                    <DataGridTextColumn Header="일차" Binding="{Binding DayNumber}" MinWidth="70" Width="SizeToCells"/>
+                    <DataGridTextColumn Header="날짜" Binding="{Binding Date, StringFormat=MM/dd}" MinWidth="80" Width="SizeToCells"/>
+                    <DataGridTextColumn Header="시간" Binding="{Binding Time, StringFormat=hh\\:mm}" MinWidth="75" Width="SizeToCells"/>
+                    <DataGridTextColumn Header="구분" Binding="{Binding Category}" MinWidth="90" Width="SizeToCells">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="{Binding Category, Converter={StaticResource CategoryToColor}}"/>
@@ -140,8 +140,8 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="양" Binding="{Binding Amount}" Width="Auto"/>
-                    <DataGridTextColumn Header="수유텀" Binding="{Binding FeedingInterval, Converter={StaticResource TimeSpanToString}}" Width="Auto"/>
+                    <DataGridTextColumn Header="양" Binding="{Binding Amount}" MinWidth="80" Width="SizeToCells"/>
+                    <DataGridTextColumn Header="수유텀" Binding="{Binding FeedingInterval, Converter={StaticResource TimeSpanToString}}" MinWidth="120" Width="SizeToCells"/>
                     <DataGridTextColumn Header="비고" Binding="{Binding Note}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
