@@ -1,26 +1,81 @@
-import { loadEvents, getSetting, setSetting } from './storage.js';
+import { loadEvents, saveEvents, getSetting, setSetting } from './storage.js';
 import { renderDashboard } from './dashboard.js';
 import { renderBrowse } from './browse.js';
 import { renderReport } from './report.js';
 import { renderSettings } from './settings.js';
 import { initScoreboard, updateScoreboardEvents } from './scoreboard.js';
+import { initAuth, onAuthChange } from './firebase-auth.js';
+import { subscribeToEvents, unsubscribeEvents } from './firebase-sync.js';
 
 let currentEvents = [];
 let currentTab = 'dashboard';
+let firebaseReady = false;
 
 // ── Init ──
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initTabs();
+
+  // Load cached data first (instant display)
   currentEvents = await loadEvents();
   initScoreboard(currentEvents, document.getElementById('scoreboard'));
   switchTab('dashboard');
+
+  // Initialize Firebase auth (non-blocking)
+  await initFirebase();
 
   // Register Service Worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 });
+
+// ── Firebase Init ──
+async function initFirebase() {
+  // Wait for Firebase SDK to load
+  const waitForFirebase = () => new Promise((resolve) => {
+    const check = () => window.__firebase ? resolve(window.__firebase) : setTimeout(check, 100);
+    check();
+  });
+
+  try {
+    const fb = await waitForFirebase();
+    await initAuth(fb.auth);
+    firebaseReady = true;
+
+    onAuthChange((user) => {
+      if (user) {
+        // Signed in → subscribe to Firestore
+        subscribeToEvents(fb.db, user.uid, onFirestoreUpdate);
+        setSetting('firebaseUid', user.uid);
+        setSetting('firebaseEmail', user.email);
+      } else {
+        // Signed out → unsubscribe
+        unsubscribeEvents();
+      }
+      // Re-render settings tab if visible
+      if (currentTab === 'settings') switchTab('settings');
+    });
+  } catch (err) {
+    console.warn('Firebase init failed, using offline mode:', err);
+  }
+}
+
+function onFirestoreUpdate(events) {
+  currentEvents = events;
+  updateScoreboardEvents(events);
+  // Cache to IndexedDB for offline use
+  saveEvents(events);
+  // Re-render current tab
+  const container = document.getElementById(`page-${currentTab}`);
+  if (container) {
+    switch (currentTab) {
+      case 'dashboard': renderDashboard(currentEvents, container); break;
+      case 'browse': renderBrowse(currentEvents, container); break;
+      case 'report': renderReport(currentEvents, container); break;
+    }
+  }
+}
 
 // ── Theme ──
 function initTheme() {
@@ -34,7 +89,6 @@ function initTheme() {
     document.documentElement.setAttribute('data-theme', next);
     setSetting('theme', next);
     updateThemeButton(next);
-    // Re-render current tab for chart color updates
     if (currentTab === 'report') switchTab('report');
   });
 }
@@ -50,26 +104,23 @@ function initTabs() {
   });
 }
 
-function switchTab(tab) {
+export function switchTab(tab) {
   currentTab = tab;
 
-  // Update nav
   document.querySelectorAll('nav button').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === tab);
   });
 
-  // Update pages
   document.querySelectorAll('.tab-page').forEach(page => {
     page.classList.toggle('active', page.id === `page-${tab}`);
   });
 
-  // Render
   const container = document.getElementById(`page-${tab}`);
   switch (tab) {
     case 'dashboard': renderDashboard(currentEvents, container); break;
     case 'browse': renderBrowse(currentEvents, container); break;
     case 'report': renderReport(currentEvents, container); break;
-    case 'settings': renderSettings(container, onImport); break;
+    case 'settings': renderSettings(container, onImport, firebaseReady); break;
   }
 }
 
