@@ -1,6 +1,7 @@
 import { parseExcelFile } from './excel-parser.js';
 import { saveEvents, getSetting, setSetting } from './storage.js';
 import { signIn, signOut, getCurrentUser } from './firebase-auth.js';
+import { saveSettingsToFirestore, getDefaultSettings } from './firebase-settings.js';
 
 let onImportCallback = null;
 
@@ -43,6 +44,30 @@ export function renderSettings(container, onImport, firebaseReady = false) {
       <div class="setting-row">
         <label>아기 이름</label>
         <input type="text" id="set-babyname" value="${babyName}" placeholder="이름 입력" style="width:120px;text-align:right;">
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <h3>수유 설정</h3>
+      <div class="setting-row">
+        <label>고정 수유텀 (시간)</label>
+        <input type="number" id="set-interval" value="${(getSetting('fixedFeedingInterval', 10800) / 3600).toFixed(1)}" step="0.5" min="1" max="8" style="width:70px;text-align:right;">
+      </div>
+      <div class="setting-row">
+        <label>평균 수유텀 계산 횟수</label>
+        <input type="number" id="set-avgcount" value="${getSetting('averageFeedingCount', 10)}" min="3" max="30" style="width:70px;text-align:right;">
+      </div>
+      <div class="setting-row">
+        <label>기본 분유량 (ml)</label>
+        <input type="number" id="set-defformula" value="${getSetting('defaultFormulaAmount', 100)}" step="5" min="0" max="300" style="width:70px;text-align:right;">
+      </div>
+      <div class="setting-row">
+        <label>기본 모유량 (ml)</label>
+        <input type="number" id="set-defbreast" value="${getSetting('defaultBreastfeedAmount', 20)}" step="5" min="0" max="100" style="width:70px;text-align:right;">
+      </div>
+      <div class="setting-row">
+        <label>분유 제품</label>
+        <input type="text" id="set-product" value="${getSetting('defaultFormulaProduct', '트루맘 클래식')}" style="width:140px;text-align:right;">
       </div>
     </div>
 
@@ -114,9 +139,55 @@ function bindEvents(container) {
 
   container.querySelector('#set-pagesize')?.addEventListener('change', (e) => {
     setSetting('pageSize', parseInt(e.target.value));
+    syncSetting('pageSize', parseInt(e.target.value));
   });
 
   container.querySelector('#set-babyname')?.addEventListener('change', (e) => {
-    setSetting('babyName', e.target.value.trim());
+    const v = e.target.value.trim();
+    setSetting('babyName', v);
+    syncSetting('babyName', v);
   });
+
+  // Feeding settings
+  container.querySelector('#set-interval')?.addEventListener('change', (e) => {
+    const secs = Math.round(parseFloat(e.target.value) * 3600);
+    setSetting('fixedFeedingInterval', secs);
+    syncSetting('fixedFeedingInterval', secs);
+  });
+
+  container.querySelector('#set-avgcount')?.addEventListener('change', (e) => {
+    const v = parseInt(e.target.value);
+    setSetting('averageFeedingCount', v);
+    syncSetting('averageFeedingCount', v);
+  });
+
+  container.querySelector('#set-defformula')?.addEventListener('change', (e) => {
+    const v = parseInt(e.target.value);
+    setSetting('defaultFormulaAmount', v);
+    syncSetting('defaultFormulaAmount', v);
+  });
+
+  container.querySelector('#set-defbreast')?.addEventListener('change', (e) => {
+    const v = parseInt(e.target.value);
+    setSetting('defaultBreastfeedAmount', v);
+    syncSetting('defaultBreastfeedAmount', v);
+  });
+
+  container.querySelector('#set-product')?.addEventListener('change', (e) => {
+    const v = e.target.value.trim();
+    setSetting('defaultFormulaProduct', v);
+    setSetting('formulaProducts', [v]);
+    syncSetting('defaultFormulaProduct', v);
+    syncSetting('formulaProducts', [v]);
+  });
+}
+
+async function syncSetting(key, value) {
+  const user = getCurrentUser();
+  if (!user) return;
+  try {
+    await saveSettingsToFirestore({ [key]: value });
+  } catch (err) {
+    console.warn('Setting sync failed:', err);
+  }
 }

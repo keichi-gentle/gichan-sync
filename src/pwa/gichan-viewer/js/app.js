@@ -6,6 +6,7 @@ import { renderSettings } from './settings.js';
 import { initScoreboard, updateScoreboardEvents } from './scoreboard.js';
 import { initAuth, onAuthChange } from './firebase-auth.js';
 import { subscribeToEvents, unsubscribeEvents } from './firebase-sync.js';
+import { subscribeToSettings, unsubscribeSettings } from './firebase-settings.js';
 import { renderEntry } from './event-entry.js';
 
 let currentEvents = [];
@@ -46,13 +47,13 @@ async function initFirebase() {
 
     onAuthChange((user) => {
       if (user) {
-        // Signed in → subscribe to Firestore
         subscribeToEvents(fb.db, user.uid, onFirestoreUpdate);
+        subscribeToSettings(fb.db, user.uid);
         setSetting('firebaseUid', user.uid);
         setSetting('firebaseEmail', user.email);
       } else {
-        // Signed out → unsubscribe
         unsubscribeEvents();
+        unsubscribeSettings();
       }
       // Re-render settings tab if visible
       if (currentTab === 'settings') switchTab('settings');
