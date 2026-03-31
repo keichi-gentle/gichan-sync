@@ -99,7 +99,7 @@
 
         <!-- DataGrid: full width table -->
         <Border Style="{DynamicResource CardBorder}" Padding="0" CornerRadius="14" Margin="0">
-            <DataGrid ItemsSource="{Binding FilteredEvents}"
+            <DataGrid x:Name="EventGrid" ItemsSource="{Binding FilteredEvents}"
                       SelectedItem="{Binding SelectedEvent}"
                       AutoGenerateColumns="False"
                       IsReadOnly="True"
@@ -117,10 +117,10 @@
                       AlternatingRowBackground="{DynamicResource BgDarkBrush}"
                       HorizontalGridLinesBrush="{DynamicResource BorderBrush}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="일차" Binding="{Binding DayNumber}" Width="70"/>
-                    <DataGridTextColumn Header="날짜" Binding="{Binding Date, StringFormat=MM/dd}" Width="90"/>
-                    <DataGridTextColumn Header="시간" Binding="{Binding Time, StringFormat=hh\\:mm}" Width="70"/>
-                    <DataGridTextColumn Header="구분" Binding="{Binding Category}" Width="80">
+                    <DataGridTextColumn Header="일차" Binding="{Binding DayNumber}" Width="Auto"/>
+                    <DataGridTextColumn Header="날짜" Binding="{Binding Date, StringFormat=MM/dd}" Width="Auto"/>
+                    <DataGridTextColumn Header="시간" Binding="{Binding Time, StringFormat=hh\\:mm}" Width="Auto"/>
+                    <DataGridTextColumn Header="구분" Binding="{Binding Category}" Width="Auto">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="{Binding Category, Converter={StaticResource CategoryToColor}}"/>
@@ -140,8 +140,8 @@
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Header="양" Binding="{Binding Amount}" Width="80"/>
-                    <DataGridTextColumn Header="수유텀" Binding="{Binding FeedingInterval, Converter={StaticResource TimeSpanToString}}" Width="110"/>
+                    <DataGridTextColumn Header="양" Binding="{Binding Amount}" Width="Auto"/>
+                    <DataGridTextColumn Header="수유텀" Binding="{Binding FeedingInterval, Converter={StaticResource TimeSpanToString}}" Width="Auto"/>
                     <DataGridTextColumn Header="비고" Binding="{Binding Note}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
