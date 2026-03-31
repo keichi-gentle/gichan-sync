@@ -88,7 +88,7 @@ export function renderSettings(container, onImport, firebaseReady = false) {
       </div>
       <div class="setting-row">
         <label>분유 제품</label>
-        <select id="set-product" style="max-width:70%;">
+        <select id="set-product" style="width:150px;">
           ${(getSetting('formulaProducts', ['트루맘 클래식'])).map(p => `<option value="${p}" ${p===getSetting('defaultFormulaProduct','트루맘 클래식')?'selected':''}>${p}</option>`).join('')}
         </select>
       </div>
