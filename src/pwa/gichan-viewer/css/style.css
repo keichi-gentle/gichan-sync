@@ -69,13 +69,13 @@ html, body {
 
 header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 16px;
+  padding: 6px 16px;
   background: var(--bg-sidebar);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
-header h1 { font-size: 18px; font-weight: 700; }
+header h1 { font-size: 15px; font-weight: 700; }
 
 #theme-toggle {
   background: none; border: 1px solid var(--border);
