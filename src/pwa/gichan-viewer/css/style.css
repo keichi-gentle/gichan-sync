@@ -129,17 +129,17 @@ nav button svg { width: 22px; height: 22px; }
 
 /* ═══ Dashboard Split Layout ═══ */
 .card-split {
-  display: flex; gap: 12px;
+  display: flex; align-items: stretch;
 }
-.card-split-half { flex: 1; }
-.card-split-divider { width: 1px; background: var(--border); align-self: stretch; }
+.card-split-half { flex: 1; padding: 0 8px; }
+.card-split-divider { width: 1px; background: var(--border); margin: 4px 0; }
 
 /* ═══ Dashboard Bowel Split ═══ */
 .bowel-split {
   display: flex; align-items: stretch;
 }
-.bowel-half { flex: 1; }
-.bowel-divider { width: 1px; background: var(--border); margin: 0 4px; }
+.bowel-half { flex: 1; padding: 0 4px; }
+.bowel-divider { width: 1px; background: var(--border); margin: 4px 0; }
 .bowel-inner { display: flex; align-items: center; gap: 10px; }
 .bowel-left { text-align: center; min-width: 50px; }
 .bowel-right { text-align: left; }
@@ -174,9 +174,12 @@ nav button svg { width: 22px; height: 22px; }
 
 /* ═══ Browse Tab ═══ */
 .browse-filters-sticky {
-  position: sticky; top: 0; z-index: 10;
-  background: var(--bg-dark); padding-bottom: 4px;
-  margin: -12px -12px 0 -12px; padding: 12px 12px 8px 12px;
+  position: sticky; top: -12px; z-index: 10;
+  background: var(--bg-dark);
+  margin: -12px -12px 0 -12px;
+  padding: 12px 12px 8px 12px;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 .filter-bar {
