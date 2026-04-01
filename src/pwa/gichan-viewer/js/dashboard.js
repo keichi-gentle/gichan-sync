@@ -34,13 +34,21 @@ function buildFeedCard(events, now) {
   const todayCount = C.getDailyFeedCount(events, now);
   const avgInterval = C.formatInterval(C.getAvgFeedingInterval(events, 10));
 
-  return card('수유', 'cat-feed', [
-    row('최근 수유', time),
-    row('경과', elapsed),
-    row('내용', detail),
-    row('오늘 누적', `${todayTotal}ml / ${todayCount}회`),
-    row('평균 수유텀', avgInterval),
-  ]);
+  return `<div class="card">
+    <div class="card-title cat-feed">수유</div>
+    <div class="card-split">
+      <div class="card-split-half">
+        ${row('최근 수유', time)}
+        ${row('경과', elapsed)}
+        ${row('내용', detail)}
+      </div>
+      <div class="card-split-divider"></div>
+      <div class="card-split-half">
+        ${row('오늘 누적', `${todayTotal}ml / ${todayCount}회`)}
+        ${row('평균 수유텀', avgInterval)}
+      </div>
+    </div>
+  </div>`;
 }
 
 function buildBowelCard(events, now) {
@@ -59,17 +67,29 @@ function buildBowelCard(events, now) {
     <div class="card-title cat-bowel">배변</div>
     <div class="bowel-split">
       <div class="bowel-half">
-        <div class="bowel-label" style="color:var(--cat-urine)">소변</div>
-        <div class="bowel-time">${urineTime}</div>
-        <div class="bowel-elapsed" style="color:var(--cat-urine)">${urineEl}</div>
-        <div class="bowel-count">오늘 ${summary.urineCount}회</div>
+        <div class="bowel-inner">
+          <div class="bowel-left">
+            <div class="bowel-label" style="color:var(--cat-urine)">소변</div>
+            <div class="bowel-time">${urineTime}</div>
+          </div>
+          <div class="bowel-right">
+            <div class="bowel-elapsed" style="color:var(--cat-urine)">${urineEl}</div>
+            <div class="bowel-count">오늘 ${summary.urineCount}회</div>
+          </div>
+        </div>
       </div>
       <div class="bowel-divider"></div>
       <div class="bowel-half">
-        <div class="bowel-label" style="color:var(--cat-stool)">대변</div>
-        <div class="bowel-time">${stoolTime}</div>
-        <div class="bowel-elapsed" style="color:var(--cat-stool)">${stoolEl}</div>
-        <div class="bowel-count">오늘 ${summary.stoolCount}회</div>
+        <div class="bowel-inner">
+          <div class="bowel-left">
+            <div class="bowel-label" style="color:var(--cat-stool)">대변</div>
+            <div class="bowel-time">${stoolTime}</div>
+          </div>
+          <div class="bowel-right">
+            <div class="bowel-elapsed" style="color:var(--cat-stool)">${stoolEl}</div>
+            <div class="bowel-count">오늘 ${summary.stoolCount}회</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>`;
@@ -104,11 +124,19 @@ function buildBodyCard(events) {
   const find = (kw) => body.find(e => e.detail.includes(kw));
   const fmt = (evt) => evt ? `${fmtDate(C.getFullDateTime(evt))} ${evt.amount}` : '-';
 
-  return card('신체 측정', 'cat-body', [
-    row('키', fmt(find('키'))),
-    row('몸무게', fmt(find('몸무게'))),
-    row('머리둘레', fmt(find('머리'))),
-  ]);
+  return `<div class="card">
+    <div class="card-title cat-body">신체 측정</div>
+    <div class="card-split">
+      <div class="card-split-half">
+        ${row('키', fmt(find('키')))}
+        ${row('몸무게', fmt(find('몸무게')))}
+      </div>
+      <div class="card-split-divider"></div>
+      <div class="card-split-half">
+        ${row('머리둘레', fmt(find('머리')))}
+      </div>
+    </div>
+  </div>`;
 }
 
 function buildHealthCard(events) {

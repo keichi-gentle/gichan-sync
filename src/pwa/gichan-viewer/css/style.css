@@ -122,20 +122,30 @@ nav button svg { width: 22px; height: 22px; }
 }
 
 .card-title {
-  font-size: 18px; font-weight: 700;
+  font-size: 20px; font-weight: 900;
   margin-bottom: 10px;
   display: flex; align-items: center; gap: 6px;
 }
 
+/* ═══ Dashboard Split Layout ═══ */
+.card-split {
+  display: flex; gap: 12px;
+}
+.card-split-half { flex: 1; }
+.card-split-divider { width: 1px; background: var(--border); align-self: stretch; }
+
 /* ═══ Dashboard Bowel Split ═══ */
 .bowel-split {
-  display: flex; align-items: center;
+  display: flex; align-items: stretch;
 }
-.bowel-half { flex: 1; text-align: center; }
-.bowel-divider { width: 1px; background: var(--border); align-self: stretch; margin: 0 8px; }
-.bowel-label { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.bowel-half { flex: 1; }
+.bowel-divider { width: 1px; background: var(--border); margin: 0 4px; }
+.bowel-inner { display: flex; align-items: center; gap: 10px; }
+.bowel-left { text-align: center; min-width: 50px; }
+.bowel-right { text-align: left; }
+.bowel-label { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
 .bowel-time { font-size: 16px; font-weight: 700; color: var(--text-light); }
-.bowel-elapsed { font-size: 13px; margin-top: 2px; }
+.bowel-elapsed { font-size: 13px; }
 .bowel-count { font-size: 13px; color: var(--text-mid); margin-top: 2px; }
 
 .card-row {
