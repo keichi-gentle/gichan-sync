@@ -122,10 +122,21 @@ nav button svg { width: 22px; height: 22px; }
 }
 
 .card-title {
-  font-size: 16px; font-weight: 700;
+  font-size: 18px; font-weight: 700;
   margin-bottom: 10px;
   display: flex; align-items: center; gap: 6px;
 }
+
+/* ═══ Dashboard Bowel Split ═══ */
+.bowel-split {
+  display: flex; align-items: center;
+}
+.bowel-half { flex: 1; text-align: center; }
+.bowel-divider { width: 1px; background: var(--border); align-self: stretch; margin: 0 8px; }
+.bowel-label { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.bowel-time { font-size: 16px; font-weight: 700; color: var(--text-light); }
+.bowel-elapsed { font-size: 13px; margin-top: 2px; }
+.bowel-count { font-size: 13px; color: var(--text-mid); margin-top: 2px; }
 
 .card-row {
   display: flex; justify-content: space-between;

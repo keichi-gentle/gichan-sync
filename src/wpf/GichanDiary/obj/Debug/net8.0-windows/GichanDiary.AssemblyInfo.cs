@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GichanDiary")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bdf1a2566c759c1519a65d81b9eb92849864a3ab")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b78ade3cb59b1dbacf3f3e86ad2d29acdd2b3f59")]
 [assembly: System.Reflection.AssemblyProductAttribute("GichanDiary")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GichanDiary")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
