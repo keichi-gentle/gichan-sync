@@ -48,12 +48,31 @@ function buildBowelCard(events, now) {
   const urineEl = C.formatElapsed(C.getLastUrineElapsed(events));
   const stoolEl = C.formatElapsed(C.getLastStoolElapsed(events));
 
-  return card('배변', 'cat-bowel', [
-    colorRow('소변 경과', urineEl, '--cat-urine'),
-    colorRow('대변 경과', stoolEl, '--cat-stool'),
-    colorRow('오늘 소변', `${summary.urineCount}회`, '--cat-urine'),
-    colorRow('오늘 대변', `${summary.stoolCount}회`, '--cat-stool'),
-  ]);
+  const lastUrine = events.filter(e => e.category === '배변' && e.hasUrine && C.getFullDateTime(e))
+    .sort((a, b) => C.getFullDateTime(b) - C.getFullDateTime(a))[0];
+  const lastStool = events.filter(e => e.category === '배변' && e.hasStool && C.getFullDateTime(e))
+    .sort((a, b) => C.getFullDateTime(b) - C.getFullDateTime(a))[0];
+  const urineTime = lastUrine ? C.getFullDateTime(lastUrine).toTimeString().slice(0,5) : '-';
+  const stoolTime = lastStool ? C.getFullDateTime(lastStool).toTimeString().slice(0,5) : '-';
+
+  return `<div class="card">
+    <div class="card-title cat-bowel">배변</div>
+    <div class="bowel-split">
+      <div class="bowel-half">
+        <div class="bowel-label" style="color:var(--cat-urine)">소변</div>
+        <div class="bowel-time">${urineTime}</div>
+        <div class="bowel-elapsed" style="color:var(--cat-urine)">${urineEl}</div>
+        <div class="bowel-count">오늘 ${summary.urineCount}회</div>
+      </div>
+      <div class="bowel-divider"></div>
+      <div class="bowel-half">
+        <div class="bowel-label" style="color:var(--cat-stool)">대변</div>
+        <div class="bowel-time">${stoolTime}</div>
+        <div class="bowel-elapsed" style="color:var(--cat-stool)">${stoolEl}</div>
+        <div class="bowel-count">오늘 ${summary.stoolCount}회</div>
+      </div>
+    </div>
+  </div>`;
 }
 
 function buildHygieneCard(events, now) {
