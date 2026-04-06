@@ -413,21 +413,22 @@ select, input[type="text"] {
 }
 .sb-date { font-size: 14px; color: var(--cat-system); margin-top: 2px; }
 
-.sb-sections {
-  display: flex; align-items: stretch;
+.sb-grid {
+  display: flex; gap: 8px;
   border-top: 1px solid var(--border);
-  padding-top: 8px; margin-bottom: 8px;
+  padding-top: 8px;
 }
 
-.sb-section { flex: 1; text-align: center; padding: 0 4px; }
+.sb-group { flex: 1; }
+.sb-group:first-child { flex: 1.6; }
+.sb-group-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+
+.sb-row { display: flex; gap: 8px; margin-bottom: 6px; }
+.sb-cell { flex: 1; }
+
 .sb-label { font-size: 12px; font-weight: 700; color: var(--text-light); margin-bottom: 3px; }
-.sb-value { font-size: 16px; font-weight: 700; }
-.sb-sub { font-size: 12px; color: var(--text-mid); margin-top: 2px; }
-
-.sb-divider {
-  width: 1px; background: var(--border);
-  margin: 0 2px; align-self: stretch;
-}
+.sb-value { font-size: 15px; font-weight: 700; }
+.sb-sub { font-size: 11px; color: var(--text-mid); margin-top: 1px; }
 
 .sb-progress {
   height: 4px; background: var(--bg-dark);
@@ -443,12 +444,3 @@ select, input[type="text"] {
 
 @keyframes sb-blink { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 .sb-urgent { animation: sb-blink 1s ease-in-out infinite; }
-
-.sb-bowel {
-  display: flex; border-top: 1px solid var(--border);
-  padding-top: 6px;
-}
-
-.sb-bowel-half { flex: 1; display: flex; justify-content: center; align-items: center; gap: 12px; }
-.sb-bowel-divider { width: 1px; background: var(--border); margin: 0 4px; }
-.sb-bowel-col { text-align: center; }
