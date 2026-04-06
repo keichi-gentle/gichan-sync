@@ -1,5 +1,5 @@
 import { parseExcelFile } from './excel-parser.js';
-import { saveEvents, getSetting, setSetting } from './storage.js';
+import { saveEvents, loadEvents, getSetting, setSetting } from './storage.js';
 import { signIn, signOut, getCurrentUser } from './firebase-auth.js';
 import { saveSettingsToFirestore, getDefaultSettings } from './firebase-settings.js';
 import { canManageUsers, getRolesData, saveRoles } from './roles.js';
@@ -19,11 +19,26 @@ export function renderSettings(container, onImport, firebaseReady = false) {
 
   const user = getCurrentUser();
   const authSection = firebaseReady ? buildAuthSection(user) : '<div class="import-info">Firebase 연결 중...</div>';
+  const lastSync = getSetting('lastSyncTime', '-');
 
   container.innerHTML = `
     <div class="setting-group">
       <h3>클라우드 동기화</h3>
       <div id="auth-section">${authSection}</div>
+      ${user ? `
+      <div class="setting-row" style="margin-top:10px;">
+        <label>동기화</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="step-btn" id="sync-upload-btn" style="padding:6px 14px;width:auto;font-size:13px;background:var(--cat-system);color:var(--white);border-radius:8px;">올리기</button>
+          <button class="step-btn" id="sync-download-btn" style="padding:6px 14px;width:auto;font-size:13px;background:var(--cat-system);color:var(--white);border-radius:8px;">내려받기</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <label style="font-size:13px;">최근 동기화 시각</label>
+        <span id="sync-time-display" style="font-size:13px;color:var(--text-light);font-weight:600;">${lastSync !== '-' ? lastSync : '-'}</span>
+      </div>
+      <div id="sync-status" style="text-align:center;margin-top:4px;font-size:13px;font-weight:600;color:var(--cat-feed);"></div>
+      ` : ''}
     </div>
 
     <div class="setting-group">
@@ -102,7 +117,7 @@ export function renderSettings(container, onImport, firebaseReady = false) {
 
     <div class="setting-group">
       <h3>앱 정보</h3>
-      <div class="setting-row"><label>버전</label><span>3.0.8</span></div>
+      <div class="setting-row"><label>버전</label><span>3.0.10</span></div>
       <div class="setting-row"><label>상위 프로젝트</label><span>기찬다이어리 (WPF)</span></div>
       <div class="setting-row"><label>데이터 소스</label><span>${user ? 'Firebase 실시간' : 'IndexedDB (로컬)'}</span></div>
       <div class="setting-row"><label>역할</label><span>${getSetting('userRole', '-')}</span></div>
@@ -218,6 +233,71 @@ function bindEvents(container) {
     const v = e.target.value.trim();
     setSetting('defaultFormulaProduct', v);
     syncSetting('defaultFormulaProduct', v);
+  });
+
+  // Firebase sync upload/download
+  container.querySelector('#sync-upload-btn')?.addEventListener('click', async () => {
+    const statusEl = container.querySelector('#sync-status');
+    const timeEl = container.querySelector('#sync-time-display');
+    statusEl.textContent = '업로드 중...';
+    try {
+      const events = await loadEvents();
+      if (!events || events.length === 0) {
+        statusEl.textContent = '로컬 데이터가 없습니다.';
+        statusEl.style.color = 'var(--cat-health)';
+        return;
+      }
+      const { collection, doc, setDoc, Timestamp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      const db = window.__firebase.db;
+      const user = getCurrentUser();
+      const dataUid = getRolesData()?.dataUid || user.uid;
+      for (const evt of events) {
+        const docId = evt.id || crypto.randomUUID();
+        const data = { ...evt, id: docId, source: 'pwa', updatedAt: Timestamp.now() };
+        if (evt.date instanceof Date) data.date = Timestamp.fromDate(evt.date);
+        await setDoc(doc(db, 'users', dataUid, 'events', docId), data, { merge: true });
+      }
+      const now = new Date();
+      const timeStr = now.toLocaleString('ko-KR', { year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false }).replace(/\. /g,'.').replace('.  ','. ');
+      setSetting('lastSyncTime', timeStr);
+      timeEl.textContent = timeStr;
+      statusEl.textContent = `업로드 완료 (${events.length}건)`;
+      statusEl.style.color = 'var(--cat-feed)';
+    } catch (err) {
+      statusEl.textContent = `업로드 실패: ${err.message}`;
+      statusEl.style.color = 'var(--cat-health)';
+    }
+  });
+
+  container.querySelector('#sync-download-btn')?.addEventListener('click', async () => {
+    const statusEl = container.querySelector('#sync-status');
+    const timeEl = container.querySelector('#sync-time-display');
+    statusEl.textContent = '내려받는 중...';
+    try {
+      const { collection, query, getDocs, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      const db = window.__firebase.db;
+      const user = getCurrentUser();
+      const dataUid = getRolesData()?.dataUid || user.uid;
+      const q = query(collection(db, 'users', dataUid, 'events'), orderBy('date', 'asc'));
+      const snapshot = await getDocs(q);
+      const events = [];
+      snapshot.forEach(d => {
+        const data = d.data();
+        if (data.date?.toDate) data.date = data.date.toDate();
+        events.push(data);
+      });
+      await saveEvents(events);
+      const now = new Date();
+      const timeStr = now.toLocaleString('ko-KR', { year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false }).replace(/\. /g,'.').replace('.  ','. ');
+      setSetting('lastSyncTime', timeStr);
+      timeEl.textContent = timeStr;
+      statusEl.textContent = `내려받기 완료 (${events.length}건)`;
+      statusEl.style.color = 'var(--cat-feed)';
+      if (onImportCallback) onImportCallback(events);
+    } catch (err) {
+      statusEl.textContent = `내려받기 실패: ${err.message}`;
+      statusEl.style.color = 'var(--cat-health)';
+    }
   });
 }
 

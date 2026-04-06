@@ -48,6 +48,18 @@ export async function loadEvents() {
   });
 }
 
+// Save or update a single event in IndexedDB (for offline fallback)
+export async function saveEventToLocal(event) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.put(event);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
 // LocalStorage helpers
 export function getSetting(key, defaultVal = null) {
   const v = localStorage.getItem(`gv_${key}`);

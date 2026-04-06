@@ -1,6 +1,6 @@
 // Event Entry — write new events to Firestore
 import { getCurrentUser } from './firebase-auth.js';
-import { getSetting } from './storage.js';
+import { getSetting, saveEventToLocal } from './storage.js';
 import { getRolesData } from './roles.js';
 
 const CATEGORIES = ['수유', '배변', '위생관리', '신체측정', '건강관리', '기타'];
@@ -207,6 +207,7 @@ async function saveEvent(container) {
     if (evt.hasUrine != null) data.hasUrine = evt.hasUrine;
     if (evt.hasStool != null) data.hasStool = evt.hasStool;
     if (evt.immediateNotice != null) data.immediateNotice = evt.immediateNotice;
+    if (evt.dailyFeedTotal != null) data.dailyFeedTotal = evt.dailyFeedTotal;
 
     await setDoc(docRef, data, { merge: true });
     status.textContent = editingEvent ? '✓ 수정 완료!' : '✓ 저장 완료!';
@@ -218,8 +219,17 @@ async function saveEvent(container) {
       document.getElementById('e-min').value = now.getMinutes();
     }
   } catch (err) {
-    status.textContent = `✗ 오류: ${err.message}`;
-    status.style.color = 'var(--cat-health)';
+    // Firestore 실패 시 IndexedDB에 로컬 저장
+    try {
+      const localData = { ...data, date: evt.fullDate, updatedAt: new Date() };
+      if (localData.createdAt) localData.createdAt = new Date();
+      await saveEventToLocal(localData);
+      status.textContent = `⚠ 오프라인 저장됨 (동기화 대기)`;
+      status.style.color = 'var(--cat-bowel)';
+    } catch {
+      status.textContent = `✗ 오류: ${err.message}`;
+      status.style.color = 'var(--cat-health)';
+    }
   }
 }
 
@@ -245,11 +255,13 @@ function buildEvent() {
       else if (breastAmt > 0) base.detail = '모유';
       else base.detail = product;
 
-      base.amount = `${formulaAmt + breastAmt}ml`;
+      const totalAmt = formulaAmt + breastAmt;
+      base.amount = `${totalAmt}ml`;
       base.formulaProduct = formulaOn ? product : null;
       base.formulaAmount = formulaAmt > 0 ? formulaAmt : null;
       base.breastfeedAmount = breastAmt > 0 ? breastAmt : null;
       base.feedingCount = parseInt(document.getElementById('e-feedcount')?.value || 1);
+      base.dailyFeedTotal = totalAmt > 0 ? totalAmt : null;
       break;
     }
     case '배변': {
