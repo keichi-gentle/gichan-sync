@@ -59,18 +59,18 @@ public class SyncCoordinator
     {
         if (!_authService.IsSignedIn)
         {
-            // Try to sign in with saved UID (test mode)
             var settings = _settingsService.Load();
-            // For now, use hardcoded UID from migration
             await _authService.SignInWithSavedUidAsync("KrTxuQMTE9Ve2PXJcVTUJmhQntB3");
         }
 
         if (_authService.IsSignedIn)
         {
             CreateDataService(SyncMode.FirebaseSync);
+            LogService.System($"Firebase 동기화: 활성화 (UID={_authService.UserId})");
             return true;
         }
 
+        LogService.System("Firebase 동기화: 활성화 실패 — 인증 정보 없음");
         return false;
     }
 

@@ -19,6 +19,12 @@
                         <TextBlock Text="분석 기간" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="1일" FontSize="19" Margin="4,0" Padding="16,8"
+                                Style="{DynamicResource SecondaryButton}"
+                                Command="{Binding SetPeriodCommand}" CommandParameter="1일"/>
+                        <Button Content="3일" FontSize="19" Margin="4,0" Padding="16,8"
+                                Style="{DynamicResource SecondaryButton}"
+                                Command="{Binding SetPeriodCommand}" CommandParameter="3일"/>
                         <Button Content="7일" FontSize="19" Margin="4,0" Padding="16,8"
                                 Style="{DynamicResource SecondaryButton}"
                                 Command="{Binding SetPeriodCommand}" CommandParameter="7일"/>

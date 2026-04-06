@@ -30,7 +30,9 @@ public class FirebaseAuthService
     public string? UserId => _userId;
     public string? Email => _email;
     public string? IdToken => _idToken;
-    public bool IsSignedIn => !string.IsNullOrEmpty(_userId) && !string.IsNullOrEmpty(_idToken);
+    // Test mode: UID만으로 로그인 허용 (Firestore test mode rules)
+    // Production: idToken 필수로 전환 필요
+    public bool IsSignedIn => !string.IsNullOrEmpty(_userId);
 
     public FirebaseAuthService(string appDir)
     {

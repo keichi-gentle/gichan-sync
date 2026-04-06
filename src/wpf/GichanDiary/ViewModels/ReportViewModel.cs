@@ -150,6 +150,8 @@ public partial class ReportViewModel : ObservableObject
 
         int days = SelectedPeriod switch
         {
+            "1일" => 1,
+            "3일" => 3,
             "7일" => 7,
             "14일" => 14,
             "30일" => 30,

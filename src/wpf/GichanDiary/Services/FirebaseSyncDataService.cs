@@ -16,6 +16,7 @@ public class FirebaseSyncDataService : IDataService
     private readonly System.Timers.Timer _pollTimer;
     private List<BabyEvent> _cachedEvents = new();
     private bool _isOnline;
+    private string _cachedHash = "";
 
     public event Action<List<BabyEvent>>? EventsChanged;
     public SyncMode CurrentMode => SyncMode.FirebaseSync;
@@ -139,22 +140,36 @@ public class FirebaseSyncDataService : IDataService
             if (!_firestoreService.IsConfigured) return;
 
             var latest = await _firestoreService.LoadEventsAsync();
-            if (latest.Count != _cachedEvents.Count)
+            var newHash = ComputeHash(latest);
+            if (newHash != _cachedHash)
             {
                 _cachedEvents = latest;
+                _cachedHash = newHash;
                 _isOnline = true;
                 Application.Current?.Dispatcher.Invoke(() => EventsChanged?.Invoke(_cachedEvents));
             }
         }
-        catch
+        catch (Exception ex)
         {
+            LogService.System($"Firestore poll failed: {ex.Message}");
             _isOnline = false;
         }
+    }
+
+    private static string ComputeHash(List<BabyEvent> events)
+    {
+        // 개수 + 각 이벤트의 ID/Amount/Detail을 결합하여 변경 감지
+        var sb = new System.Text.StringBuilder();
+        sb.Append(events.Count).Append('|');
+        foreach (var e in events)
+            sb.Append(e.Id).Append(e.Detail).Append(e.Amount).Append(e.Note).Append('|');
+        return sb.ToString();
     }
 
     private async Task NotifyChanged()
     {
         _cachedEvents = await LoadEventsAsync();
-        EventsChanged?.Invoke(_cachedEvents);
+        _cachedHash = ComputeHash(_cachedEvents);
+        Application.Current?.Dispatcher.Invoke(() => EventsChanged?.Invoke(_cachedEvents));
     }
 }

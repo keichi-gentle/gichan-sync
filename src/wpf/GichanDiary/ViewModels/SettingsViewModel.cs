@@ -9,6 +9,8 @@ namespace GichanDiary.ViewModels;
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsService _settingsService;
+    private readonly SyncCoordinator? _syncCoordinator;
+    private readonly IExcelService? _excelService;
 
     // ── File settings ───────────────────────────────────
     [ObservableProperty] private string _excelFilePath = "";
@@ -36,11 +38,20 @@ public partial class SettingsViewModel : ObservableObject
     // ── Status message ──────────────────────────────────
     [ObservableProperty] private string _statusMessage = "";
 
+    // ── Firebase sync ──────────────────────────────────
+    [ObservableProperty] private string _lastSyncTime = "-";
+    [ObservableProperty] private string _syncStatusMessage = "";
+    [ObservableProperty] private bool _isSyncing;
+
     public event Action? SettingsSaved;
 
-    public SettingsViewModel(ISettingsService settingsService)
+    public SettingsViewModel(ISettingsService settingsService,
+        SyncCoordinator? syncCoordinator = null,
+        IExcelService? excelService = null)
     {
         _settingsService = settingsService;
+        _syncCoordinator = syncCoordinator;
+        _excelService = excelService;
         LoadFromSettings();
     }
 
@@ -120,6 +131,87 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
+    // ── Firebase sync commands ─────────────────────────
+
+    [RelayCommand]
+    private async Task UploadToFirebase()
+    {
+        if (_syncCoordinator == null || _excelService == null)
+        {
+            SyncStatusMessage = "동기화 서비스를 사용할 수 없습니다.";
+            return;
+        }
+
+        IsSyncing = true;
+        SyncStatusMessage = "Firebase로 업로드 중...";
+        try
+        {
+            // Enable sync if not already
+            if (_syncCoordinator.CurrentMode != SyncMode.FirebaseSync)
+                await _syncCoordinator.TryEnableFirebaseSync();
+
+            var dataService = _syncCoordinator.GetDataService();
+            var events = await _excelService.LoadEventsAsync(_settingsService.Load().ExcelFilePath);
+
+            if (dataService is FirebaseSyncDataService syncService)
+            {
+                foreach (var evt in events)
+                    await syncService.AddEventAsync(evt);
+            }
+
+            LastSyncTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            SyncStatusMessage = $"업로드 완료 ({events.Count}건)";
+            LogService.Event($"Firebase 업로드: {events.Count}건");
+        }
+        catch (Exception ex)
+        {
+            SyncStatusMessage = $"업로드 실패: {ex.Message}";
+            LogService.System($"Firebase upload failed: {ex.Message}");
+        }
+        finally
+        {
+            IsSyncing = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task DownloadFromFirebase()
+    {
+        if (_syncCoordinator == null || _excelService == null)
+        {
+            SyncStatusMessage = "동기화 서비스를 사용할 수 없습니다.";
+            return;
+        }
+
+        IsSyncing = true;
+        SyncStatusMessage = "Firebase에서 내려받는 중...";
+        try
+        {
+            if (_syncCoordinator.CurrentMode != SyncMode.FirebaseSync)
+                await _syncCoordinator.TryEnableFirebaseSync();
+
+            var dataService = _syncCoordinator.GetDataService();
+            var events = await dataService.LoadEventsAsync();
+
+            // Excel로 내보내기 (덮어쓰기)
+            var excelPath = _settingsService.Load().ExcelFilePath;
+            await _excelService.ExportEventsAsync(excelPath, events);
+
+            LastSyncTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            SyncStatusMessage = $"내려받기 완료 ({events.Count}건)";
+            LogService.Event($"Firebase 다운로드: {events.Count}건");
+        }
+        catch (Exception ex)
+        {
+            SyncStatusMessage = $"내려받기 실패: {ex.Message}";
+            LogService.System($"Firebase download failed: {ex.Message}");
+        }
+        finally
+        {
+            IsSyncing = false;
+        }
+    }
+
     // ── Spinner commands ────────────────────────────────
 
     [RelayCommand] private void IncrementFixedHours() => FixedFeedingHours = Math.Min(12, FixedFeedingHours + 1);
@@ -131,7 +223,7 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand] private void IncrementBreastfeed() => DefaultBreastfeedAmount = Math.Min(100, DefaultBreastfeedAmount + 5);
     [RelayCommand] private void DecrementBreastfeed() => DefaultBreastfeedAmount = Math.Max(0, DefaultBreastfeedAmount - 5);
     [RelayCommand] private void IncrementFormulaAmount() => DefaultFormulaAmount = Math.Min(200, DefaultFormulaAmount + 5);
-    [RelayCommand] private void DecrementFormulaAmount() => DefaultFormulaAmount = Math.Max(40, DefaultFormulaAmount - 5);
+    [RelayCommand] private void DecrementFormulaAmount() => DefaultFormulaAmount = Math.Max(10, DefaultFormulaAmount - 5);
     [RelayCommand] private void IncrementPageSize() => PageSize = Math.Min(1000, PageSize + 10);
     [RelayCommand] private void DecrementPageSize() => PageSize = Math.Max(10, PageSize - 10);
 }

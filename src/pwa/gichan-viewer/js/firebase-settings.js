@@ -2,6 +2,7 @@
 
 import { getCurrentUser } from './firebase-auth.js';
 import { getSetting, setSetting } from './storage.js';
+import { getRolesData } from './roles.js';
 
 let unsubscribe = null;
 
@@ -24,6 +25,8 @@ export async function subscribeToSettings(db, userId, onSettingsChanged) {
       if (data.defaultBreastfeedAmount) setSetting('defaultBreastfeedAmount', data.defaultBreastfeedAmount);
       if (onSettingsChanged) onSettingsChanged(data);
     }
+  }, (error) => {
+    console.error('Settings listener error:', error);
   });
 }
 
@@ -33,7 +36,8 @@ export async function saveSettingsToFirestore(settings) {
 
   const { doc, setDoc, Timestamp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
   const db = window.__firebase.db;
-  const settingsRef = doc(db, 'users', user.uid, 'settings', 'app');
+  const dataUid = getRolesData()?.dataUid || user.uid;
+  const settingsRef = doc(db, 'users', dataUid, 'settings', 'app');
 
   await setDoc(settingsRef, {
     ...settings,

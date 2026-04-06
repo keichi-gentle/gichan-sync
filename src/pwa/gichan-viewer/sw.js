@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gichan-viewer-3.0.8';
+const CACHE_NAME = 'gichan-viewer-3.0.10';
 const ASSETS = [
   './',
   './index.html',

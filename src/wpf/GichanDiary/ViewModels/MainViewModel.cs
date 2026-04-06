@@ -14,6 +14,7 @@ public partial class MainViewModel : ObservableObject
     private readonly ICalculationService _calcService;
     private readonly ISettingsService _settingsService;
     private readonly ITimerService _timerService;
+    private readonly SyncCoordinator? _syncCoordinator;
 
     private AppSettings _settings = new();
     private List<BabyEvent> _events = new();
@@ -63,13 +64,15 @@ public partial class MainViewModel : ObservableObject
         IExcelService excelService,
         ICalculationService calcService,
         ISettingsService settingsService,
-        ITimerService timerService)
+        ITimerService timerService,
+        SyncCoordinator? syncCoordinator = null)
     {
         _dataService = dataService;
         _excelService = excelService;
         _calcService = calcService;
         _settingsService = settingsService;
         _timerService = timerService;
+        _syncCoordinator = syncCoordinator;
 
         _timerService.Tick += OnTimerTick;
 
@@ -421,7 +424,7 @@ public partial class MainViewModel : ObservableObject
     private void ShowSettings()
     {
         SelectedTab = "설정";
-        var vm = new SettingsViewModel(_settingsService);
+        var vm = new SettingsViewModel(_settingsService, _syncCoordinator, _excelService);
         vm.SettingsSaved += async () =>
         {
             _settings = _settingsService.Load();

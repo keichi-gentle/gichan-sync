@@ -41,7 +41,7 @@ public partial class EventEntryViewModel : ObservableObject
     // ComboBox option lists
     public List<string> HourOptions { get; } = Enumerable.Range(0, 24).Select(h => h.ToString("D2")).ToList();
     public List<string> MinuteOptions { get; } = Enumerable.Range(0, 60).Select(m => m.ToString("D2")).ToList();
-    public List<int> FormulaAmountOptions { get; } = Enumerable.Range(8, 33).Select(i => i * 5).ToList(); // 40,45,50...200
+    public List<int> FormulaAmountOptions { get; } = Enumerable.Range(2, 39).Select(i => i * 5).ToList(); // 10,15,20...200
     public List<int> BreastfeedAmountOptions { get; } = Enumerable.Range(2, 5).Select(i => i * 5).ToList(); // 10,15,20,25,30
 
     // ── Bowel ─────────────────────────────────────────────
@@ -200,7 +200,7 @@ public partial class EventEntryViewModel : ObservableObject
     [RelayCommand]
     private void DecrementFormulaAmount()
     {
-        if (FormulaAmount > 40) FormulaAmount -= 5;
+        if (FormulaAmount > 10) FormulaAmount -= 5;
     }
 
     [RelayCommand]
@@ -244,7 +244,7 @@ public partial class EventEntryViewModel : ObservableObject
     [RelayCommand]
     private void ConfirmEditFormulaAmount()
     {
-        FormulaAmount = Math.Clamp(FormulaAmount, 40, 200);
+        FormulaAmount = Math.Clamp(FormulaAmount, 10, 200);
         IsFormulaAmountEditing = false;
     }
 
