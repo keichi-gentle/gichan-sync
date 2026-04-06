@@ -82,14 +82,20 @@
         <!-- ═══ Scoreboard (Top) ═══ -->
         <Border DockPanel.Dock="Top" Background="{DynamicResource BgScoreboardBrush}"
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1"
-                Padding="16,8">
+                Padding="16,10">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="360"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="1.4*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Time area -->
@@ -127,130 +133,103 @@
                     </Button>
                 </StackPanel>
 
-                <!-- Divider -->
-                <Rectangle Grid.Column="1" Width="2" Fill="{DynamicResource BorderBrush}"
-                           Margin="8,4" VerticalAlignment="Stretch"/>
+                <!-- Divider 1 -->
+                <Rectangle Grid.Column="1" Width="2" Fill="{DynamicResource BorderBrush}" Margin="8,4" VerticalAlignment="Stretch"/>
 
-                <!-- ═══ [ 수유 정보 ] ═══ -->
-                <StackPanel Grid.Column="2" Margin="12,0">
-                    <TextBlock Text="[ 수유 정보 ]" FontSize="19" FontWeight="Bold"
-                               Foreground="{DynamicResource CatFeedBrush}" Margin="0,0,0,6"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- 최근 수유 -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="최근 수유" FontSize="19" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextLightBrush}" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding LastFeedInfo}" FontSize="21" FontWeight="Bold"
-                                       Foreground="{DynamicResource CatFeedBrush}"/>
-                            <TextBlock Text="{Binding FeedElapsed}" FontSize="19"
-                                       Foreground="{DynamicResource CatFeedBrush}" Margin="0,2,0,0"/>
-                        </StackPanel>
-
-                        <Rectangle Grid.Column="1" Width="1" Fill="{DynamicResource BorderBrush}" Margin="10,2"/>
-
-                        <!-- 다음 수유 -->
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="다음 수유" FontSize="19" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextLightBrush}" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding NextFeedTime}" FontSize="21" FontWeight="Bold"
-                                       Foreground="{DynamicResource CatFeedBrush}"/>
-                            <TextBlock Text="{Binding NextFeedRemain}" FontSize="19" FontWeight="Bold"
-                                       Margin="0,2,0,0">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="{DynamicResource CatFeedBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsNextFeedUrgent}" Value="True">
-                                                <DataTrigger.EnterActions>
-                                                    <BeginStoryboard x:Name="BlinkStoryboard">
-                                                        <Storyboard RepeatBehavior="Forever" AutoReverse="True">
-                                                            <DoubleAnimation
-                                                                Storyboard.TargetProperty="Opacity"
-                                                                From="1.0" To="0.5" Duration="0:0:1"/>
-                                                        </Storyboard>
-                                                    </BeginStoryboard>
-                                                </DataTrigger.EnterActions>
-                                                <DataTrigger.ExitActions>
-                                                    <StopStoryboard BeginStoryboardName="BlinkStoryboard"/>
-                                                </DataTrigger.ExitActions>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <ProgressBar Margin="0,4,0,0" Height="6"
-                                         Minimum="0" Maximum="100"
-                                         Value="{Binding FeedProgressPercent, Mode=OneWay}"
-                                         Foreground="{DynamicResource CatFeedBrush}"
-                                         Background="{DynamicResource ProgressBarBgBrush}"
-                                         BorderThickness="0"/>
-                        </StackPanel>
-
-                        <Rectangle Grid.Column="3" Width="1" Fill="{DynamicResource BorderBrush}" Margin="10,2"/>
-
-                        <!-- 오늘 수유 -->
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="오늘 수유" FontSize="19" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextLightBrush}" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding TodayFeedSummary}" FontSize="21" FontWeight="Bold"
-                                       Foreground="{DynamicResource CatFeedBrush}"/>
-                            <TextBlock Text="{Binding AvgFeedInterval}" FontSize="19"
-                                       Foreground="{DynamicResource CatFeedBrush}" Margin="0,2,0,0"/>
-                            <TextBlock Text="{Binding H24AvgFeedInterval}" FontSize="19"
-                                       Foreground="{DynamicResource CatFeedBrush}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Grid>
+                <!-- 최근 수유 -->
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="12,0">
+                    <TextBlock Text="최근 수유" FontSize="21" FontWeight="Bold"
+                               Foreground="{DynamicResource TextLightBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding LastFeedInfo}" FontSize="23" FontWeight="Bold"
+                               Foreground="{DynamicResource CatFeedBrush}"/>
+                    <TextBlock Text="{Binding FeedElapsed}" FontSize="21"
+                               Foreground="{DynamicResource CatFeedBrush}" Margin="0,2,0,0"/>
                 </StackPanel>
 
-                <!-- Divider -->
-                <Rectangle Grid.Column="3" Width="2" Fill="{DynamicResource BorderBrush}"
-                           Margin="8,4" VerticalAlignment="Stretch"/>
+                <!-- Divider 2 -->
+                <Rectangle Grid.Column="3" Width="2" Fill="{DynamicResource BorderBrush}" Margin="8,4" VerticalAlignment="Stretch"/>
 
-                <!-- ═══ [ 배변 정보 ] ═══ -->
-                <StackPanel Grid.Column="4" Margin="12,0" MinWidth="280">
-                    <TextBlock Text="[ 배변 정보 ]" FontSize="19" FontWeight="Bold"
-                               Foreground="{DynamicResource CatBowelBrush}" Margin="0,0,0,6"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                <!-- 다음 수유 -->
+                <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="12,0">
+                    <TextBlock Text="다음 수유" FontSize="21" FontWeight="Bold"
+                               Foreground="{DynamicResource TextLightBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding NextFeedTime}" FontSize="23" FontWeight="Bold"
+                               Foreground="{DynamicResource CatFeedBrush}"/>
+                    <TextBlock Text="{Binding NextFeedRemain}" FontSize="25" FontWeight="Bold"
+                               Margin="0,2,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource CatFeedBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNextFeedUrgent}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard x:Name="BlinkStoryboard">
+                                                <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="Opacity"
+                                                        From="1.0" To="0.5" Duration="0:0:1"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <StopStoryboard BeginStoryboardName="BlinkStoryboard"/>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <ProgressBar Margin="0,4,0,0" Height="8"
+                                 Minimum="0" Maximum="100"
+                                 Value="{Binding FeedProgressPercent, Mode=OneWay}"
+                                 Foreground="{DynamicResource CatFeedBrush}"
+                                 Background="{DynamicResource ProgressBarBgBrush}"
+                                 BorderThickness="0"/>
+                </StackPanel>
 
-                        <!-- 소변 -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="소변" FontSize="19" FontWeight="Bold"
-                                       Foreground="{DynamicResource CatUrineBrush}" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding LastUrineTime}" FontSize="21" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextLightBrush}"/>
-                            <TextBlock Text="{Binding UrineElapsed}" FontSize="18"
-                                       Foreground="{DynamicResource CatUrineBrush}" Margin="0,2,0,0"/>
-                            <TextBlock Text="{Binding TodayUrineCount}" FontSize="18" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextLightBrush}" Margin="0,2,0,0"/>
-                        </StackPanel>
+                <!-- Divider 3 -->
+                <Rectangle Grid.Column="5" Width="2" Fill="{DynamicResource BorderBrush}" Margin="8,4" VerticalAlignment="Stretch"/>
 
-                        <Rectangle Grid.Column="1" Width="1" Fill="{DynamicResource BorderBrush}" Margin="10,2"/>
+                <!-- 오늘 수유 -->
+                <StackPanel Grid.Column="6" VerticalAlignment="Center" Margin="12,0">
+                    <TextBlock Text="오늘 수유" FontSize="21" FontWeight="Bold"
+                               Foreground="{DynamicResource TextLightBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding TodayFeedSummary}" FontSize="23" FontWeight="Bold"
+                               Foreground="{DynamicResource CatFeedBrush}"/>
+                    <TextBlock Text="{Binding AvgFeedInterval}" FontSize="21"
+                               Foreground="{DynamicResource CatFeedBrush}" Margin="0,2,0,0"/>
+                    <TextBlock Text="{Binding H24AvgFeedInterval}" FontSize="21"
+                               Foreground="{DynamicResource CatFeedBrush}" Margin="0,2,0,0"/>
+                </StackPanel>
 
-                        <!-- 대변 -->
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="대변" FontSize="19" FontWeight="Bold"
-                                       Foreground="{DynamicResource CatStoolBrush}" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding LastStoolTime}" FontSize="21" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextLightBrush}"/>
-                            <TextBlock Text="{Binding StoolElapsed}" FontSize="18"
-                                       Foreground="{DynamicResource CatStoolBrush}" Margin="0,2,0,0"/>
-                            <TextBlock Text="{Binding TodayStoolCount}" FontSize="18" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextLightBrush}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Grid>
+                <!-- Divider 4 -->
+                <Rectangle Grid.Column="7" Width="2" Fill="{DynamicResource BorderBrush}" Margin="8,4" VerticalAlignment="Stretch"/>
+
+                <!-- 소변 -->
+                <StackPanel Grid.Column="8" VerticalAlignment="Center" Margin="12,0">
+                    <TextBlock Text="소변" FontSize="21" FontWeight="Bold"
+                               Foreground="{DynamicResource CatUrineBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding LastUrineTime}" FontSize="23" FontWeight="Bold"
+                               Foreground="{DynamicResource TextLightBrush}"/>
+                    <TextBlock Text="{Binding UrineElapsed}" FontSize="21"
+                               Foreground="{DynamicResource CatUrineBrush}" Margin="0,2,0,0"/>
+                    <TextBlock Text="{Binding TodayUrineCount}" FontSize="21" FontWeight="Bold"
+                               Foreground="{DynamicResource TextLightBrush}" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <!-- Divider 5 -->
+                <Rectangle Grid.Column="9" Width="2" Fill="{DynamicResource BorderBrush}" Margin="8,4" VerticalAlignment="Stretch"/>
+
+                <!-- 대변 -->
+                <StackPanel Grid.Column="10" VerticalAlignment="Center" Margin="12,0">
+                    <TextBlock Text="대변" FontSize="21" FontWeight="Bold"
+                               Foreground="{DynamicResource CatStoolBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding LastStoolTime}" FontSize="23" FontWeight="Bold"
+                               Foreground="{DynamicResource TextLightBrush}"/>
+                    <TextBlock Text="{Binding StoolElapsed}" FontSize="21"
+                               Foreground="{DynamicResource CatStoolBrush}" Margin="0,2,0,0"/>
+                    <TextBlock Text="{Binding TodayStoolCount}" FontSize="21" FontWeight="Bold"
+                               Foreground="{DynamicResource TextLightBrush}" Margin="0,2,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>

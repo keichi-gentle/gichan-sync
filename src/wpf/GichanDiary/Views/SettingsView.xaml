@@ -291,7 +291,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="버전" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
-                        <TextBlock Grid.Column="1" Text="3.0.11" FontSize="19" FontWeight="SemiBold"
+                        <TextBlock Grid.Column="1" Text="3.0.12" FontSize="19" FontWeight="SemiBold"
                                    Foreground="{DynamicResource TextLightBrush}"/>
                     </Grid>
                     <!-- 동기화: 2컬럼 (좌: 버튼, 우: 시각정보) -->
