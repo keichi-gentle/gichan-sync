@@ -27,10 +27,10 @@ export function renderSettings(container, onImport, firebaseReady = false) {
       <div id="auth-section">${authSection}</div>
       ${user ? `
       <div class="setting-row" style="margin-top:10px;">
-        <label>동기화</label>
+        <label>동기화(Firebase)</label>
         <div style="display:flex;gap:8px;align-items:center;">
-          <button class="step-btn" id="sync-upload-btn" style="padding:6px 14px;width:auto;font-size:13px;background:var(--cat-system);color:var(--white);border-radius:8px;">올리기</button>
-          <button class="step-btn" id="sync-download-btn" style="padding:6px 14px;width:auto;font-size:13px;background:var(--cat-system);color:var(--white);border-radius:8px;">내려받기</button>
+          <button class="step-btn" id="sync-upload-btn" style="padding:6px 14px;min-width:80px;font-size:13px;background:var(--cat-system);color:var(--white);border-radius:8px;">올리기</button>
+          <button class="step-btn" id="sync-download-btn" style="padding:6px 14px;min-width:80px;font-size:13px;background:var(--cat-system);color:var(--white);border-radius:8px;">내려받기</button>
         </div>
       </div>
       <div class="setting-row">
@@ -117,7 +117,7 @@ export function renderSettings(container, onImport, firebaseReady = false) {
 
     <div class="setting-group">
       <h3>앱 정보</h3>
-      <div class="setting-row"><label>버전</label><span>3.0.10</span></div>
+      <div class="setting-row"><label>버전</label><span>3.0.11</span></div>
       <div class="setting-row"><label>상위 프로젝트</label><span>기찬다이어리 (WPF)</span></div>
       <div class="setting-row"><label>데이터 소스</label><span>${user ? 'Firebase 실시간' : 'IndexedDB (로컬)'}</span></div>
       <div class="setting-row"><label>역할</label><span>${getSetting('userRole', '-')}</span></div>

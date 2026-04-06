@@ -33,7 +33,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private double _feedProgressPercent;
     [ObservableProperty] private bool _isNextFeedUrgent;
     [ObservableProperty] private string _todayFeedSummary = "0ml / 0회";
-    [ObservableProperty] private string _avgFeedInterval = "평균 수유 텀 -";
+    [ObservableProperty] private string _avgFeedInterval = "일일 평균 텀 -";
+    [ObservableProperty] private string _h24AvgFeedInterval = "24H 평균 텀 -";
 
     // Bowel
     [ObservableProperty] private string _lastUrineTime = "-";
@@ -226,10 +227,27 @@ public partial class MainViewModel : ObservableObject
         var todayCount = _calcService.GetDailyFeedCount(_events, now);
         TodayFeedSummary = $"{todayTotal:0}ml / {todayCount}회";
 
+        // 일일 평균 텀 (오늘 수유 기준)
+        var todayFeeds = _events
+            .Where(e => e.IsFeeding && e.FullDateTime.HasValue && e.Date.Date == now.Date)
+            .OrderBy(e => e.FullDateTime).ToList();
+        if (todayFeeds.Count >= 2)
+        {
+            var totalMs = (todayFeeds.Last().FullDateTime!.Value - todayFeeds.First().FullDateTime!.Value).TotalMinutes;
+            var avgMin = totalMs / (todayFeeds.Count - 1);
+            var avgTs = TimeSpan.FromMinutes(avgMin);
+            AvgFeedInterval = $"일일 평균 텀 {(int)avgTs.TotalHours}:{avgTs.Minutes:D2}";
+        }
+        else
+        {
+            AvgFeedInterval = "일일 평균 텀 -";
+        }
+
+        // 24H 평균 텀
         var avgInterval = _calcService.GetAverageFeedingInterval(_events, _settings.AverageFeedingCount);
-        AvgFeedInterval = avgInterval.HasValue
-            ? $"평균 수유 텀 {(int)avgInterval.Value.TotalHours}:{avgInterval.Value.Minutes:D2}"
-            : "평균 수유 텀 -";
+        H24AvgFeedInterval = avgInterval.HasValue
+            ? $"24H 평균 텀 {(int)avgInterval.Value.TotalHours}:{avgInterval.Value.Minutes:D2}"
+            : "24H 평균 텀 -";
 
         // Bowel
         UpdateBowelValues(now);
