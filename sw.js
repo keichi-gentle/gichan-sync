@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gichan-viewer-3.0.16';
+const CACHE_NAME = 'gichan-viewer-3.0.17';
 const ASSETS = [
   './',
   './index.html',
@@ -23,6 +23,7 @@ const ASSETS = [
   './manifest.json',
 ];
 
+// 설치: 새 캐시 생성 후 즉시 활성화
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME)
@@ -31,6 +32,7 @@ self.addEventListener('install', (e) => {
   );
 });
 
+// 활성화: 이전 캐시 삭제 + 즉시 클라이언트 점유
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -39,8 +41,16 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+// Network-first: 네트워크 우선, 실패 시 캐시 폴백
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request)
+      .then(response => {
+        // 성공 시 캐시 갱신
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
