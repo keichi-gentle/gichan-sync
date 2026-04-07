@@ -210,6 +210,9 @@ async function saveEvent(container) {
     if (evt.dailyFeedTotal != null) data.dailyFeedTotal = evt.dailyFeedTotal;
 
     await setDoc(docRef, data, { merge: true });
+    // meta/lastUpdated 갱신 (WPF 경량 폴링용)
+    const metaRef = doc(db, 'users', dataUid, 'meta', 'lastUpdated');
+    await setDoc(metaRef, { updatedAt: Timestamp.now(), source: 'pwa' }, { merge: true });
     status.textContent = editingEvent ? '✓ 수정 완료!' : '✓ 저장 완료!';
 
     if (!editingEvent) {
@@ -309,10 +312,12 @@ function buildEvent() {
 export async function deleteEvent(eventId) {
   const user = getCurrentUser();
   if (!user || !eventId) return false;
-  const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  const { doc, deleteDoc, setDoc, Timestamp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
   const db = window.__firebase.db;
   const dataUid = getRolesData()?.dataUid || user.uid;
   await deleteDoc(doc(db, 'users', dataUid, 'events', eventId));
+  // meta/lastUpdated 갱신 (WPF 경량 폴링용)
+  await setDoc(doc(db, 'users', dataUid, 'meta', 'lastUpdated'), { updatedAt: Timestamp.now(), source: 'pwa' }, { merge: true });
   return true;
 }
 
