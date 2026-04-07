@@ -104,7 +104,7 @@ function render(container) {
     <div class="scoreboard">
       <div class="sb-clock">
         <div class="sb-time">${timeStr}</div>
-        <div class="sb-date">${dateStr} (${dayOfWeek})${dayNumberStr} <span class="sb-sync-status ${syncOnline ? 'online' : 'offline'}">${syncOnline ? 'On-Line' : 'Off-Line'}</span>${lastSyncTime ? ` <span class="sb-sync-time">${lastSyncTime}</span>` : ''}</div>
+        <div class="sb-date">${dateStr} (${dayOfWeek})${dayNumberStr} <span class="sb-sync-lamp ${syncOnline ? 'online' : 'offline'}"></span><span class="sb-sync-status ${syncOnline ? 'online' : 'offline'}">${syncOnline ? 'On-Line' : 'Off-Line'}</span>${lastSyncTime ? ` <span class="sb-sync-time">${lastSyncTime}</span>` : ''}</div>
       </div>
 
       <div class="sb-sections">
