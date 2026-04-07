@@ -36,6 +36,12 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private string _avgFeedInterval = "일일 평균 텀 -";
     [ObservableProperty] private string _h24AvgFeedInterval = "24H 평균 텀 -";
 
+    // 예상 B/C (로직만, GUI 미정)
+    private DateTime? _nextFeedExpectedB;
+    private DateTime? _nextFeedExpectedC;
+    public DateTime? NextFeedExpectedB => _nextFeedExpectedB;
+    public DateTime? NextFeedExpectedC => _nextFeedExpectedC;
+
     // Bowel
     [ObservableProperty] private string _lastUrineTime = "-";
     [ObservableProperty] private string _urineElapsed = "경과: -";
@@ -227,27 +233,64 @@ public partial class MainViewModel : ObservableObject
         var todayCount = _calcService.GetDailyFeedCount(_events, now);
         TodayFeedSummary = $"{todayTotal:0}ml / {todayCount}회";
 
-        // 일일 평균 텀 (오늘 수유 기준)
+        // 최근 수유 시각 (예상 B/C 계산용)
+        var lastFeedDt = _events
+            .Where(e => e.IsFeeding && e.FullDateTime.HasValue)
+            .OrderByDescending(e => e.FullDateTime)
+            .FirstOrDefault()?.FullDateTime;
+
+        // 평균텀 B: 오늘 날짜 수유만 필터 → 간격 평균
+        TimeSpan? avgTsB = null;
         var todayFeeds = _events
             .Where(e => e.IsFeeding && e.FullDateTime.HasValue && e.Date.Date == now.Date)
             .OrderBy(e => e.FullDateTime).ToList();
         if (todayFeeds.Count >= 2)
         {
-            var totalMs = (todayFeeds.Last().FullDateTime!.Value - todayFeeds.First().FullDateTime!.Value).TotalMinutes;
-            var avgMin = totalMs / (todayFeeds.Count - 1);
-            var avgTs = TimeSpan.FromMinutes(avgMin);
-            AvgFeedInterval = $"일일 평균 텀 {(int)avgTs.TotalHours}:{avgTs.Minutes:D2}";
+            var intervals = new List<double>();
+            for (int i = 1; i < todayFeeds.Count; i++)
+                intervals.Add((todayFeeds[i].FullDateTime!.Value - todayFeeds[i - 1].FullDateTime!.Value).TotalMinutes);
+            avgTsB = TimeSpan.FromMinutes(intervals.Average());
+            AvgFeedInterval = $"일일 평균 텀 {(int)avgTsB.Value.TotalHours}:{avgTsB.Value.Minutes:D2}";
         }
         else
         {
             AvgFeedInterval = "일일 평균 텀 -";
         }
 
-        // 24H 평균 텀
-        var avgInterval = _calcService.GetAverageFeedingInterval(_events, _settings.AverageFeedingCount);
-        H24AvgFeedInterval = avgInterval.HasValue
-            ? $"24H 평균 텀 {(int)avgInterval.Value.TotalHours}:{avgInterval.Value.Minutes:D2}"
-            : "24H 평균 텀 -";
+        // 예상 B: 평균텀 B 기준 다음 수유 예상 시간
+        _nextFeedExpectedB = (avgTsB.HasValue && lastFeedDt.HasValue)
+            ? lastFeedDt.Value.Add(avgTsB.Value) : null;
+
+        // 평균텀 C: 최근 수유로부터 24시간 전까지의 수유 간격 평균
+        TimeSpan? avgTsC = null;
+        var allFeeds = _events
+            .Where(e => e.IsFeeding && e.FullDateTime.HasValue)
+            .OrderBy(e => e.FullDateTime).ToList();
+        if (allFeeds.Count >= 2 && lastFeedDt.HasValue)
+        {
+            var cutoff = lastFeedDt.Value.AddHours(-24);
+            var h24Feeds = allFeeds.Where(e => e.FullDateTime!.Value >= cutoff).ToList();
+            if (h24Feeds.Count >= 2)
+            {
+                var intervals = new List<double>();
+                for (int i = 1; i < h24Feeds.Count; i++)
+                    intervals.Add((h24Feeds[i].FullDateTime!.Value - h24Feeds[i - 1].FullDateTime!.Value).TotalMinutes);
+                avgTsC = TimeSpan.FromMinutes(intervals.Average());
+                H24AvgFeedInterval = $"24H 평균 텀 {(int)avgTsC.Value.TotalHours}:{avgTsC.Value.Minutes:D2}";
+            }
+            else
+            {
+                H24AvgFeedInterval = "24H 평균 텀 -";
+            }
+        }
+        else
+        {
+            H24AvgFeedInterval = "24H 평균 텀 -";
+        }
+
+        // 예상 C: 평균텀 C 기준 다음 수유 예상 시간
+        _nextFeedExpectedC = (avgTsC.HasValue && lastFeedDt.HasValue)
+            ? lastFeedDt.Value.Add(avgTsC.Value) : null;
 
         // Bowel
         UpdateBowelValues(now);
