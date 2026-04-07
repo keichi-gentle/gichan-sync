@@ -1,4 +1,5 @@
 // Firestore real-time sync — subscribe to user's events collection
+import { setSyncStatus } from './scoreboard.js';
 
 let unsubscribe = null;
 
@@ -20,6 +21,7 @@ export async function subscribeToEvents(db, userId, onEventsChanged) {
     onEventsChanged(events);
   }, (error) => {
     console.error('Firestore listener error:', error);
+    setSyncStatus(false);
   });
 }
 

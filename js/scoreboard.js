@@ -3,6 +3,13 @@ import { getSetting } from './storage.js';
 
 let timerInterval = null;
 let cachedEvents = [];
+let syncOnline = false;
+let lastSyncTime = null;
+
+export function setSyncStatus(online, time = null) {
+  syncOnline = online;
+  if (time) lastSyncTime = time;
+}
 
 export function initScoreboard(events, container) {
   cachedEvents = events;
@@ -97,7 +104,7 @@ function render(container) {
     <div class="scoreboard">
       <div class="sb-clock">
         <div class="sb-time">${timeStr}</div>
-        <div class="sb-date">${dateStr} (${dayOfWeek})${dayNumberStr}</div>
+        <div class="sb-date">${dateStr} (${dayOfWeek})${dayNumberStr} <span class="sb-sync-status ${syncOnline ? 'online' : 'offline'}">${syncOnline ? 'On-Line' : 'Off-Line'}</span>${lastSyncTime ? ` <span class="sb-sync-time">${lastSyncTime}</span>` : ''}</div>
       </div>
 
       <div class="sb-sections">
