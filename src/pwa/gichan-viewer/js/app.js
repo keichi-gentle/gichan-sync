@@ -34,9 +34,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize Firebase auth (non-blocking)
   await initFirebase();
 
-  // Register Service Worker
+  // Register Service Worker + 강제 업데이트 체크
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      // 새 SW 발견 시 즉시 활성화 후 페이지 새로고침
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        if (newSW) {
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'activated') {
+              window.location.reload();
+            }
+          });
+        }
+      });
+      // 수동 업데이트 체크
+      reg.update();
+    }).catch(() => {});
   }
 
   // 네트워크 상태 감지
