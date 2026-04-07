@@ -17,5 +17,5 @@ public class AppSettings
     public int DefaultBreastfeedAmount { get; set; } = 20;
     public int DefaultFormulaAmount { get; set; } = 100;
     public string Theme { get; set; } = "Light";
-    public bool FirebaseSyncEnabled { get; set; } = false;
+    public bool FirebaseSyncEnabled { get; set; } = true;
 }

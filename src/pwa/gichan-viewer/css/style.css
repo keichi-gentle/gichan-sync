@@ -444,7 +444,13 @@ select, input[type="text"] {
 @keyframes sb-blink { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 .sb-urgent { animation: sb-blink 1s ease-in-out infinite; }
 
-.sb-sync-status { font-weight: 700; margin-left: 8px; }
+.sb-sync-lamp {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  margin-left: 8px; margin-right: 4px; vertical-align: middle;
+}
+.sb-sync-lamp.online { background: #4A90D9; }
+.sb-sync-lamp.offline { background: #708090; }
+.sb-sync-status { font-weight: 700; }
 .sb-sync-status.online { color: #4A90D9; }
 .sb-sync-status.offline { color: #708090; }
 .sb-sync-time { color: var(--text-mid); font-size: 11px; margin-left: 4px; }

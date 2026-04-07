@@ -118,6 +118,18 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse Width="12" Height="12" VerticalAlignment="Center" Margin="0,0,6,0">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="#708090"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSyncOnline}" Value="True">
+                                                <Setter Property="Fill" Value="#4A90D9"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
                             <TextBlock Text="{Binding SyncStatusText}" FontSize="17" FontWeight="Bold">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
