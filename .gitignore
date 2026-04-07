@@ -1,1 +1,23 @@
+# 빌드 산출물
+**/bin/
+**/obj/
+
+# 릴리즈 바이너리
+release/
+
+# 백업 데이터
 docs/Backup/
+
+# Excel 데이터 파일
+docs/DB_*.xlsx
+
+# 로그
+**/log/
+
+# IDE / OS
+.vs/
+*.user
+*.suo
+Thumbs.db
+Desktop.ini
+.DS_Store
