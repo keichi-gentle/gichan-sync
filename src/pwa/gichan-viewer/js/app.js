@@ -3,7 +3,7 @@ import { renderDashboard } from './dashboard.js';
 import { renderBrowse } from './browse.js';
 import { renderReport } from './report.js';
 import { renderSettings } from './settings.js';
-import { initScoreboard, updateScoreboardEvents } from './scoreboard.js';
+import { initScoreboard, updateScoreboardEvents, setSyncStatus } from './scoreboard.js';
 import { initAuth, onAuthChange } from './firebase-auth.js';
 import { subscribeToEvents, unsubscribeEvents } from './firebase-sync.js';
 import { subscribeToSettings, unsubscribeSettings } from './firebase-settings.js';
@@ -38,6 +38,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
+
+  // 네트워크 상태 감지
+  window.addEventListener('online', () => setSyncStatus(true, new Date().toLocaleTimeString('ko-KR', { hour12: false })));
+  window.addEventListener('offline', () => setSyncStatus(false));
 });
 
 // ── Firebase Init ──
@@ -93,6 +97,7 @@ async function initFirebase() {
 function onFirestoreUpdate(events) {
   currentEvents = events;
   calculateFeedingIntervals(currentEvents);
+  setSyncStatus(true, new Date().toLocaleTimeString('ko-KR', { hour12: false }));
   updateScoreboardEvents(events);
   saveEvents(events);
   extractFormulaProducts(events);

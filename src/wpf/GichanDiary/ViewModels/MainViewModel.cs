@@ -50,6 +50,11 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private string _stoolElapsed = "경과: -";
     [ObservableProperty] private string _todayStoolCount = "0회";
 
+    // ── Sync status ────────────────────────────────────────
+    [ObservableProperty] private bool _isSyncOnline;
+    [ObservableProperty] private string _syncStatusText = "Off-Line";
+    [ObservableProperty] private string _lastSyncDisplay = "";
+
     // ── Theme toggle ──────────────────────────────────────
 
     [ObservableProperty] private string _themeLabel = "낮";
@@ -82,6 +87,17 @@ public partial class MainViewModel : ObservableObject
         _syncCoordinator = syncCoordinator;
 
         _timerService.Tick += OnTimerTick;
+
+        // Firebase 동기화 상태 구독
+        if (_dataService is FirebaseSyncDataService syncService)
+        {
+            syncService.SyncTimeChanged += (dt) =>
+            {
+                IsSyncOnline = true;
+                SyncStatusText = "On-Line";
+                LastSyncDisplay = dt.ToString("HH:mm:ss");
+            };
+        }
 
         _dataService.EventsChanged += (events) =>
         {
@@ -137,6 +153,16 @@ public partial class MainViewModel : ObservableObject
         var now = DateTime.Now;
         CurrentTime = now.ToString("HH : mm : ss");
         UpdateElapsedValues();
+
+        // 동기화 온/오프라인 상태 갱신
+        if (_dataService is FirebaseSyncDataService svc)
+        {
+            if (!svc.IsOnline && IsSyncOnline)
+            {
+                IsSyncOnline = false;
+                SyncStatusText = "Off-Line";
+            }
+        }
     }
 
     // ── Window title ────────────────────────────────────

@@ -13,7 +13,7 @@ namespace GichanDiary.Services;
 public class FirestoreService
 {
     private const string PROJECT_ID = "gichan-diary";
-    private readonly HttpClient _http = new();
+    private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(100) };
     private string? _userId;
     private string? _idToken;
 

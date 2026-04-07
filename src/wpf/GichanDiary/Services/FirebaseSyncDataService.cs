@@ -17,10 +17,13 @@ public class FirebaseSyncDataService : IDataService
     private List<BabyEvent> _cachedEvents = new();
     private bool _isOnline;
     private string _cachedHash = "";
+    private int _consecutiveFailures;
 
     public event Action<List<BabyEvent>>? EventsChanged;
+    public event Action<DateTime>? SyncTimeChanged;
     public SyncMode CurrentMode => SyncMode.FirebaseSync;
     public bool IsOnline => _isOnline;
+    public DateTime? LastSyncTime { get; private set; }
 
     public FirebaseSyncDataService(
         IExcelService excelService,
@@ -49,6 +52,7 @@ public class FirebaseSyncDataService : IDataService
             {
                 _cachedEvents = await _firestoreService.LoadEventsAsync();
                 _isOnline = true;
+                UpdateSyncTime();
                 return _cachedEvents;
             }
         }
@@ -71,6 +75,7 @@ public class FirebaseSyncDataService : IDataService
             {
                 await _firestoreService.AddEventAsync(newEvent);
                 _isOnline = true;
+                UpdateSyncTime();
             }
         }
         catch (Exception ex)
@@ -92,6 +97,7 @@ public class FirebaseSyncDataService : IDataService
             {
                 await _firestoreService.UpdateEventAsync(updated);
                 _isOnline = true;
+                UpdateSyncTime();
             }
         }
         catch (Exception ex)
@@ -112,6 +118,7 @@ public class FirebaseSyncDataService : IDataService
             {
                 await _firestoreService.DeleteEventAsync(target.Id.ToString());
                 _isOnline = true;
+                UpdateSyncTime();
             }
         }
         catch (Exception ex)
@@ -141,17 +148,24 @@ public class FirebaseSyncDataService : IDataService
 
             var latest = await _firestoreService.LoadEventsAsync();
             var newHash = ComputeHash(latest);
+            _isOnline = true;
+            _consecutiveFailures = 0;
+            _pollTimer.Interval = 10_000; // 성공 시 10초로 복귀
+            UpdateSyncTime();
             if (newHash != _cachedHash)
             {
                 _cachedEvents = latest;
                 _cachedHash = newHash;
-                _isOnline = true;
                 Application.Current?.Dispatcher.Invoke(() => EventsChanged?.Invoke(_cachedEvents));
             }
         }
         catch (Exception ex)
         {
-            LogService.System($"Firestore poll failed: {ex.Message}");
+            _consecutiveFailures++;
+            // 지수 백오프: 10s → 20s → 40s → 60s (상한)
+            var backoffMs = Math.Min(60_000, 10_000 * (int)Math.Pow(2, _consecutiveFailures - 1));
+            _pollTimer.Interval = backoffMs;
+            LogService.System($"Firestore poll failed (retry {_consecutiveFailures}, next {backoffMs/1000}s): {ex.Message}");
             _isOnline = false;
         }
     }
@@ -164,6 +178,12 @@ public class FirebaseSyncDataService : IDataService
         foreach (var e in events)
             sb.Append(e.Id).Append(e.Detail).Append(e.Amount).Append(e.Note).Append('|');
         return sb.ToString();
+    }
+
+    private void UpdateSyncTime()
+    {
+        LastSyncTime = DateTime.Now;
+        Application.Current?.Dispatcher.Invoke(() => SyncTimeChanged?.Invoke(LastSyncTime.Value));
     }
 
     private async Task NotifyChanged()
