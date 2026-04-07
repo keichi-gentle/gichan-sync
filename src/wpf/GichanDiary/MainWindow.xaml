@@ -110,43 +110,50 @@
                                    Foreground="{DynamicResource CatSystemBrush}"/>
                         <TextBlock Text="{Binding DayDisplay}" FontSize="30" Margin="10,0,0,0"
                                    Foreground="{DynamicResource CatSystemBrush}" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding SyncStatusText}" FontSize="17" FontWeight="Bold"
-                                   VerticalAlignment="Center" Margin="16,0,0,0">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="#708090"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsSyncOnline}" Value="True">
-                                            <Setter Property="Foreground" Value="#4A90D9"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                        <TextBlock Text="{Binding LastSyncDisplay}" FontSize="15"
-                                   Foreground="{DynamicResource TextMidBrush}"
-                                   VerticalAlignment="Center" Margin="8,0,0,0"/>
                     </StackPanel>
-                    <Button Command="{Binding ToggleThemeCommand}" Style="{x:Null}"
-                            HorizontalAlignment="Right" Margin="0,6,8,0">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd" Background="{DynamicResource BgDarkBrush}"
-                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                                        CornerRadius="8" Padding="16,8" Cursor="Hand">
-                                    <TextBlock x:Name="txt" Text="Theme 전환"
-                                               FontSize="17" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource TextMidBrush}"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource TextLightBrush}"/>
-                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatSystemBrush}"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
+                    <!-- 3단: On/Off-Line (좌) | Theme 전환 (우) -->
+                    <Grid Margin="0,6,8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding SyncStatusText}" FontSize="17" FontWeight="Bold">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#708090"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSyncOnline}" Value="True">
+                                                <Setter Property="Foreground" Value="#4A90D9"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Text="{Binding LastSyncDisplay}" FontSize="15"
+                                       Foreground="{DynamicResource TextMidBrush}"
+                                       VerticalAlignment="Center" Margin="8,0,0,0"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Command="{Binding ToggleThemeCommand}" Style="{x:Null}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="{DynamicResource BgDarkBrush}"
+                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                            CornerRadius="8" Padding="16,8" Cursor="Hand">
+                                        <TextBlock x:Name="txt" Text="Theme 전환"
+                                                   FontSize="17" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextMidBrush}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="txt" Property="Foreground" Value="{DynamicResource TextLightBrush}"/>
+                                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatSystemBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
                 </StackPanel>
 
                 <!-- Divider 1 -->

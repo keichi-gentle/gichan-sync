@@ -94,6 +94,43 @@ public class FirestoreService
         response.EnsureSuccessStatusCode();
     }
 
+    // ── Meta document (변경 감지용 경량 문서) ──
+
+    private string MetaUrl => $"{BaseUrl}/users/{_userId}/meta/lastUpdated";
+
+    /// <summary>
+    /// meta/lastUpdated 문서의 updatedAt 타임스탬프만 읽어온다 (1 read).
+    /// </summary>
+    public async Task<string?> GetLastUpdatedTimestampAsync()
+    {
+        var response = await _http.GetAsync(MetaUrl);
+        if (!response.IsSuccessStatusCode) return null;
+        var json = await response.Content.ReadAsStringAsync();
+        using var doc = JsonDocument.Parse(json);
+        if (doc.RootElement.TryGetProperty("fields", out var f))
+            return GetStr(f, "updatedAt") ?? GetTimestamp(f, "updatedAt")?.ToString("o");
+        return null;
+    }
+
+    /// <summary>
+    /// meta/lastUpdated 문서를 현재 시각으로 갱신한다.
+    /// </summary>
+    public async Task TouchLastUpdatedAsync()
+    {
+        var body = JsonSerializer.Serialize(new
+        {
+            fields = new Dictionary<string, object>
+            {
+                ["updatedAt"] = TsVal(DateTime.UtcNow),
+                ["source"] = SVal("wpf"),
+            }
+        });
+        var content = new StringContent(body, Encoding.UTF8, "application/json");
+        var request = new HttpRequestMessage(new HttpMethod("PATCH"), MetaUrl) { Content = content };
+        var response = await _http.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+    }
+
     // ── Mapping: BabyEvent → Firestore JSON ──
 
     private static string MapToFirestore(BabyEvent evt, string source, bool isNew)

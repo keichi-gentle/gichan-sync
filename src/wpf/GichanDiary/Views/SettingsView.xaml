@@ -291,8 +291,22 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="버전" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
-                        <TextBlock Grid.Column="1" Text="3.0.16" FontSize="19" FontWeight="SemiBold"
+                        <TextBlock Grid.Column="1" Text="3.0.18" FontSize="19" FontWeight="SemiBold"
                                    Foreground="{DynamicResource TextLightBrush}"/>
+                    </Grid>
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="154"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="동기화 사용" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <CheckBox IsChecked="{Binding FirebaseSyncEnabled}" VerticalAlignment="Center"/>
+                            <TextBlock Text="(변경 시 앱 재시작 필요)" FontSize="16"
+                                       Foreground="{DynamicResource TextMidBrush}" Margin="8,0,0,0"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                     </Grid>
                     <!-- 동기화: 2컬럼 (좌: 버튼, 우: 시각정보) -->
                     <Grid Margin="0,8,0,0">

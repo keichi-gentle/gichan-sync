@@ -39,6 +39,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private string _statusMessage = "";
 
     // ── Firebase sync ──────────────────────────────────
+    [ObservableProperty] private bool _firebaseSyncEnabled;
     [ObservableProperty] private string _lastSyncTime = "-";
     [ObservableProperty] private string _syncStatusMessage = "";
     [ObservableProperty] private bool _isSyncing;
@@ -69,6 +70,7 @@ public partial class SettingsViewModel : ObservableObject
         PageSize = s.PageSize;
         DefaultBreastfeedAmount = s.DefaultBreastfeedAmount;
         DefaultFormulaAmount = s.DefaultFormulaAmount;
+        FirebaseSyncEnabled = s.FirebaseSyncEnabled;
 
         FormulaProducts.Clear();
         foreach (var p in s.FormulaProducts)
@@ -91,6 +93,7 @@ public partial class SettingsViewModel : ObservableObject
             PageSize = PageSize,
             DefaultBreastfeedAmount = DefaultBreastfeedAmount,
             DefaultFormulaAmount = DefaultFormulaAmount,
+            FirebaseSyncEnabled = FirebaseSyncEnabled,
         };
         _settingsService.Save(s);
         StatusMessage = "설정이 저장되었습니다.";

@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Windows;
 using GichanDiary.Models;
 
@@ -6,7 +7,8 @@ namespace GichanDiary.Services;
 /// <summary>
 /// IDataService that writes to both Firestore and Excel (dual-write).
 /// Reads primarily from Firestore, falls back to Excel offline.
-/// Polls Firestore every 10 seconds for external changes.
+/// Polls meta/lastUpdated document every 60 seconds (1 read per poll).
+/// Only fetches full events when change is detected.
 /// </summary>
 public class FirebaseSyncDataService : IDataService
 {
@@ -16,7 +18,7 @@ public class FirebaseSyncDataService : IDataService
     private readonly System.Timers.Timer _pollTimer;
     private List<BabyEvent> _cachedEvents = new();
     private bool _isOnline;
-    private string _cachedHash = "";
+    private string? _lastKnownTimestamp;
     private int _consecutiveFailures;
 
     public event Action<List<BabyEvent>>? EventsChanged;
@@ -34,7 +36,7 @@ public class FirebaseSyncDataService : IDataService
         _settingsService = settingsService;
         _firestoreService = firestoreService;
 
-        _pollTimer = new System.Timers.Timer(10_000); // 10 seconds
+        _pollTimer = new System.Timers.Timer(60_000); // 60 seconds
         _pollTimer.Elapsed += async (s, e) => await PollForChanges();
         _pollTimer.AutoReset = true;
     }
@@ -68,12 +70,12 @@ public class FirebaseSyncDataService : IDataService
 
     public async Task AddEventAsync(BabyEvent newEvent)
     {
-        // Firestore first
         try
         {
             if (_firestoreService.IsConfigured)
             {
                 await _firestoreService.AddEventAsync(newEvent);
+                await _firestoreService.TouchLastUpdatedAsync();
                 _isOnline = true;
                 UpdateSyncTime();
             }
@@ -84,7 +86,6 @@ public class FirebaseSyncDataService : IDataService
             _isOnline = false;
         }
 
-        // Excel backup always
         await _excelService.AppendEventAsync(ExcelPath, newEvent);
         await NotifyChanged();
     }
@@ -96,6 +97,7 @@ public class FirebaseSyncDataService : IDataService
             if (_firestoreService.IsConfigured)
             {
                 await _firestoreService.UpdateEventAsync(updated);
+                await _firestoreService.TouchLastUpdatedAsync();
                 _isOnline = true;
                 UpdateSyncTime();
             }
@@ -117,6 +119,7 @@ public class FirebaseSyncDataService : IDataService
             if (_firestoreService.IsConfigured)
             {
                 await _firestoreService.DeleteEventAsync(target.Id.ToString());
+                await _firestoreService.TouchLastUpdatedAsync();
                 _isOnline = true;
                 UpdateSyncTime();
             }
@@ -140,44 +143,47 @@ public class FirebaseSyncDataService : IDataService
     public Task<string> CreateBackupAsync(string? targetPath = null)
         => _excelService.CreateBackupAsync(ExcelPath, targetPath);
 
+    /// <summary>
+    /// 경량 폴링: meta/lastUpdated 문서만 읽어서 변경 여부 확인 (1 read).
+    /// 변경 감지 시에만 전체 이벤트를 가져온다.
+    /// </summary>
     private async Task PollForChanges()
     {
         try
         {
             if (!_firestoreService.IsConfigured) return;
 
-            var latest = await _firestoreService.LoadEventsAsync();
-            var newHash = ComputeHash(latest);
+            var remoteTimestamp = await _firestoreService.GetLastUpdatedTimestampAsync();
             _isOnline = true;
             _consecutiveFailures = 0;
-            _pollTimer.Interval = 10_000; // 성공 시 10초로 복귀
+            _pollTimer.Interval = 60_000; // 성공 시 60초로 복귀
             UpdateSyncTime();
-            if (newHash != _cachedHash)
+
+            // 타임스탬프가 변경되었으면 전체 이벤트를 가져온다
+            if (remoteTimestamp != null && remoteTimestamp != _lastKnownTimestamp)
             {
+                _lastKnownTimestamp = remoteTimestamp;
+                var latest = await _firestoreService.LoadEventsAsync();
                 _cachedEvents = latest;
-                _cachedHash = newHash;
                 Application.Current?.Dispatcher.Invoke(() => EventsChanged?.Invoke(_cachedEvents));
+                LogService.System($"Firestore sync: change detected, {latest.Count} events loaded");
             }
+        }
+        catch (HttpRequestException ex) when (ex.Message.Contains("429"))
+        {
+            _pollTimer.Interval = 300_000; // 429: 5분 대기
+            _consecutiveFailures++;
+            LogService.System($"Firestore rate limited (429), backing off 5min (retry {_consecutiveFailures})");
+            _isOnline = false;
         }
         catch (Exception ex)
         {
             _consecutiveFailures++;
-            // 지수 백오프: 10s → 20s → 40s → 60s (상한)
-            var backoffMs = Math.Min(60_000, 10_000 * (int)Math.Pow(2, _consecutiveFailures - 1));
+            var backoffMs = Math.Min(120_000, 60_000 * (int)Math.Pow(2, _consecutiveFailures - 1));
             _pollTimer.Interval = backoffMs;
-            LogService.System($"Firestore poll failed (retry {_consecutiveFailures}, next {backoffMs/1000}s): {ex.Message}");
+            LogService.System($"Firestore poll failed (retry {_consecutiveFailures}, next {backoffMs / 1000}s): {ex.Message}");
             _isOnline = false;
         }
-    }
-
-    private static string ComputeHash(List<BabyEvent> events)
-    {
-        // 개수 + 각 이벤트의 ID/Amount/Detail을 결합하여 변경 감지
-        var sb = new System.Text.StringBuilder();
-        sb.Append(events.Count).Append('|');
-        foreach (var e in events)
-            sb.Append(e.Id).Append(e.Detail).Append(e.Amount).Append(e.Note).Append('|');
-        return sb.ToString();
     }
 
     private void UpdateSyncTime()
@@ -189,7 +195,6 @@ public class FirebaseSyncDataService : IDataService
     private async Task NotifyChanged()
     {
         _cachedEvents = await LoadEventsAsync();
-        _cachedHash = ComputeHash(_cachedEvents);
         Application.Current?.Dispatcher.Invoke(() => EventsChanged?.Invoke(_cachedEvents));
     }
 }
