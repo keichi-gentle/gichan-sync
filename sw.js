@@ -41,12 +41,12 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Network-first: 네트워크 우선, 실패 시 캐시 폴백
+// Network-first: 네트워크 우선, 실패 시 캐시 폴백 (GET만 캐시)
 self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
   e.respondWith(
     fetch(e.request)
       .then(response => {
-        // 성공 시 캐시 갱신
         const clone = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
         return response;
