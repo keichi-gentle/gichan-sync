@@ -9,6 +9,7 @@
              d:DataContext="{d:DesignInstance vm:SettingsViewModel, IsDesignTimeCreatable=False}">
     <UserControl.Resources>
         <conv:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
@@ -291,7 +292,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="버전" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
-                        <TextBlock Grid.Column="1" Text="3.0.19" FontSize="19" FontWeight="SemiBold"
+                        <TextBlock Grid.Column="1" Text="3.0.20" FontSize="19" FontWeight="SemiBold"
                                    Foreground="{DynamicResource TextLightBrush}"/>
                     </Grid>
                     <Grid Margin="0,8,0,0">
@@ -323,14 +324,26 @@
                             <TextBlock Text="동기화" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
                                        VerticalAlignment="Center"/>
                             <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <!-- 올리기: 업로드 중이면 숨기고 중단 표시, 다운로드 중이면 비활성화 -->
                                 <Button Content="올리기" Command="{Binding UploadToFirebaseCommand}"
                                         Style="{DynamicResource PrimaryButton}" Background="{DynamicResource CatSystemBrush}"
                                         Width="130" Height="40" FontSize="19" Margin="0,0,8,0"
-                                        IsEnabled="{Binding IsSyncing, Converter={StaticResource InverseBoolConverter}}"/>
+                                        IsEnabled="{Binding IsDownloading, Converter={StaticResource InverseBoolConverter}}"
+                                        Visibility="{Binding IsUploading, Converter={StaticResource BoolToVisibility}, ConverterParameter=Inverse}"/>
+                                <Button Content="중단" Command="{Binding CancelSyncCommand}"
+                                        Style="{DynamicResource PrimaryButton}" Background="{DynamicResource CatHealthBrush}"
+                                        Width="130" Height="40" FontSize="19" Margin="0,0,8,0"
+                                        Visibility="{Binding IsUploading, Converter={StaticResource BoolToVisibility}}"/>
+                                <!-- 내려받기: 다운로드 중이면 숨기고 중단 표시, 업로드 중이면 비활성화 -->
                                 <Button Content="내려받기" Command="{Binding DownloadFromFirebaseCommand}"
                                         Style="{DynamicResource PrimaryButton}" Background="{DynamicResource CatSystemBrush}"
                                         Width="130" Height="40" FontSize="19"
-                                        IsEnabled="{Binding IsSyncing, Converter={StaticResource InverseBoolConverter}}"/>
+                                        IsEnabled="{Binding IsUploading, Converter={StaticResource InverseBoolConverter}}"
+                                        Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVisibility}, ConverterParameter=Inverse}"/>
+                                <Button Content="중단" Command="{Binding CancelSyncCommand}"
+                                        Style="{DynamicResource PrimaryButton}" Background="{DynamicResource CatHealthBrush}"
+                                        Width="130" Height="40" FontSize="19"
+                                        Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVisibility}}"/>
                             </StackPanel>
                         </Grid>
 

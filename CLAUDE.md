@@ -62,5 +62,10 @@
 - PWA 접속 URL: https://keichi-gentle.github.io/gichan-sync/
 - gh-pages 배포: git subtree split --prefix src/pwa/gichan-viewer → gh-pages
 
+## 플랫폼 규칙
+- Windows 10 이상 x64만 대상 (osx, arm64, x86 런타임 포함 금지)
+- release/wpf/에 log 폴더, .pdb 파일 포함 금지
+- 배포 명령: `dotnet publish -c Release --no-self-contained -r win-x64 -o ../../../release/wpf`
+
 ## Firebase Auth UID
 - KrTxuQMTE9Ve2PXJcVTUJmhQntB3 (gogokeichi@gmail.com)

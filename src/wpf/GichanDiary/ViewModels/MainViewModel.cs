@@ -501,7 +501,7 @@ public partial class MainViewModel : ObservableObject
     private void ShowExcel()
     {
         SelectedTab = "엑셀";
-        var vm = new ImportExportViewModel(_excelService, _settingsService);
+        var vm = new ImportExportViewModel(_excelService, _settingsService, _dataService);
         vm.Refresh(_events);
         vm.DataChanged += OnEventSaved;
         CurrentView = vm;

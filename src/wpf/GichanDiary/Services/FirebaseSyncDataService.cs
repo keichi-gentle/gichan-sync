@@ -48,6 +48,10 @@ public class FirebaseSyncDataService : IDataService
 
     public async Task<List<BabyEvent>> LoadEventsAsync()
     {
+        // 캐시에 데이터가 있으면 캐시 반환 (Import/CUD 후 즉시 반영)
+        if (_cachedEvents.Count > 0)
+            return _cachedEvents;
+
         try
         {
             if (_firestoreService.IsConfigured)
@@ -87,7 +91,9 @@ public class FirebaseSyncDataService : IDataService
         }
 
         await _excelService.AppendEventAsync(ExcelPath, newEvent);
-        await NotifyChanged();
+        _cachedEvents.Add(newEvent);
+        _cachedEvents = _cachedEvents.OrderBy(e => e.FullDateTime).ToList();
+        NotifyUI();
     }
 
     public async Task UpdateEventAsync(BabyEvent updated)
@@ -109,7 +115,9 @@ public class FirebaseSyncDataService : IDataService
         }
 
         await _excelService.UpdateEventAsync(ExcelPath, updated);
-        await NotifyChanged();
+        var idx = _cachedEvents.FindIndex(e => e.Id == updated.Id);
+        if (idx >= 0) _cachedEvents[idx] = updated;
+        NotifyUI();
     }
 
     public async Task DeleteEventAsync(BabyEvent target)
@@ -131,11 +139,42 @@ public class FirebaseSyncDataService : IDataService
         }
 
         await _excelService.DeleteEventAsync(ExcelPath, target);
-        await NotifyChanged();
+        _cachedEvents.RemoveAll(e => e.Id == target.Id);
+        NotifyUI();
     }
 
-    public Task<List<BabyEvent>> ImportEventsAsync(string filePath, ImportMode mode)
-        => _excelService.ImportEventsAsync(filePath, mode);
+    /// <summary>
+    /// Firebase를 Excel 데이터로 리셋한다 (기존 Firebase 전체 삭제 → Excel 데이터 일괄 업로드).
+    /// Excel에는 쓰지 않음 (이미 있는 데이터를 올리는 것이므로).
+    /// </summary>
+    public async Task ResetFirebaseAsync(List<BabyEvent> events, IProgress<string>? progress = null, CancellationToken ct = default)
+    {
+        if (!_firestoreService.IsConfigured)
+            throw new InvalidOperationException("Firebase가 구성되지 않았습니다.");
+
+        // 1. 기존 Firebase 데이터 전체 삭제
+        await _firestoreService.DeleteAllEventsAsync(progress, ct);
+
+        // 2. Excel 데이터 일괄 업로드 (Excel 쓰기 없음, Firestore만)
+        await _firestoreService.BulkAddEventsAsync(events, progress, ct);
+
+        // 3. 캐시 갱신 + UI 통지 (1회)
+        _cachedEvents = events.OrderBy(e => e.FullDateTime).ToList();
+        _isOnline = true;
+        UpdateSyncTime();
+        NotifyUI();
+
+        LogService.Event($"Firebase 리셋 완료: {events.Count}건 업로드");
+    }
+
+    public async Task<List<BabyEvent>> ImportEventsAsync(string filePath, ImportMode mode)
+    {
+        var events = await _excelService.ImportEventsAsync(filePath, mode);
+        // Import된 Excel 데이터로 캐시 갱신 → UI에 즉시 반영
+        // (Firebase에는 아직 안 올라감 — 별도 업로드 필요)
+        _cachedEvents = events.OrderBy(e => e.FullDateTime).ToList();
+        return events;
+    }
 
     public Task ExportEventsAsync(string targetPath, List<BabyEvent> events)
         => _excelService.ExportEventsAsync(targetPath, events);
@@ -192,9 +231,8 @@ public class FirebaseSyncDataService : IDataService
         Application.Current?.Dispatcher.Invoke(() => SyncTimeChanged?.Invoke(LastSyncTime.Value));
     }
 
-    private async Task NotifyChanged()
+    private void NotifyUI()
     {
-        _cachedEvents = await LoadEventsAsync();
         Application.Current?.Dispatcher.Invoke(() => EventsChanged?.Invoke(_cachedEvents));
     }
 }

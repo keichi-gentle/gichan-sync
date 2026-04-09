@@ -236,10 +236,16 @@ function bindEvents(container) {
   });
 
   // Firebase sync upload/download
-  container.querySelector('#sync-upload-btn')?.addEventListener('click', async () => {
+  const uploadBtn = container.querySelector('#sync-upload-btn');
+  const downloadBtn = container.querySelector('#sync-download-btn');
+
+  uploadBtn?.addEventListener('click', async () => {
     const statusEl = container.querySelector('#sync-status');
     const timeEl = container.querySelector('#sync-time-display');
-    statusEl.textContent = '업로드 중...';
+    uploadBtn.disabled = true;
+    downloadBtn.disabled = true;
+    statusEl.textContent = '업로드 준비 중...';
+    statusEl.style.color = '';
     try {
       const events = await loadEvents();
       if (!events || events.length === 0) {
@@ -251,40 +257,54 @@ function bindEvents(container) {
       const db = window.__firebase.db;
       const user = getCurrentUser();
       const dataUid = getRolesData()?.dataUid || user.uid;
-      for (const evt of events) {
+      const total = events.length;
+      for (let i = 0; i < total; i++) {
+        const evt = events[i];
         const docId = evt.id || crypto.randomUUID();
         const data = { ...evt, id: docId, source: 'pwa', updatedAt: Timestamp.now() };
         if (evt.date instanceof Date) data.date = Timestamp.fromDate(evt.date);
         await setDoc(doc(db, 'users', dataUid, 'events', docId), data, { merge: true });
+        statusEl.textContent = `업로드 중... (${i + 1}/${total})`;
       }
       const now = new Date();
       const timeStr = now.toLocaleString('ko-KR', { year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false }).replace(/\. /g,'.').replace('.  ','. ');
       setSetting('lastSyncTime', timeStr);
       timeEl.textContent = timeStr;
-      statusEl.textContent = `업로드 완료 (${events.length}건)`;
+      statusEl.textContent = `업로드 완료 (${total}건)`;
       statusEl.style.color = 'var(--cat-feed)';
     } catch (err) {
       statusEl.textContent = `업로드 실패: ${err.message}`;
       statusEl.style.color = 'var(--cat-health)';
+    } finally {
+      uploadBtn.disabled = false;
+      downloadBtn.disabled = false;
     }
   });
 
-  container.querySelector('#sync-download-btn')?.addEventListener('click', async () => {
+  downloadBtn?.addEventListener('click', async () => {
     const statusEl = container.querySelector('#sync-status');
     const timeEl = container.querySelector('#sync-time-display');
+    uploadBtn.disabled = true;
+    downloadBtn.disabled = true;
     statusEl.textContent = '내려받는 중...';
+    statusEl.style.color = '';
     try {
       const { collection, query, getDocs, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
       const db = window.__firebase.db;
       const user = getCurrentUser();
       const dataUid = getRolesData()?.dataUid || user.uid;
       const q = query(collection(db, 'users', dataUid, 'events'), orderBy('date', 'asc'));
+      statusEl.textContent = '데이터 조회 중...';
       const snapshot = await getDocs(q);
       const events = [];
+      const total = snapshot.size;
+      let count = 0;
       snapshot.forEach(d => {
         const data = d.data();
         if (data.date?.toDate) data.date = data.date.toDate();
         events.push(data);
+        count++;
+        statusEl.textContent = `내려받는 중... (${count}/${total})`;
       });
       await saveEvents(events);
       const now = new Date();
@@ -297,6 +317,9 @@ function bindEvents(container) {
     } catch (err) {
       statusEl.textContent = `내려받기 실패: ${err.message}`;
       statusEl.style.color = 'var(--cat-health)';
+    } finally {
+      uploadBtn.disabled = false;
+      downloadBtn.disabled = false;
     }
   });
 }

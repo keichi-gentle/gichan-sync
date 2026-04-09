@@ -43,6 +43,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private string _lastSyncTime = "-";
     [ObservableProperty] private string _syncStatusMessage = "";
     [ObservableProperty] private bool _isSyncing;
+    [ObservableProperty] private bool _isUploading;
+    [ObservableProperty] private bool _isDownloading;
+    private CancellationTokenSource? _syncCts;
 
     public event Action? SettingsSaved;
 
@@ -145,11 +148,12 @@ public partial class SettingsViewModel : ObservableObject
             return;
         }
 
+        _syncCts = new CancellationTokenSource();
         IsSyncing = true;
-        SyncStatusMessage = "Firebase로 업로드 중...";
+        IsUploading = true;
+        SyncStatusMessage = "Firebase 리셋 준비 중...";
         try
         {
-            // Enable sync if not already
             if (_syncCoordinator.CurrentMode != SyncMode.FirebaseSync)
                 await _syncCoordinator.TryEnableFirebaseSync();
 
@@ -158,13 +162,19 @@ public partial class SettingsViewModel : ObservableObject
 
             if (dataService is FirebaseSyncDataService syncService)
             {
-                foreach (var evt in events)
-                    await syncService.AddEventAsync(evt);
+                var progress = new Progress<string>(msg =>
+                    SyncStatusMessage = msg);
+                await syncService.ResetFirebaseAsync(events, progress, _syncCts.Token);
             }
 
             LastSyncTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
             SyncStatusMessage = $"업로드 완료 ({events.Count}건)";
-            LogService.Event($"Firebase 업로드: {events.Count}건");
+            LogService.Event($"Firebase 리셋 업로드: {events.Count}건");
+        }
+        catch (OperationCanceledException)
+        {
+            SyncStatusMessage = "업로드 중단됨";
+            LogService.System("Firebase upload cancelled by user");
         }
         catch (Exception ex)
         {
@@ -174,6 +184,9 @@ public partial class SettingsViewModel : ObservableObject
         finally
         {
             IsSyncing = false;
+            IsUploading = false;
+            _syncCts?.Dispose();
+            _syncCts = null;
         }
     }
 
@@ -186,23 +199,31 @@ public partial class SettingsViewModel : ObservableObject
             return;
         }
 
+        _syncCts = new CancellationTokenSource();
         IsSyncing = true;
+        IsDownloading = true;
         SyncStatusMessage = "Firebase에서 내려받는 중...";
         try
         {
             if (_syncCoordinator.CurrentMode != SyncMode.FirebaseSync)
                 await _syncCoordinator.TryEnableFirebaseSync();
 
+            _syncCts.Token.ThrowIfCancellationRequested();
             var dataService = _syncCoordinator.GetDataService();
             var events = await dataService.LoadEventsAsync();
 
-            // Excel로 내보내기 (덮어쓰기)
+            _syncCts.Token.ThrowIfCancellationRequested();
             var excelPath = _settingsService.Load().ExcelFilePath;
             await _excelService.ExportEventsAsync(excelPath, events);
 
             LastSyncTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
             SyncStatusMessage = $"내려받기 완료 ({events.Count}건)";
             LogService.Event($"Firebase 다운로드: {events.Count}건");
+        }
+        catch (OperationCanceledException)
+        {
+            SyncStatusMessage = "내려받기 중단됨";
+            LogService.System("Firebase download cancelled by user");
         }
         catch (Exception ex)
         {
@@ -212,7 +233,17 @@ public partial class SettingsViewModel : ObservableObject
         finally
         {
             IsSyncing = false;
+            IsDownloading = false;
+            _syncCts?.Dispose();
+            _syncCts = null;
         }
+    }
+
+    [RelayCommand]
+    private void CancelSync()
+    {
+        _syncCts?.Cancel();
+        SyncStatusMessage = "중단 요청...";
     }
 
     // ── Spinner commands ────────────────────────────────

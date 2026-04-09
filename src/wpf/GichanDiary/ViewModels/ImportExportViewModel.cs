@@ -10,6 +10,7 @@ public partial class ImportExportViewModel : ObservableObject
 {
     private readonly IExcelService _excelService;
     private readonly ISettingsService _settingsService;
+    private readonly IDataService? _dataService;
 
     [ObservableProperty] private string _currentFilePath = "";
     [ObservableProperty] private int _totalRecords;
@@ -25,10 +26,12 @@ public partial class ImportExportViewModel : ObservableObject
 
     public event Action? DataChanged;
 
-    public ImportExportViewModel(IExcelService excelService, ISettingsService settingsService)
+    public ImportExportViewModel(IExcelService excelService, ISettingsService settingsService,
+        IDataService? dataService = null)
     {
         _excelService = excelService;
         _settingsService = settingsService;
+        _dataService = dataService;
         var settings = _settingsService.Load();
         CurrentFilePath = settings.ExcelFilePath ?? "";
 
@@ -60,7 +63,9 @@ public partial class ImportExportViewModel : ObservableObject
         try
         {
             var mode = ImportOverwrite ? ImportMode.Overwrite : ImportMode.Merge;
-            var events = await _excelService.ImportEventsAsync(dlg.FileName, mode);
+            var events = _dataService != null
+                ? await _dataService.ImportEventsAsync(dlg.FileName, mode)
+                : await _excelService.ImportEventsAsync(dlg.FileName, mode);
             var newProducts = AutoAddNewProducts(events);
 
             StatusMessage = $"가져오기 완료: {events.Count}건";

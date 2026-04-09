@@ -94,6 +94,37 @@ public class FirestoreService
         response.EnsureSuccessStatusCode();
     }
 
+    /// <summary>
+    /// Firestore의 모든 이벤트를 삭제한다 (리셋용).
+    /// </summary>
+    public async Task DeleteAllEventsAsync(IProgress<string>? progress = null, CancellationToken ct = default)
+    {
+        var events = await LoadEventsAsync();
+        var total = events.Count;
+        for (int i = 0; i < total; i++)
+        {
+            ct.ThrowIfCancellationRequested();
+            await DeleteEventAsync(events[i].Id.ToString());
+            progress?.Report($"기존 데이터 삭제 중... ({i + 1}/{total})");
+        }
+    }
+
+    /// <summary>
+    /// 이벤트 목록을 Firestore에 일괄 업로드한다.
+    /// Excel에는 쓰지 않음 (이미 Excel에 있는 데이터를 올리는 용도).
+    /// </summary>
+    public async Task BulkAddEventsAsync(List<BabyEvent> events, IProgress<string>? progress = null, CancellationToken ct = default)
+    {
+        var total = events.Count;
+        for (int i = 0; i < total; i++)
+        {
+            ct.ThrowIfCancellationRequested();
+            await AddEventAsync(events[i]);
+            progress?.Report($"업로드 중... ({i + 1}/{total})");
+        }
+        await TouchLastUpdatedAsync();
+    }
+
     // ── Meta document (변경 감지용 경량 문서) ──
 
     private string MetaUrl => $"{BaseUrl}/users/{_userId}/meta/lastUpdated";
