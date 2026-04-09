@@ -210,6 +210,8 @@ public partial class SettingsViewModel : ObservableObject
 
             _syncCts.Token.ThrowIfCancellationRequested();
             var dataService = _syncCoordinator.GetDataService();
+            if (dataService is FirebaseSyncDataService syncService)
+                syncService.InvalidateCache();
             var events = await dataService.LoadEventsAsync();
 
             _syncCts.Token.ThrowIfCancellationRequested();

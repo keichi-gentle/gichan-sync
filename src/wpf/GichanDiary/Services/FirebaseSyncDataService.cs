@@ -43,6 +43,7 @@ public class FirebaseSyncDataService : IDataService
 
     public void StartPolling() => _pollTimer.Start();
     public void StopPolling() => _pollTimer.Stop();
+    public void InvalidateCache() => _cachedEvents = new();
 
     private string ExcelPath => _settingsService.Load().ExcelFilePath;
 
