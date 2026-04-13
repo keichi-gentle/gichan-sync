@@ -178,8 +178,8 @@
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="bd" Background="Transparent"
                                                         BorderBrush="{DynamicResource CatFeedBrush}"
-                                                        BorderThickness="2"
-                                                        CornerRadius="10" Padding="8" Opacity="0.6">
+                                                        BorderThickness="3"
+                                                        CornerRadius="10" Padding="8" Opacity="0.8">
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                         <Path x:Name="ico" Data="{DynamicResource IconFeed}" Stroke="{DynamicResource CatFeedBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
                                                         <TextBlock x:Name="txt" Text="수유" FontSize="19" FontWeight="Bold"
@@ -189,13 +189,14 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                                                        <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
                                                     </Trigger>
                                                     <DataTrigger Binding="{Binding SelectedCategory}" Value="수유">
                                                         <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatFeedBrush}"/>
-                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="4"/>
                                                         <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatFeedTintBrush}"/>
                                                         <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
+                                                        <Setter TargetName="txt" Property="FontSize" Value="21"/>
                                                     </DataTrigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -216,8 +217,8 @@
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="bd" Background="Transparent"
                                                         BorderBrush="{DynamicResource CatBowelBrush}"
-                                                        BorderThickness="2"
-                                                        CornerRadius="10" Padding="8" Opacity="0.6">
+                                                        BorderThickness="3"
+                                                        CornerRadius="10" Padding="8" Opacity="0.8">
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                         <Path x:Name="ico" Data="{DynamicResource IconBowel}" Stroke="{DynamicResource CatBowelBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
                                                         <TextBlock x:Name="txt" Text="배변" FontSize="19" FontWeight="Bold"
@@ -227,13 +228,14 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                                                        <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
                                                     </Trigger>
                                                     <DataTrigger Binding="{Binding SelectedCategory}" Value="배변">
                                                         <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatBowelBrush}"/>
-                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="4"/>
                                                         <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatBowelTintBrush}"/>
                                                         <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
+                                                        <Setter TargetName="txt" Property="FontSize" Value="21"/>
                                                     </DataTrigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -254,8 +256,8 @@
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="bd" Background="Transparent"
                                                         BorderBrush="{DynamicResource CatHygieneBrush}"
-                                                        BorderThickness="2"
-                                                        CornerRadius="10" Padding="8" Opacity="0.6">
+                                                        BorderThickness="3"
+                                                        CornerRadius="10" Padding="8" Opacity="0.8">
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                         <Path x:Name="ico" Data="{DynamicResource IconHygiene}" Stroke="{DynamicResource CatHygieneBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
                                                         <TextBlock x:Name="txt" Text="위생" FontSize="19" FontWeight="Bold"
@@ -265,13 +267,14 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                                                        <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
                                                     </Trigger>
                                                     <DataTrigger Binding="{Binding SelectedCategory}" Value="위생관리">
                                                         <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatHygieneBrush}"/>
-                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="4"/>
                                                         <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatHygieneTintBrush}"/>
                                                         <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
+                                                        <Setter TargetName="txt" Property="FontSize" Value="21"/>
                                                     </DataTrigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -292,8 +295,8 @@
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="bd" Background="Transparent"
                                                         BorderBrush="{DynamicResource CatBodyBrush}"
-                                                        BorderThickness="2"
-                                                        CornerRadius="10" Padding="8" Opacity="0.6">
+                                                        BorderThickness="3"
+                                                        CornerRadius="10" Padding="8" Opacity="0.8">
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                         <Path x:Name="ico" Data="{DynamicResource IconBody}" Stroke="{DynamicResource CatBodyBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
                                                         <TextBlock x:Name="txt" Text="신체" FontSize="19" FontWeight="Bold"
@@ -303,13 +306,14 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                                                        <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
                                                     </Trigger>
                                                     <DataTrigger Binding="{Binding SelectedCategory}" Value="신체측정">
                                                         <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatBodyBrush}"/>
-                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="4"/>
                                                         <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatBodyTintBrush}"/>
                                                         <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
+                                                        <Setter TargetName="txt" Property="FontSize" Value="21"/>
                                                     </DataTrigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -330,8 +334,8 @@
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="bd" Background="Transparent"
                                                         BorderBrush="{DynamicResource CatHealthBrush}"
-                                                        BorderThickness="2"
-                                                        CornerRadius="10" Padding="8" Opacity="0.6">
+                                                        BorderThickness="3"
+                                                        CornerRadius="10" Padding="8" Opacity="0.8">
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                         <Path x:Name="ico" Data="{DynamicResource IconHealth}" Stroke="{DynamicResource CatHealthBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
                                                         <TextBlock x:Name="txt" Text="건강" FontSize="19" FontWeight="Bold"
@@ -341,13 +345,14 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                                                        <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
                                                     </Trigger>
                                                     <DataTrigger Binding="{Binding SelectedCategory}" Value="건강관리">
                                                         <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatHealthBrush}"/>
-                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="4"/>
                                                         <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatHealthTintBrush}"/>
                                                         <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
+                                                        <Setter TargetName="txt" Property="FontSize" Value="21"/>
                                                     </DataTrigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -368,8 +373,8 @@
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="bd" Background="Transparent"
                                                         BorderBrush="{DynamicResource CatEtcBrush}"
-                                                        BorderThickness="2"
-                                                        CornerRadius="10" Padding="8" Opacity="0.6">
+                                                        BorderThickness="3"
+                                                        CornerRadius="10" Padding="8" Opacity="0.8">
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                         <Path x:Name="ico" Data="{DynamicResource IconEtc}" Stroke="{DynamicResource CatEtcBrush}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,6,0"/>
                                                         <TextBlock x:Name="txt" Text="기타" FontSize="19" FontWeight="Bold"
@@ -379,13 +384,14 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                                                        <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
                                                     </Trigger>
                                                     <DataTrigger Binding="{Binding SelectedCategory}" Value="기타">
                                                         <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource CatEtcBrush}"/>
-                                                        <Setter TargetName="bd" Property="BorderThickness" Value="3"/>
+                                                        <Setter TargetName="bd" Property="BorderThickness" Value="4"/>
                                                         <Setter TargetName="bd" Property="Background" Value="{DynamicResource CatEtcTintBrush}"/>
                                                         <Setter TargetName="bd" Property="Opacity" Value="1.0"/>
+                                                        <Setter TargetName="txt" Property="FontSize" Value="21"/>
                                                     </DataTrigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
