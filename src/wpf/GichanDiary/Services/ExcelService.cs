@@ -188,10 +188,20 @@ public class ExcelService : IExcelService
             {
                 using var wb = new XLWorkbook(filePath);
                 var ws = wb.Worksheets.First();
-                WriteEventToRow(ws, updated.ExcelRowIndex, updated);
-                if (updated.IsFeeding)
-                    RecalcDailyFeedTotal(ws, updated.Date);
-                wb.Save();
+                var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
+
+                var rowNumber = updated.ExcelRowIndex;
+                // ExcelRowIndex 유효하지 않으면 Date+Time+Detail로 검색
+                if (rowNumber < 2 || rowNumber > lastRow)
+                    rowNumber = FindRowByEvent(ws, updated, lastRow);
+
+                if (rowNumber >= 2)
+                {
+                    WriteEventToRow(ws, rowNumber, updated);
+                    if (updated.IsFeeding)
+                        RecalcDailyFeedTotal(ws, updated.Date);
+                    wb.Save();
+                }
             });
         }
         finally
@@ -214,14 +224,56 @@ public class ExcelService : IExcelService
             {
                 using var wb = new XLWorkbook(filePath);
                 var ws = wb.Worksheets.First();
-                ws.Row(target.ExcelRowIndex).Delete();
-                wb.Save();
+                var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
+
+                var rowNumber = target.ExcelRowIndex;
+
+                // ExcelRowIndex가 유효하지 않으면 (Firestore에서 로드된 이벤트 등) Date+Time+Detail로 검색
+                if (rowNumber < 2 || rowNumber > lastRow)
+                {
+                    rowNumber = FindRowByEvent(ws, target, lastRow);
+                }
+
+                if (rowNumber >= 2 && rowNumber <= lastRow)
+                {
+                    ws.Row(rowNumber).Delete();
+                    wb.Save();
+                }
+                // 행을 찾지 못하면 조용히 넘김 (Excel에 없는 이벤트 삭제 요청)
             });
         }
         finally
         {
             _writeLock.Release();
         }
+    }
+
+    /// <summary>
+    /// ExcelRowIndex 정보가 없을 때 Date+Time+Category+Detail로 Excel 행 검색.
+    /// 찾지 못하면 0 반환.
+    /// </summary>
+    private static int FindRowByEvent(IXLWorksheet ws, BabyEvent target, int lastRow)
+    {
+        var targetDate = target.Date.Date;
+        var targetTimeStr = target.Time?.ToString(@"hh\:mm") ?? "";
+        var targetCat = target.Category.ToString();
+        var targetDetail = target.Detail ?? "";
+
+        for (int r = 2; r <= lastRow; r++)
+        {
+            var dateCell = ws.Cell(r, 2).GetDateTime();
+            if (dateCell.Date != targetDate) continue;
+
+            var timeCell = ws.Cell(r, 3).GetString()?.Trim() ?? "";
+            if (timeCell != targetTimeStr) continue;
+
+            var catCell = ws.Cell(r, 4).GetString()?.Trim() ?? "";
+            if (catCell != targetCat) continue;
+
+            var detailCell = ws.Cell(r, 5).GetString()?.Trim() ?? "";
+            if (detailCell == targetDetail) return r;
+        }
+        return 0;
     }
 
     // ── Import / Export ───────────────────────────────────

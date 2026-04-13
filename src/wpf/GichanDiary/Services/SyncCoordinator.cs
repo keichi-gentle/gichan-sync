@@ -44,7 +44,8 @@ public class SyncCoordinator
             var uid = _authService.UserId ?? "KrTxuQMTE9Ve2PXJcVTUJmhQntB3";
             _firestoreService.SetCredentials(uid, _authService.IdToken);
             var syncService = new FirebaseSyncDataService(_excelService, _settingsService, _firestoreService);
-            syncService.StartPolling();
+            // 자동 폴링 제거 — 사용자가 올리기/내려받기 버튼을 눌러야 동기화됨
+            // syncService.StartPolling();
             _dataService = syncService;
         }
         else

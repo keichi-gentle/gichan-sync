@@ -153,7 +153,7 @@ function initTabs() {
   });
 }
 
-export function switchTab(tab) {
+export function switchTab(tab, payload = null) {
   currentTab = tab;
 
   document.querySelectorAll('nav button').forEach(btn => {
@@ -167,8 +167,8 @@ export function switchTab(tab) {
   const container = document.getElementById(`page-${tab}`);
   switch (tab) {
     case 'dashboard': renderDashboard(currentEvents, container); break;
-    case 'entry': renderEntry(container); break;
-    case 'browse': renderBrowse(currentEvents, container); break;
+    case 'entry': renderEntry(container, payload); break;
+    case 'browse': renderBrowse(currentEvents, container, switchTab); break;
     case 'report': renderReport(currentEvents, container); break;
     case 'settings': renderSettings(container, onImport, firebaseReady); break;
   }

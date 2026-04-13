@@ -1,15 +1,20 @@
 import * as C from './calc.js';
 import { getSetting } from './storage.js';
+import { getCurrentUser } from './firebase-auth.js';
+import { getRolesData, canWrite } from './roles.js';
+import { renderEntry } from './event-entry.js';
 
 const CATEGORIES = ['수유', '배변', '위생관리', '신체측정', '건강관리', '기타'];
 let allEvents = [];
 let activeCategories = new Set(CATEGORIES);
 let startDate = '', endDate = '', keyword = '';
 let currentPage = 1, sortOrder = 'desc';
+let tabSwitchCallback = null;
 
-export function renderBrowse(events, container) {
+export function renderBrowse(events, container, onTabSwitch = null) {
   allEvents = events;
   currentPage = 1;
+  tabSwitchCallback = onTabSwitch;
 
   const today = new Date();
   const week = new Date(today); week.setDate(week.getDate() - 7);
@@ -88,10 +93,37 @@ function renderList(filtered) {
   const page = filtered.slice(start, start + pageSize);
 
   const listEl = document.getElementById('browse-list');
+  const writable = canWrite();
   if (!page.length) {
     listEl.innerHTML = '<div class="empty-state">조건에 맞는 기록이 없습니다.</div>';
   } else {
-    listEl.innerHTML = page.map(buildEventCard).join('');
+    listEl.innerHTML = page.map((evt, i) => buildEventCard(evt, start + i, writable)).join('');
+    // 수정/삭제 버튼 이벤트 바인딩
+    listEl.querySelectorAll('.ec-edit-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.idx);
+        const evt = filtered[idx];
+        if (evt && tabSwitchCallback) tabSwitchCallback('entry', evt);
+      });
+    });
+    listEl.querySelectorAll('.ec-del-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.idx);
+        const evt = filtered[idx];
+        if (!evt) return;
+        const dt = C.getFullDateTime(evt);
+        const dateStr = dt ? `${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')} ${evt.time || ''}` : '';
+        if (!confirm(`${dateStr} ${evt.detail} 기록을 삭제하시겠습니까?`)) return;
+        try {
+          await deleteEventFromFirestore(evt);
+          // 실시간 리스너가 갱신하니 UI 업데이트는 자동으로 됨
+        } catch (err) {
+          alert(`삭제 실패: ${err.message}`);
+        }
+      });
+    });
   }
 
   const pagingEl = document.getElementById('browse-paging');
@@ -106,21 +138,44 @@ function renderList(filtered) {
   pagingEl.querySelector('#pg-next')?.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; renderList(filtered); } });
 }
 
-function buildEventCard(evt) {
+function buildEventCard(evt, idx, writable) {
   const dt = C.getFullDateTime(evt);
   const dateStr = dt ? `${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')}` : '';
   const timeStr = evt.time || '';
   const catClass = C.getCategoryClass(evt);
   const detailClass = C.getCategoryClass(evt);
+  const actions = writable ? `
+    <div class="ec-actions">
+      <button class="ec-edit-btn" data-idx="${idx}" title="수정">✎</button>
+      <button class="ec-del-btn" data-idx="${idx}" title="삭제">✕</button>
+    </div>` : '';
 
   return `<div class="event-card">
     <div class="ec-header">
       <span class="ec-time">${dateStr} ${timeStr}</span>
       <span class="ec-category ${catClass}">${catLabel(evt.category)}</span>
+      ${actions}
     </div>
     <div class="ec-detail ${detailClass}">${evt.detail}</div>
     <div class="ec-amount">${evt.amount}${evt.feedingInterval ? ` · 수유텀 ${evt.feedingInterval}` : ''}${evt.note ? ` · ${evt.note}` : ''}</div>
   </div>`;
+}
+
+async function deleteEventFromFirestore(evt) {
+  const { doc, deleteDoc, setDoc, Timestamp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  const db = window.__firebase.db;
+  const user = getCurrentUser();
+  if (!user) throw new Error('로그인이 필요합니다.');
+  const dataUid = getRolesData()?.dataUid || user.uid;
+  const docId = evt.id;
+  if (!docId) throw new Error('이벤트 ID가 없습니다.');
+  await deleteDoc(doc(db, 'users', dataUid, 'events', docId));
+  // meta/lastUpdated 갱신 (다른 기기 동기화 알림)
+  try {
+    await setDoc(doc(db, 'users', dataUid, 'meta', 'lastUpdated'), {
+      updatedAt: Timestamp.now(), source: 'pwa'
+    });
+  } catch { /* 메타 업데이트 실패는 무시 */ }
 }
 
 function catLabel(cat) {

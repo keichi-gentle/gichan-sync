@@ -171,12 +171,13 @@ public partial class DashboardViewModel : ObservableObject
             .OrderByDescending(e => e.FullDateTime)
             .ToList();
 
+        // 신체측정 데이터는 Detail 필드에 "키 60.5cm, 몸무게 3.2kg, 머리둘레 35cm" 형태로 저장됨
         LastHeight = bodyEvents.FirstOrDefault(e => e.Detail?.Contains("키") == true)
-            ?.let(e => $"{e.FullDateTime:MM/dd} {e.Amount}") ?? "-";
+            ?.let(e => ExtractBodyValue(e, @"키\s*([\d.]+cm)")) ?? "-";
         LastWeight = bodyEvents.FirstOrDefault(e => e.Detail?.Contains("몸무게") == true)
-            ?.let(e => $"{e.FullDateTime:MM/dd} {e.Amount}") ?? "-";
+            ?.let(e => ExtractBodyValue(e, @"몸무게\s*([\d.]+kg)")) ?? "-";
         LastHeadCirc = bodyEvents.FirstOrDefault(e => e.Detail?.Contains("머리") == true)
-            ?.let(e => $"{e.FullDateTime:MM/dd} {e.Amount}") ?? "-";
+            ?.let(e => ExtractBodyValue(e, @"머리둘레\s*([\d.]+cm)")) ?? "-";
 
         // ── Health ──────────────────────────────────────
         var lastHealth = events
@@ -203,6 +204,18 @@ public partial class DashboardViewModel : ObservableObject
         if (elapsed.TotalDays >= 1)
             return $"{(int)elapsed.TotalDays}일 {elapsed.Hours}시간 경과";
         return $"{(int)elapsed.TotalHours}시간 {elapsed.Minutes}분 경과";
+    }
+
+    /// <summary>
+    /// 신체측정 Detail 문자열에서 정규식으로 수치를 추출하여 "MM/dd 값" 형식으로 반환.
+    /// 예: "키 60.5cm, 몸무게 3.2kg" + 패턴 "키\s*([\d.]+cm)" → "04/09 60.5cm"
+    /// </summary>
+    private static string ExtractBodyValue(BabyEvent e, string pattern)
+    {
+        if (string.IsNullOrEmpty(e.Detail)) return "-";
+        var match = System.Text.RegularExpressions.Regex.Match(e.Detail, pattern);
+        if (!match.Success) return "-";
+        return $"{e.FullDateTime:MM/dd} {match.Groups[1].Value}";
     }
 }
 

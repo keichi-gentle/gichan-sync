@@ -121,19 +121,24 @@ function buildHygieneCard(events, now) {
 function buildBodyCard(events) {
   const body = events.filter(e => e.category === '신체측정' && C.getFullDateTime(e))
     .sort((a, b) => C.getFullDateTime(b) - C.getFullDateTime(a));
-  const find = (kw) => body.find(e => e.detail.includes(kw));
-  const fmt = (evt) => evt ? `${fmtDate(C.getFullDateTime(evt))} ${evt.amount}` : '-';
+  const find = (kw) => body.find(e => e.detail && e.detail.includes(kw));
+  // 신체측정 데이터는 detail에 "키 60.5cm, 몸무게 3.2kg, 머리둘레 35cm" 형태로 저장됨
+  const extract = (evt, pattern) => {
+    if (!evt || !evt.detail) return '-';
+    const m = evt.detail.match(pattern);
+    return m ? `${fmtDate(C.getFullDateTime(evt))} ${m[1]}` : '-';
+  };
 
   return `<div class="card">
     <div class="card-title cat-body">신체 측정</div>
     <div class="card-split">
       <div class="card-split-half">
-        ${row('키', fmt(find('키')))}
-        ${row('몸무게', fmt(find('몸무게')))}
+        ${row('키', extract(find('키'), /키\s*([\d.]+cm)/))}
+        ${row('몸무게', extract(find('몸무게'), /몸무게\s*([\d.]+kg)/))}
       </div>
       <div class="card-split-divider"></div>
       <div class="card-split-half">
-        ${row('머리둘레', fmt(find('머리')))}
+        ${row('머리둘레', extract(find('머리'), /머리둘레\s*([\d.]+cm)/))}
       </div>
     </div>
   </div>`;
