@@ -19,24 +19,92 @@
                         <TextBlock Text="분석 기간" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Content="1일" FontSize="19" Margin="4,0" Padding="16,8"
-                                Style="{DynamicResource SecondaryButton}"
-                                Command="{Binding SetPeriodCommand}" CommandParameter="1일"/>
-                        <Button Content="3일" FontSize="19" Margin="4,0" Padding="16,8"
-                                Style="{DynamicResource SecondaryButton}"
-                                Command="{Binding SetPeriodCommand}" CommandParameter="3일"/>
-                        <Button Content="7일" FontSize="19" Margin="4,0" Padding="16,8"
-                                Style="{DynamicResource SecondaryButton}"
-                                Command="{Binding SetPeriodCommand}" CommandParameter="7일"/>
-                        <Button Content="14일" FontSize="19" Margin="4,0" Padding="16,8"
-                                Style="{DynamicResource SecondaryButton}"
-                                Command="{Binding SetPeriodCommand}" CommandParameter="14일"/>
-                        <Button Content="30일" FontSize="19" Margin="4,0" Padding="16,8"
-                                Style="{DynamicResource SecondaryButton}"
-                                Command="{Binding SetPeriodCommand}" CommandParameter="30일"/>
-                        <Button Content="전체" FontSize="19" Margin="4,0" Padding="16,8"
-                                Style="{DynamicResource SecondaryButton}"
-                                Command="{Binding SetPeriodCommand}" CommandParameter="전체"/>
+                        <StackPanel.Resources>
+                            <!-- 기본 기간 버튼: SecondaryButton 베이스, 선택 시 CatSystemBrush 배경 + 흰 글자 -->
+                            <Style x:Key="PeriodBase" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                                <Setter Property="FontSize" Value="19"/>
+                                <Setter Property="Margin" Value="4,0"/>
+                                <Setter Property="Padding" Value="16,8"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <Button Content="1일" Command="{Binding SetPeriodCommand}" CommandParameter="1일">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PeriodBase}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedPeriod}" Value="1일">
+                                            <Setter Property="Background" Value="{DynamicResource CatSystemBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="3일" Command="{Binding SetPeriodCommand}" CommandParameter="3일">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PeriodBase}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedPeriod}" Value="3일">
+                                            <Setter Property="Background" Value="{DynamicResource CatSystemBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="7일" Command="{Binding SetPeriodCommand}" CommandParameter="7일">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PeriodBase}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedPeriod}" Value="7일">
+                                            <Setter Property="Background" Value="{DynamicResource CatSystemBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="14일" Command="{Binding SetPeriodCommand}" CommandParameter="14일">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PeriodBase}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedPeriod}" Value="14일">
+                                            <Setter Property="Background" Value="{DynamicResource CatSystemBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="30일" Command="{Binding SetPeriodCommand}" CommandParameter="30일">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PeriodBase}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedPeriod}" Value="30일">
+                                            <Setter Property="Background" Value="{DynamicResource CatSystemBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="전체" Command="{Binding SetPeriodCommand}" CommandParameter="전체">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PeriodBase}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedPeriod}" Value="전체">
+                                            <Setter Property="Background" Value="{DynamicResource CatSystemBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                     </StackPanel>
                 </StackPanel>
             </Border>
