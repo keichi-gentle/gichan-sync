@@ -75,6 +75,9 @@ public partial class App : Application
         var settings = settingsService.Load();
         LogService.System($"설정 로드 완료: Theme={settings.Theme}, Excel={settings.ExcelFilePath}");
 
+        // 테마를 먼저 적용 (FirstRunDialog/MainWindow 생성 전에 적용되어야 첫 렌더링이 올바른 테마로 됨)
+        Services.ThemeManager.ApplyTheme(settings.Theme);
+
         // Excel 경로가 없거나 파일이 존재하지 않으면 → 첫 실행 다이얼로그
         var needFirstRun = string.IsNullOrEmpty(settings.ExcelFilePath)
                         || !File.Exists(settings.ExcelFilePath);
@@ -134,8 +137,7 @@ public partial class App : Application
             settingsService.Save(settings);
         }
 
-        // 테마 적용
-        Services.ThemeManager.ApplyTheme(settings.Theme);
+        // (테마는 이미 OnStartup 초기에 적용됨)
 
         // Excel 파일이 없으면 새로 생성
         if (!File.Exists(settings.ExcelFilePath))

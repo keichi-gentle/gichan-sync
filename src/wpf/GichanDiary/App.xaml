@@ -6,8 +6,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!-- Colors는 최상위에서 로드 (ThemeManager가 교체) -->
-                <ResourceDictionary Source="Resources/Colors.xaml"/>
+                <!-- Colors는 App.OnStartup에서 ThemeManager가 먼저 삽입 (Light/Dark) -->
                 <ResourceDictionary Source="Resources/Themes/DarkTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
