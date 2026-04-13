@@ -230,27 +230,39 @@
                     </StackPanel>
                     <Grid Margin="0,3">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="키" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding LastHeight}" FontSize="19" FontWeight="SemiBold" Foreground="{DynamicResource CatBodyBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastHeightDate}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatBodyBrush}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding LastHeightValue}" FontSize="17" Margin="20,0,0,0"
+                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
                     </Grid>
                     <Grid Margin="0,3">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="몸무게" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding LastWeight}" FontSize="19" FontWeight="SemiBold" Foreground="{DynamicResource CatBodyBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastWeightDate}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatBodyBrush}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding LastWeightValue}" FontSize="17" Margin="20,0,0,0"
+                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
                     </Grid>
                     <Grid Margin="0,3">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="머리둘레" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding LastHeadCirc}" FontSize="19" FontWeight="SemiBold" Foreground="{DynamicResource CatBodyBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastHeadCircDate}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatBodyBrush}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding LastHeadCircValue}" FontSize="17" Margin="20,0,0,0"
+                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -264,11 +276,15 @@
                     </StackPanel>
                     <Grid Margin="0,3">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="최근" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding LastHealthInfo}" FontSize="19" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{DynamicResource CatHealthBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastHealthDate}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatHealthBrush}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding LastHealthDetail}" FontSize="17" TextWrapping="Wrap" Margin="20,0,0,0"
+                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -282,11 +298,15 @@
                     </StackPanel>
                     <Grid Margin="0,3">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="최근" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding LastEtcInfo}" FontSize="19" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{DynamicResource CatEtcBrush}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding LastEtcDate}" FontSize="19" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource CatEtcBrush}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding LastEtcDetail}" FontSize="17" TextWrapping="Wrap" Margin="20,0,0,0"
+                                   Foreground="{DynamicResource TextMidBrush}" VerticalAlignment="Center"/>
                     </Grid>
                 </StackPanel>
             </Border>

@@ -39,15 +39,21 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private string _lastNailsElapsed = "";
 
     // ── Body card ───────────────────────────────────────
-    [ObservableProperty] private string _lastHeight = "-";
-    [ObservableProperty] private string _lastWeight = "-";
-    [ObservableProperty] private string _lastHeadCirc = "-";
+    // 날짜/값 분리: 날짜만 카테고리색, 값은 기본색
+    [ObservableProperty] private string _lastHeightDate = "";
+    [ObservableProperty] private string _lastHeightValue = "-";
+    [ObservableProperty] private string _lastWeightDate = "";
+    [ObservableProperty] private string _lastWeightValue = "-";
+    [ObservableProperty] private string _lastHeadCircDate = "";
+    [ObservableProperty] private string _lastHeadCircValue = "-";
 
     // ── Health card ─────────────────────────────────────
-    [ObservableProperty] private string _lastHealthInfo = "-";
+    [ObservableProperty] private string _lastHealthDate = "";
+    [ObservableProperty] private string _lastHealthDetail = "-";
 
     // ── Etc card ────────────────────────────────────────
-    [ObservableProperty] private string _lastEtcInfo = "-";
+    [ObservableProperty] private string _lastEtcDate = "";
+    [ObservableProperty] private string _lastEtcDetail = "-";
 
     public DashboardViewModel(ICalculationService calcService, ISettingsService settingsService)
     {
@@ -172,30 +178,52 @@ public partial class DashboardViewModel : ObservableObject
             .ToList();
 
         // 신체측정 데이터는 Detail 필드에 "키 60.5cm, 몸무게 3.2kg, 머리둘레 35cm" 형태로 저장됨
-        LastHeight = bodyEvents.FirstOrDefault(e => e.Detail?.Contains("키") == true)
-            ?.let(e => ExtractBodyValue(e, @"키\s*([\d.]+cm)")) ?? "-";
-        LastWeight = bodyEvents.FirstOrDefault(e => e.Detail?.Contains("몸무게") == true)
-            ?.let(e => ExtractBodyValue(e, @"몸무게\s*([\d.]+kg)")) ?? "-";
-        LastHeadCirc = bodyEvents.FirstOrDefault(e => e.Detail?.Contains("머리") == true)
-            ?.let(e => ExtractBodyValue(e, @"머리둘레\s*([\d.]+cm)")) ?? "-";
+        AssignBody(bodyEvents.FirstOrDefault(e => e.Detail?.Contains("키") == true), @"키\s*([\d.]+cm)",
+            d => LastHeightDate = d, v => LastHeightValue = v);
+        AssignBody(bodyEvents.FirstOrDefault(e => e.Detail?.Contains("몸무게") == true), @"몸무게\s*([\d.]+kg)",
+            d => LastWeightDate = d, v => LastWeightValue = v);
+        AssignBody(bodyEvents.FirstOrDefault(e => e.Detail?.Contains("머리") == true), @"머리둘레\s*([\d.]+cm)",
+            d => LastHeadCircDate = d, v => LastHeadCircValue = v);
 
         // ── Health ──────────────────────────────────────
         var lastHealth = events
             .Where(e => e.Category == EventCategory.건강관리 && e.FullDateTime.HasValue)
             .OrderByDescending(e => e.FullDateTime)
             .FirstOrDefault();
-        LastHealthInfo = lastHealth != null
-            ? $"{lastHealth.FullDateTime:MM/dd HH:mm} {lastHealth.Detail} {lastHealth.Note}"
-            : "-";
+        if (lastHealth != null)
+        {
+            LastHealthDate = $"{lastHealth.FullDateTime:MM/dd HH:mm}";
+            LastHealthDetail = $"{lastHealth.Detail} {lastHealth.Note}".Trim();
+        }
+        else { LastHealthDate = ""; LastHealthDetail = "-"; }
 
         // ── Etc ─────────────────────────────────────────
         var lastEtc = events
             .Where(e => e.Category == EventCategory.기타 && e.FullDateTime.HasValue)
             .OrderByDescending(e => e.FullDateTime)
             .FirstOrDefault();
-        LastEtcInfo = lastEtc != null
-            ? $"{lastEtc.FullDateTime:MM/dd HH:mm} {lastEtc.Detail} {lastEtc.Note}"
-            : "-";
+        if (lastEtc != null)
+        {
+            LastEtcDate = $"{lastEtc.FullDateTime:MM/dd HH:mm}";
+            LastEtcDetail = $"{lastEtc.Detail} {lastEtc.Note}".Trim();
+        }
+        else { LastEtcDate = ""; LastEtcDetail = "-"; }
+    }
+
+    /// <summary>
+    /// 신체측정 값과 날짜를 분리해서 할당.
+    /// </summary>
+    private static void AssignBody(BabyEvent? evt, string pattern,
+        Action<string> setDate, Action<string> setValue)
+    {
+        if (evt == null || string.IsNullOrEmpty(evt.Detail))
+        {
+            setDate(""); setValue("-"); return;
+        }
+        var match = System.Text.RegularExpressions.Regex.Match(evt.Detail, pattern);
+        if (!match.Success) { setDate(""); setValue("-"); return; }
+        setDate($"{evt.FullDateTime:MM/dd}");
+        setValue(match.Groups[1].Value);
     }
     private static string FormatHygieneElapsed(DateTime? eventTime, DateTime now)
     {
