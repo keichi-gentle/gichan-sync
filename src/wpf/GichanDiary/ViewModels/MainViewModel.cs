@@ -104,6 +104,7 @@ public partial class MainViewModel : ObservableObject
             _events = events;
             _calcService.CalculateFeedingIntervals(_events);
             RefreshScoreboard();
+            RefreshCurrentTab();
         };
     }
 

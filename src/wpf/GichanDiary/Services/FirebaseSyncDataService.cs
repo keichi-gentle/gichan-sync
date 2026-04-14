@@ -45,6 +45,17 @@ public class FirebaseSyncDataService : IDataService
     public void StopPolling() => _pollTimer.Stop();
     public void InvalidateCache() => _cachedEvents = new();
 
+    /// <summary>
+    /// 캐시 비우고 Firestore에서 다시 로드 후 UI 통지.
+    /// 내려받기 후 대시보드/전광판 즉시 반영용.
+    /// </summary>
+    public async Task ForceReloadAndNotifyAsync()
+    {
+        _cachedEvents = new();
+        await LoadEventsAsync();
+        NotifyUI();
+    }
+
     private string ExcelPath => _settingsService.Load().ExcelFilePath;
 
     public async Task<List<BabyEvent>> LoadEventsAsync()

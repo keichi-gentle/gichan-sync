@@ -218,6 +218,10 @@ public partial class SettingsViewModel : ObservableObject
             var excelPath = _settingsService.Load().ExcelFilePath;
             await _excelService.ExportEventsAsync(excelPath, events);
 
+            // 캐시 갱신 + UI 통지 (대시보드/전광판 즉시 반영)
+            if (dataService is FirebaseSyncDataService svc)
+                await svc.ForceReloadAndNotifyAsync();
+
             LastSyncTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
             SyncStatusMessage = $"내려받기 완료 ({events.Count}건)";
             LogService.Event($"Firebase 다운로드: {events.Count}건");
