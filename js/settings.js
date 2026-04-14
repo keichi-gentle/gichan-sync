@@ -71,11 +71,21 @@ export function renderSettings(container, onImport, firebaseReady = false) {
       <h3>수유 설정</h3>
       <div class="setting-row">
         <label>고정 수유텀</label>
-        <div class="stepper">
-          <button class="step-btn" data-target="set-interval" data-step="-0.5">−</button>
-          <span id="set-interval-display">${(getSetting('fixedFeedingInterval', 10800) / 3600).toFixed(1)}시간</span>
-          <input type="hidden" id="set-interval" value="${(getSetting('fixedFeedingInterval', 10800) / 3600).toFixed(1)}">
-          <button class="step-btn" data-target="set-interval" data-step="0.5">+</button>
+        <div style="display:flex;align-items:center;gap:2px;">
+          <div class="stepper">
+            <button class="step-btn" data-target="set-interval-h" data-step="-1">−</button>
+            <span id="set-interval-h-display">${Math.floor(getSetting('fixedFeedingInterval', 10800) / 3600)}</span>
+            <input type="hidden" id="set-interval-h" value="${Math.floor(getSetting('fixedFeedingInterval', 10800) / 3600)}">
+            <button class="step-btn" data-target="set-interval-h" data-step="1">+</button>
+          </div>
+          <span style="font-size:13px;color:var(--text-mid);margin:0 2px;">시간</span>
+          <div class="stepper">
+            <button class="step-btn" data-target="set-interval-m" data-step="-10">−</button>
+            <span id="set-interval-m-display">${Math.floor((getSetting('fixedFeedingInterval', 10800) % 3600) / 60)}</span>
+            <input type="hidden" id="set-interval-m" value="${Math.floor((getSetting('fixedFeedingInterval', 10800) % 3600) / 60)}">
+            <button class="step-btn" data-target="set-interval-m" data-step="10">+</button>
+          </div>
+          <span style="font-size:13px;color:var(--text-mid);margin:0 2px;">분</span>
         </div>
       </div>
       <div class="setting-row">
@@ -117,7 +127,7 @@ export function renderSettings(container, onImport, firebaseReady = false) {
 
     <div class="setting-group">
       <h3>앱 정보</h3>
-      <div class="setting-row"><label>버전</label><span>3.0.26</span></div>
+      <div class="setting-row"><label>버전</label><span>3.0.27</span></div>
       <div class="setting-row"><label>상위 프로젝트</label><span>기찬다이어리 (WPF)</span></div>
       <div class="setting-row"><label>데이터 소스</label><span>${user ? 'Firebase 실시간' : 'IndexedDB (로컬)'}</span></div>
       <div class="setting-row"><label>역할</label><span>${getSetting('userRole', '-')}</span></div>
@@ -213,8 +223,24 @@ function bindEvents(container) {
       input.value = val;
 
       const displayEl = container.querySelector(`#${targetId}-display`);
+      // 고정수유텀: 시간+분 조합 저장
+      if (targetId === 'set-interval-h' || targetId === 'set-interval-m') {
+        const hInput = container.querySelector('#set-interval-h');
+        const mInput = container.querySelector('#set-interval-m');
+        let h = parseFloat(hInput?.value || 0);
+        let m = parseFloat(mInput?.value || 0);
+        if (targetId === 'set-interval-h') h = Math.max(0, Math.min(12, h));
+        if (targetId === 'set-interval-m') { m = Math.max(0, Math.min(50, m)); if (m < 0) m = 0; }
+        if (hInput) hInput.value = h;
+        if (mInput) mInput.value = m;
+        if (displayEl) displayEl.textContent = val;
+        const totalSec = Math.round(h * 3600 + m * 60);
+        setSetting('fixedFeedingInterval', totalSec);
+        syncSetting('fixedFeedingInterval', totalSec);
+        return;
+      }
+
       const settingMap = {
-        'set-interval': { key: 'fixedFeedingInterval', transform: v => Math.round(v * 3600), display: v => `${v}시간` },
         'set-avgcount': { key: 'averageFeedingCount', transform: v => Math.round(v), display: v => `${Math.round(v)}회` },
         'set-defformula': { key: 'defaultFormulaAmount', transform: v => Math.round(v), display: v => `${Math.round(v)}ml` },
         'set-defbreast': { key: 'defaultBreastfeedAmount', transform: v => Math.round(v), display: v => `${Math.round(v)}ml` },

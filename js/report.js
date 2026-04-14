@@ -54,7 +54,7 @@ function renderSummary(events, period) {
   const todayCount = C.getDailyFeedCount(events, now);
   const todayTotal = C.getDailyFeedTotal(events, now);
   const summary = C.getDailySummary(events, now);
-  const avgInterval = C.formatInterval(C.getAvgFeedingInterval(events, 10));
+  const avgInterval = C.formatInterval(C.getAvgFeedingInterval(events, null));
 
   // Daily average feed amount
   const dailyTotals = {};

@@ -64,6 +64,7 @@ function renderCategoryFields() {
   if (!el) return;
 
   const products = getSetting('formulaProducts') || ['트루맘 클래식'];
+  const defProduct = getSetting('defaultFormulaProduct') || products[0];
   const defFormula = getSetting('defaultFormulaAmount') || 100;
   const defBreast = getSetting('defaultBreastfeedAmount') || 20;
 
@@ -74,7 +75,7 @@ function renderCategoryFields() {
           <div class="entry-row"><label>분유</label>
             <div class="toggle-row">
               <input type="checkbox" id="e-formula-on" checked>
-              <select id="e-formula-product">${products.map(p => `<option>${p}</option>`).join('')}</select>
+              <select id="e-formula-product">${products.map(p => `<option${p===defProduct?' selected':''}>${p}</option>`).join('')}</select>
               <input type="number" id="e-formula-amt" value="${editingEvent?.formulaAmount || defFormula}" min="0" max="300" step="5" style="width:70px"> ml
             </div>
           </div>
