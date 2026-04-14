@@ -175,23 +175,16 @@ public partial class App : Application
             }
         }
 
-        // Firebase 동기화 활성화 (설정에 따라)
-        if (settings.FirebaseSyncEnabled)
+        // Firebase 항상 활성화 (올리기/내려받기 수동 동기화용, 자동 폴링 없음)
+        try
         {
-            try
-            {
-                var coordinator = _serviceProvider.GetRequiredService<SyncCoordinator>();
-                var syncEnabled = await coordinator.TryEnableFirebaseSync();
-                LogService.System($"Firebase 동기화: {(syncEnabled ? "활성화" : "비활성화 (ExcelOnly)")}");
-            }
-            catch (Exception ex)
-            {
-                LogService.System($"Firebase 동기화 초기화 실패 (ExcelOnly로 계속): {ex.Message}");
-            }
+            var coordinator = _serviceProvider.GetRequiredService<SyncCoordinator>();
+            var syncEnabled = await coordinator.TryEnableFirebaseSync();
+            LogService.System($"Firebase 연결: {(syncEnabled ? "성공" : "실패 (ExcelOnly)")}");
         }
-        else
+        catch (Exception ex)
         {
-            LogService.System("Firebase 동기화: 사용자 설정에 의해 비활성화 (ExcelOnly)");
+            LogService.System($"Firebase 연결 실패 (ExcelOnly로 계속): {ex.Message}");
         }
 
         // Initialize and show

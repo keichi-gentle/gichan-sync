@@ -3,7 +3,7 @@ namespace GichanDiary.Models;
 public class AppSettings
 {
     public string? ExcelFilePath { get; set; }
-    public bool AutoBackupEnabled { get; set; } = true;
+    public bool AutoBackupEnabled { get; set; } = false;
     public string AutoBackupTime { get; set; } = "앱 시작 시";  // "앱 시작 시" or "매일 HH:mm"
     public string? AutoBackupFolder { get; set; }  // null이면 {DB경로}/Backup/
     public string AutoBackupFilePattern { get; set; } = "{name}_backup_{yyyyMMdd_HHmmss}";
