@@ -126,7 +126,7 @@ public partial class ReportViewModel : ObservableObject
     {
         var filtered = FilterByPeriod(_allEvents);
         CategoryPieTitle = $"카테고리별 이벤트 비율 ({SelectedPeriod})";
-        UpdateTodaySummary();
+        UpdateTodaySummary(filtered);
         var dailyTotals = filtered
             .Where(e => e.IsFeeding)
             .GroupBy(e => e.Date.Date)
@@ -163,14 +163,14 @@ public partial class ReportViewModel : ObservableObject
     }
 
     // ── Today summary ──────────────────────────────────────
-    private void UpdateTodaySummary()
+    private void UpdateTodaySummary(List<BabyEvent> filtered)
     {
         var now = DateTime.Now;
         var todayCount = _calcService.GetDailyFeedCount(_allEvents, now);
         var todayTotal = _calcService.GetDailyFeedTotal(_allEvents, now);
         var summary = _calcService.GetDailySummary(_allEvents, now);
-        var avgInterval = _calcService.GetAverageFeedingInterval(
-            _allEvents, _settingsService.Load().AverageFeedingCount);
+        // 리포트: 기간 필터된 전체 데이터 기반 평균 (recentCount=0 → 전체)
+        var avgInterval = _calcService.GetAverageFeedingInterval(filtered, 0);
 
         TodayFeedCount = $"{todayCount}회";
         TodayFeedTotal = $"{todayTotal:0}ml";

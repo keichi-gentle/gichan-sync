@@ -36,10 +36,11 @@ public class CalculationService : ICalculationService
         var feedings = events.Where(e => e.IsFeeding && e.FullDateTime.HasValue)
             .OrderBy(e => e.FullDateTime).ToList();
         if (feedings.Count < 2) return null;
-        var recent = feedings.TakeLast(recentCount + 1).ToList();
+        // recentCount <= 0 이면 전체 데이터 사용 (리포트 기간별 평균용)
+        var target = recentCount > 0 ? feedings.TakeLast(recentCount + 1).ToList() : feedings;
         var intervals = new List<TimeSpan>();
-        for (int i = 1; i < recent.Count; i++)
-            intervals.Add(recent[i].FullDateTime!.Value - recent[i - 1].FullDateTime!.Value);
+        for (int i = 1; i < target.Count; i++)
+            intervals.Add(target[i].FullDateTime!.Value - target[i - 1].FullDateTime!.Value);
         if (intervals.Count == 0) return null;
         return TimeSpan.FromTicks((long)intervals.Average(t => t.Ticks));
     }
