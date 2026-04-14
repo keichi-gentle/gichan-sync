@@ -57,10 +57,11 @@ export function getAvgFeedingInterval(events, recentCount = 10) {
   const feedings = events.filter(e => isFeeding(e) && getFullDateTime(e))
     .sort((a, b) => getFullDateTime(a) - getFullDateTime(b));
   if (feedings.length < 2) return null;
-  const recent = feedings.slice(-(recentCount + 1));
+  // recentCount가 null이면 전체 데이터 사용 (리포트 기간별 평균용)
+  const target = recentCount ? feedings.slice(-(recentCount + 1)) : feedings;
   const intervals = [];
-  for (let i = 1; i < recent.length; i++) {
-    intervals.push(getFullDateTime(recent[i]) - getFullDateTime(recent[i - 1]));
+  for (let i = 1; i < target.length; i++) {
+    intervals.push(getFullDateTime(target[i]) - getFullDateTime(target[i - 1]));
   }
   if (intervals.length === 0) return null;
   return intervals.reduce((a, b) => a + b, 0) / intervals.length;
