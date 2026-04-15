@@ -65,8 +65,8 @@ function renderSummary(events, period) {
   const vals = Object.values(dailyTotals);
   const avgDaily = vals.length > 0 ? Math.round(vals.reduce((a,b)=>a+b,0) / vals.length) : 0;
 
-  // 신체 최신 데이터
-  const bodyEvts = events.filter(e => e.category === '신체측정' && C.getFullDateTime(e))
+  // 신체 최신 데이터 (전체 기간에서 각각의 최신)
+  const bodyEvts = allEvents.filter(e => e.category === '신체측정' && C.getFullDateTime(e))
     .sort((a, b) => C.getFullDateTime(b) - C.getFullDateTime(a));
   const findBody = (kw, pat) => {
     const evt = bodyEvts.find(e => e.detail && e.detail.includes(kw));
@@ -106,9 +106,13 @@ function renderCharts(events) {
   const feedings = events.filter(e => C.isFeeding(e) && C.getFullDateTime(e)).sort((a,b) => C.getFullDateTime(a)-C.getFullDateTime(b));
 
   // Chart 1: Feed amount per feeding (Line)
+  const bodyColor = s.getPropertyValue('--cat-body').trim() || '#704890';
+
   el.innerHTML = chartCard('1회 수유량 변화 추이', 'chart1')
     + chartCard('일별 수유량 추이', 'chart2')
     + chartCard('수유텀 분포', 'chart3')
+    + chartCard('키 변화량', 'chart-height')
+    + chartCard('몸무게 변화량', 'chart-weight')
     + chartCard('일별 배변 횟수', 'chart4')
     + chartCard('카테고리별 이벤트 비율', 'chart5')
     + chartCard('일별 이벤트 현황', 'chart6');
@@ -156,6 +160,38 @@ function renderCharts(events) {
       data: {
         labels,
         datasets: [{ label: '횟수', data: labels.map(l => buckets[l] || 0), backgroundColor: feedColor + 'AA' }],
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: defaultScales },
+    }));
+  }
+
+  // Chart 7: 키 변화량 (Line)
+  const heightData = events.filter(e => e.category === '신체측정' && e.detail && e.detail.includes('키') && C.getFullDateTime(e))
+    .sort((a,b) => C.getFullDateTime(a) - C.getFullDateTime(b))
+    .map(e => { const m = e.detail.match(/키\s*([\d.]+)/); return m ? { date: C.getFullDateTime(e), val: parseFloat(m[1]) } : null; })
+    .filter(x => x && x.val > 0);
+  if (heightData.length > 0) {
+    charts.push(new Chart(el.querySelector('#chart-height'), {
+      type: 'line',
+      data: {
+        labels: heightData.map(x => `${x.date.getMonth()+1}/${x.date.getDate()}`),
+        datasets: [{ label: '키(cm)', data: heightData.map(x => x.val), borderColor: bodyColor, backgroundColor: bodyColor + '33', tension: 0.3, fill: false, pointRadius: 5 }],
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: defaultScales },
+    }));
+  }
+
+  // Chart 8: 몸무게 변화량 (Line)
+  const weightData = events.filter(e => e.category === '신체측정' && e.detail && e.detail.includes('몸무게') && C.getFullDateTime(e))
+    .sort((a,b) => C.getFullDateTime(a) - C.getFullDateTime(b))
+    .map(e => { const m = e.detail.match(/몸무게\s*([\d.]+)/); return m ? { date: C.getFullDateTime(e), val: parseFloat(m[1]) } : null; })
+    .filter(x => x && x.val > 0);
+  if (weightData.length > 0) {
+    charts.push(new Chart(el.querySelector('#chart-weight'), {
+      type: 'line',
+      data: {
+        labels: weightData.map(x => `${x.date.getMonth()+1}/${x.date.getDate()}`),
+        datasets: [{ label: '몸무게(kg)', data: weightData.map(x => x.val), borderColor: bodyColor, backgroundColor: bodyColor + '33', tension: 0.3, fill: false, pointRadius: 5 }],
       },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: defaultScales },
     }));
