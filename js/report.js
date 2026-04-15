@@ -83,7 +83,7 @@ function renderSummary(events, period) {
       <div class="summary-card"><div class="label">오늘 수유량</div><div class="value cat-feed">${todayTotal}ml</div></div>
       <div class="summary-card"><div class="label">일평균 수유량</div><div class="value cat-feed">${avgDaily}ml</div></div>
       <div class="summary-card"><div class="label">평균 수유텀</div><div class="value cat-feed">${avgInterval}</div></div>
-      <div class="summary-card"><div class="label">오늘 배변</div><div class="value"><span style="color:var(--cat-urine)">소 ${summary.urineCount}</span> / <span style="color:var(--cat-stool)">대 ${summary.stoolCount}</span></div></div>
+      <div class="summary-card"><div class="label">오늘 배변</div><div class="value"><span style="color:var(--cat-urine)">소 ${summary.urineCount}</span> <span style="color:var(--text-mid);font-size:16px">/</span> <span style="color:var(--cat-stool)">대 ${summary.stoolCount}</span></div></div>
       <div class="summary-card"><div class="label">신체</div><div class="value body-grid"><span class="cat-body">키</span><span class="cat-body">${lastH}</span><span class="cat-body">몸무게</span><span class="cat-body">${lastW}</span></div></div>
     </div>`;
 }
