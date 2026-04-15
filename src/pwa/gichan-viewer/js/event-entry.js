@@ -129,6 +129,15 @@ function renderCategoryFields() {
       document.querySelectorAll('#e-fields [data-hygiene]').forEach(btn => {
         btn.addEventListener('click', () => btn.classList.toggle('active'));
       });
+      // 수정 모드: detail에서 위생 항목 복원
+      if (editingEvent && editingEvent.detail) {
+        HYGIENE_TYPES.forEach(h => {
+          if (editingEvent.detail.includes(h)) {
+            const btn = document.querySelector(`#e-fields [data-hygiene="${h}"]`);
+            if (btn) btn.classList.add('active');
+          }
+        });
+      }
       break;
 
     case '신체측정':
@@ -138,19 +147,30 @@ function renderCategoryFields() {
           <div class="entry-row"><label>몸무게 (kg)</label><input type="number" id="e-weight" step="0.01" placeholder="0.00" style="width:80px"></div>
           <div class="entry-row"><label>머리둘레 (cm)</label><input type="number" id="e-head" step="0.1" placeholder="0.0" style="width:80px"></div>
         </div>`;
+      // 수정 모드: detail에서 수치 파싱 복원
+      if (editingEvent && editingEvent.detail) {
+        const hm = editingEvent.detail.match(/키\s*([\d.]+)/);
+        const wm = editingEvent.detail.match(/몸무게\s*([\d.]+)/);
+        const cm = editingEvent.detail.match(/머리둘레\s*([\d.]+)/);
+        if (hm) document.getElementById('e-height').value = hm[1];
+        if (wm) document.getElementById('e-weight').value = wm[1];
+        if (cm) document.getElementById('e-head').value = cm[1];
+      }
       break;
 
     case '건강관리':
       el.innerHTML = `
         <div class="entry-section">
-          <div class="entry-row"><label>내용</label><input type="text" id="e-health" placeholder="증상/처치" style="flex:1"></div>
+          <div class="entry-row"><label>내용</label><input type="text" id="e-health" placeholder="증상/처치" style="flex:1"
+            value="${editingEvent?.detail || ''}"></div>
         </div>`;
       break;
 
     case '기타':
       el.innerHTML = `
         <div class="entry-section">
-          <div class="entry-row"><label>내용</label><input type="text" id="e-etc" placeholder="내용" style="flex:1"></div>
+          <div class="entry-row"><label>내용</label><input type="text" id="e-etc" placeholder="내용" style="flex:1"
+            value="${editingEvent?.detail || ''}"></div>
         </div>`;
       break;
   }

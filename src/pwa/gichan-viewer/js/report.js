@@ -65,13 +65,26 @@ function renderSummary(events, period) {
   const vals = Object.values(dailyTotals);
   const avgDaily = vals.length > 0 ? Math.round(vals.reduce((a,b)=>a+b,0) / vals.length) : 0;
 
+  // 신체 최신 데이터
+  const bodyEvts = events.filter(e => e.category === '신체측정' && C.getFullDateTime(e))
+    .sort((a, b) => C.getFullDateTime(b) - C.getFullDateTime(a));
+  const findBody = (kw, pat) => {
+    const evt = bodyEvts.find(e => e.detail && e.detail.includes(kw));
+    if (!evt) return '-';
+    const m = evt.detail.match(pat);
+    return m ? m[1] : '-';
+  };
+  const lastH = findBody('키', /키\s*([\d.]+cm)/);
+  const lastW = findBody('몸무게', /몸무게\s*([\d.]+kg)/);
+
   document.getElementById('rpt-summary').innerHTML = `
-    <div class="summary-wrap">
+    <div class="summary-wrap summary-2row">
       <div class="summary-card"><div class="label">오늘 수유 횟수</div><div class="value cat-feed">${todayCount}회</div></div>
       <div class="summary-card"><div class="label">오늘 수유량</div><div class="value cat-feed">${todayTotal}ml</div></div>
-      <div class="summary-card"><div class="label">오늘 배변</div><div class="value"><span style="color:var(--cat-urine)">소${summary.urineCount}</span> / <span style="color:var(--cat-stool)">대${summary.stoolCount}</span></div></div>
       <div class="summary-card"><div class="label">일평균 수유량</div><div class="value cat-feed">${avgDaily}ml</div></div>
       <div class="summary-card"><div class="label">평균 수유텀</div><div class="value cat-feed">${avgInterval}</div></div>
+      <div class="summary-card"><div class="label">오늘 배변</div><div class="value"><span style="color:var(--cat-urine)">소 ${summary.urineCount}</span> / <span style="color:var(--cat-stool)">대 ${summary.stoolCount}</span></div></div>
+      <div class="summary-card"><div class="label">신체</div><div class="value body-grid"><span class="cat-body">키</span><span class="cat-body">${lastH}</span><span class="cat-body">몸무게</span><span class="cat-body">${lastW}</span></div></div>
     </div>`;
 }
 

@@ -22,9 +22,12 @@ public partial class ReportViewModel : ObservableObject
     // ── Today summary ──────────────────────────────────────
     [ObservableProperty] private string _todayFeedCount = "0회";
     [ObservableProperty] private string _todayFeedTotal = "0ml";
-    [ObservableProperty] private string _todayBowelSummary = "소변0 / 대변0";
+    [ObservableProperty] private string _todayUrineCount = "0";
+    [ObservableProperty] private string _todayStoolCount = "0";
     [ObservableProperty] private string _avgFeedInterval = "-";
     [ObservableProperty] private string _avgFeedAmount = "-";
+    [ObservableProperty] private string _lastHeight = "-";
+    [ObservableProperty] private string _lastWeight = "-";
 
     // ── Chart 1: 일별 수유량 추이 (Line) ───────────────────
     [ObservableProperty] private ISeries[] _dailyFeedSeries = Array.Empty<ISeries>();
@@ -174,10 +177,27 @@ public partial class ReportViewModel : ObservableObject
 
         TodayFeedCount = $"{todayCount}회";
         TodayFeedTotal = $"{todayTotal:0}ml";
-        TodayBowelSummary = $"소변{summary.UrineCount} / 대변{summary.StoolCount}";
+        TodayUrineCount = $"{summary.UrineCount}";
+        TodayStoolCount = $"{summary.StoolCount}";
         AvgFeedInterval = avgInterval.HasValue
-            ? $"{(int)avgInterval.Value.TotalHours}:{avgInterval.Value.Minutes:D2}"
+            ? $"{(int)avgInterval.Value.TotalHours} : {avgInterval.Value.Minutes:D2}"
             : "-";
+
+        // 신체 최신 데이터
+        var bodyEvents = _allEvents
+            .Where(e => e.Category == EventCategory.신체측정 && e.FullDateTime.HasValue)
+            .OrderByDescending(e => e.FullDateTime).ToList();
+        var hEvt = bodyEvents.FirstOrDefault(e => e.Detail?.Contains("키") == true);
+        var wEvt = bodyEvents.FirstOrDefault(e => e.Detail?.Contains("몸무게") == true);
+        LastHeight = ExtractValue(hEvt, @"키\s*([\d.]+cm)");
+        LastWeight = ExtractValue(wEvt, @"몸무게\s*([\d.]+kg)");
+    }
+
+    private static string ExtractValue(BabyEvent? e, string pattern)
+    {
+        if (e == null || string.IsNullOrEmpty(e.Detail)) return "-";
+        var m = System.Text.RegularExpressions.Regex.Match(e.Detail, pattern);
+        return m.Success ? m.Groups[1].Value : "-";
     }
 
     // ── Chart 1: 일별 수유량 추이 ──────────────────────────

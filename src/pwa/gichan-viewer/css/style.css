@@ -169,8 +169,28 @@ nav button svg { width: 22px; height: 22px; }
   border-radius: 12px; padding: 10px 14px; text-align: center;
 }
 
-.summary-card .label { font-size: 12px; color: var(--text-mid); }
-.summary-card .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+.summary-card .label { font-size: 14px; color: var(--text-mid); }
+.summary-card .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+
+/* 2행 3열 리포트 요약 */
+.summary-2row {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.summary-2row .summary-card {
+  min-height: 70px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+/* 신체 카드 2열 그리드 */
+.body-grid {
+  display: grid !important;
+  grid-template-columns: auto 1fr;
+  gap: 0 8px;
+  text-align: left;
+  font-size: 16px !important;
+}
 
 /* ═══ Browse Tab ═══ */
 .browse-filters-sticky {
@@ -347,7 +367,7 @@ select, input[type="text"] {
 /* ═══ Stepper Control ═══ */
 .stepper {
   display: flex; align-items: center; gap: 4px;
-  width: 150px; justify-content: flex-end;
+  justify-content: flex-end;
 }
 
 .step-btn {
@@ -361,7 +381,7 @@ select, input[type="text"] {
 .step-btn:active { background: var(--cat-feed); color: var(--white); }
 
 .stepper span {
-  min-width: 70px; text-align: center;
+  min-width: 30px; text-align: center;
   font-size: 15px; font-weight: 600; color: var(--text-light);
 }
 
