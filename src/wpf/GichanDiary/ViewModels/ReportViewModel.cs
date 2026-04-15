@@ -58,6 +58,16 @@ public partial class ReportViewModel : ObservableObject
     [ObservableProperty] private Axis[] _dailyCategoryXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _dailyCategoryYAxes = Array.Empty<Axis>();
 
+    // ── Chart 7: 키 변화량 (Line) ────────────────────────
+    [ObservableProperty] private ISeries[] _heightSeries = Array.Empty<ISeries>();
+    [ObservableProperty] private Axis[] _heightXAxes = Array.Empty<Axis>();
+    [ObservableProperty] private Axis[] _heightYAxes = Array.Empty<Axis>();
+
+    // ── Chart 8: 몸무게 변화량 (Line) ─────────────────────
+    [ObservableProperty] private ISeries[] _weightSeries = Array.Empty<ISeries>();
+    [ObservableProperty] private Axis[] _weightXAxes = Array.Empty<Axis>();
+    [ObservableProperty] private Axis[] _weightYAxes = Array.Empty<Axis>();
+
     // ── Shared chart colors (테마별 — 생성 시 결정) ─────────
     private static readonly SKTypeface KoreanTypeface = SKTypeface.FromFamilyName("Malgun Gothic");
     private static readonly SKColor FeedColor = SKColor.Parse("#1E8070");
@@ -144,6 +154,8 @@ public partial class ReportViewModel : ObservableObject
         BuildFeedAmountChart(filtered);
         BuildCategoryPieChart(filtered);
         BuildDailyCategoryChart(filtered);
+        BuildHeightChart(filtered);
+        BuildWeightChart(filtered);
     }
 
     // ── Period filter ──────────────────────────────────────
@@ -523,5 +535,101 @@ public partial class ReportViewModel : ObservableObject
             }
         };
         DailyCategoryYAxes = MakeYAxes();
+    }
+
+    // ── Chart 7: 키 변화량 ─────────────────────────────────
+    private static readonly SKColor BodyColor = SKColor.Parse("#704890");
+
+    private void BuildHeightChart(List<BabyEvent> filtered)
+    {
+        var data = filtered
+            .Where(e => e.Category == EventCategory.신체측정 && e.Detail != null && e.Detail.Contains("키") && e.FullDateTime.HasValue)
+            .OrderBy(e => e.FullDateTime)
+            .Select(e => {
+                var m = System.Text.RegularExpressions.Regex.Match(e.Detail!, @"키\s*([\d.]+)");
+                return m.Success ? (Date: e.FullDateTime!.Value, Val: double.Parse(m.Groups[1].Value)) : (Date: e.FullDateTime!.Value, Val: 0.0);
+            })
+            .Where(x => x.Val > 0)
+            .ToList();
+
+        if (data.Count == 0) { HeightSeries = Array.Empty<ISeries>(); HeightXAxes = Array.Empty<Axis>(); return; }
+
+        HeightSeries = new ISeries[]
+        {
+            new LineSeries<double>
+            {
+                Values = data.Select(x => x.Val).ToArray(),
+                Stroke = new SolidColorPaint(BodyColor, 2),
+                Fill = null,
+                GeometrySize = 8,
+                GeometryStroke = new SolidColorPaint(BodyColor, 2),
+                GeometryFill = new SolidColorPaint(BodyColor),
+                Name = "키",
+                YToolTipLabelFormatter = p =>
+                {
+                    var idx = (int)p.Index;
+                    var label = idx >= 0 && idx < data.Count ? data[idx].Date.ToString("M/d") : "";
+                    return $"{label}  {p.Coordinate.PrimaryValue:0.0}cm";
+                }
+            }
+        };
+        HeightXAxes = new Axis[]
+        {
+            new Axis
+            {
+                Labels = data.Select(x => x.Date.ToString("M/d")).ToArray(),
+                LabelsPaint = new SolidColorPaint(LabelColor) { SKTypeface = KoreanTypeface },
+                SeparatorsPaint = new SolidColorPaint(GridColor),
+                TextSize = 13
+            }
+        };
+        HeightYAxes = MakeYAxes("cm");
+    }
+
+    // ── Chart 8: 몸무게 변화량 ────────────────────────────
+    private void BuildWeightChart(List<BabyEvent> filtered)
+    {
+        var data = filtered
+            .Where(e => e.Category == EventCategory.신체측정 && e.Detail != null && e.Detail.Contains("몸무게") && e.FullDateTime.HasValue)
+            .OrderBy(e => e.FullDateTime)
+            .Select(e => {
+                var m = System.Text.RegularExpressions.Regex.Match(e.Detail!, @"몸무게\s*([\d.]+)");
+                return m.Success ? (Date: e.FullDateTime!.Value, Val: double.Parse(m.Groups[1].Value)) : (Date: e.FullDateTime!.Value, Val: 0.0);
+            })
+            .Where(x => x.Val > 0)
+            .ToList();
+
+        if (data.Count == 0) { WeightSeries = Array.Empty<ISeries>(); WeightXAxes = Array.Empty<Axis>(); return; }
+
+        WeightSeries = new ISeries[]
+        {
+            new LineSeries<double>
+            {
+                Values = data.Select(x => x.Val).ToArray(),
+                Stroke = new SolidColorPaint(BodyColor, 2),
+                Fill = null,
+                GeometrySize = 8,
+                GeometryStroke = new SolidColorPaint(BodyColor, 2),
+                GeometryFill = new SolidColorPaint(BodyColor),
+                Name = "몸무게",
+                YToolTipLabelFormatter = p =>
+                {
+                    var idx = (int)p.Index;
+                    var label = idx >= 0 && idx < data.Count ? data[idx].Date.ToString("M/d") : "";
+                    return $"{label}  {p.Coordinate.PrimaryValue:0.00}kg";
+                }
+            }
+        };
+        WeightXAxes = new Axis[]
+        {
+            new Axis
+            {
+                Labels = data.Select(x => x.Date.ToString("M/d")).ToArray(),
+                LabelsPaint = new SolidColorPaint(LabelColor) { SKTypeface = KoreanTypeface },
+                SeparatorsPaint = new SolidColorPaint(GridColor),
+                TextSize = 13
+            }
+        };
+        WeightYAxes = MakeYAxes("kg");
     }
 }

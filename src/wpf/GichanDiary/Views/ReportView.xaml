@@ -311,6 +311,49 @@
                 </Border>
             </Grid>
 
+            <!-- ═══ 키 변화량 + 몸무게 변화량 (나란히) ═══ -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{DynamicResource CardBorder}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatBodyBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                            <TextBlock Text="키 변화량" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatBodyBrush}"/>
+                        </StackPanel>
+                        <lvc:CartesianChart Series="{Binding HeightSeries}"
+                                             XAxes="{Binding HeightXAxes}"
+                                             YAxes="{Binding HeightYAxes}"
+                                             Height="250"
+                                             Background="Transparent"
+                                             TooltipBackgroundPaint="{Binding TooltipBgPaint}"
+                                             TooltipTextPaint="{Binding TooltipTextPaint}"
+                                             TooltipPosition="Top"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{DynamicResource CardBorder}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatBodyBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                            <TextBlock Text="몸무게 변화량" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatBodyBrush}"/>
+                        </StackPanel>
+                        <lvc:CartesianChart Series="{Binding WeightSeries}"
+                                             XAxes="{Binding WeightXAxes}"
+                                             YAxes="{Binding WeightYAxes}"
+                                             Height="250"
+                                             Background="Transparent"
+                                             TooltipBackgroundPaint="{Binding TooltipBgPaint}"
+                                             TooltipTextPaint="{Binding TooltipTextPaint}"
+                                             TooltipPosition="Top"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
             <!-- ═══ 카테고리별 이벤트 비율 + 일별 카테고리별 이벤트 (나란히) ═══ -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
