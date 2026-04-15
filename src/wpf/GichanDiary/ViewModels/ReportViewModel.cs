@@ -499,6 +499,7 @@ public partial class ReportViewModel : ObservableObject
         {
             DailyCategorySeries = Array.Empty<ISeries>();
             DailyCategoryXAxes = Array.Empty<Axis>();
+            DailyCategoryYAxes = Array.Empty<Axis>();
             return;
         }
 
@@ -552,7 +553,7 @@ public partial class ReportViewModel : ObservableObject
             .Where(x => x.Val > 0)
             .ToList();
 
-        if (data.Count == 0) { HeightSeries = Array.Empty<ISeries>(); HeightXAxes = Array.Empty<Axis>(); return; }
+        if (data.Count == 0) { HeightSeries = Array.Empty<ISeries>(); HeightXAxes = Array.Empty<Axis>(); HeightYAxes = Array.Empty<Axis>(); return; }
 
         HeightSeries = new ISeries[]
         {
@@ -599,7 +600,7 @@ public partial class ReportViewModel : ObservableObject
             .Where(x => x.Val > 0)
             .ToList();
 
-        if (data.Count == 0) { WeightSeries = Array.Empty<ISeries>(); WeightXAxes = Array.Empty<Axis>(); return; }
+        if (data.Count == 0) { WeightSeries = Array.Empty<ISeries>(); WeightXAxes = Array.Empty<Axis>(); WeightYAxes = Array.Empty<Axis>(); return; }
 
         WeightSeries = new ISeries[]
         {
