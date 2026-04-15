@@ -80,10 +80,10 @@ export function renderSettings(container, onImport, firebaseReady = false) {
           </div>
           <span style="font-size:13px;color:var(--text-mid);margin:0 2px;">시간</span>
           <div class="stepper">
-            <button class="step-btn" data-target="set-interval-m" data-step="-10">−</button>
+            <button class="step-btn" data-target="set-interval-m" data-step="-5">−</button>
             <span id="set-interval-m-display">${Math.floor((getSetting('fixedFeedingInterval', 10800) % 3600) / 60)}</span>
             <input type="hidden" id="set-interval-m" value="${Math.floor((getSetting('fixedFeedingInterval', 10800) % 3600) / 60)}">
-            <button class="step-btn" data-target="set-interval-m" data-step="10">+</button>
+            <button class="step-btn" data-target="set-interval-m" data-step="5">+</button>
           </div>
           <span style="font-size:13px;color:var(--text-mid);margin:0 2px;">분</span>
         </div>
@@ -127,7 +127,7 @@ export function renderSettings(container, onImport, firebaseReady = false) {
 
     <div class="setting-group">
       <h3>앱 정보</h3>
-      <div class="setting-row"><label>버전</label><span>3.0.27</span></div>
+      <div class="setting-row"><label>버전</label><span>3.0.28</span></div>
       <div class="setting-row"><label>상위 프로젝트</label><span>기찬다이어리 (WPF)</span></div>
       <div class="setting-row"><label>데이터 소스</label><span>${user ? 'Firebase 실시간' : 'IndexedDB (로컬)'}</span></div>
       <div class="setting-row"><label>역할</label><span>${getSetting('userRole', '-')}</span></div>
@@ -230,10 +230,14 @@ function bindEvents(container) {
         let h = parseFloat(hInput?.value || 0);
         let m = parseFloat(mInput?.value || 0);
         if (targetId === 'set-interval-h') h = Math.max(0, Math.min(12, h));
-        if (targetId === 'set-interval-m') { m = Math.max(0, Math.min(50, m)); if (m < 0) m = 0; }
+        if (targetId === 'set-interval-m') m = Math.max(0, Math.min(55, m));
         if (hInput) hInput.value = h;
         if (mInput) mInput.value = m;
-        if (displayEl) displayEl.textContent = val;
+        // 제약 적용된 값으로 display 갱신
+        const hDisplay = container.querySelector('#set-interval-h-display');
+        const mDisplay = container.querySelector('#set-interval-m-display');
+        if (hDisplay) hDisplay.textContent = h;
+        if (mDisplay) mDisplay.textContent = m;
         const totalSec = Math.round(h * 3600 + m * 60);
         setSetting('fixedFeedingInterval', totalSec);
         syncSetting('fixedFeedingInterval', totalSec);

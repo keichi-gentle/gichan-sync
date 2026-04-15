@@ -58,8 +58,8 @@ function render(container) {
     const elapsedMs = now - ft;
     feedElapsed = formatShortElapsed(elapsedMs);
 
-    // Next feed (3시간 고정텀 기본)
-    const intervalMs = 3 * 3600000;
+    // Next feed (설정의 고정수유텀 사용)
+    const intervalMs = (getSetting('fixedFeedingInterval', 10800)) * 1000;
     const nextDt = new Date(ft.getTime() + intervalMs);
     nextFeedStr = nextDt.toTimeString().slice(0, 5);
     const remainMs = nextDt - now;
