@@ -553,8 +553,7 @@ public partial class ReportViewModel : ObservableObject
             .Where(x => x.Val > 0)
             .ToList();
 
-        if (data.Count == 0) { HeightSeries = Array.Empty<ISeries>(); HeightXAxes = Array.Empty<Axis>(); HeightYAxes = Array.Empty<Axis>(); return; }
-
+        // 항상 Series 생성 (빈 values여도) — LiveCharts2가 이전 렌더링을 갱신하도록
         HeightSeries = new ISeries[]
         {
             new LineSeries<double>
@@ -578,7 +577,7 @@ public partial class ReportViewModel : ObservableObject
         {
             new Axis
             {
-                Labels = data.Select(x => x.Date.ToString("M/d")).ToArray(),
+                Labels = data.Count > 0 ? data.Select(x => x.Date.ToString("M/d")).ToArray() : new[] { "" },
                 LabelsPaint = new SolidColorPaint(LabelColor) { SKTypeface = KoreanTypeface },
                 SeparatorsPaint = new SolidColorPaint(GridColor),
                 TextSize = 13
@@ -600,8 +599,7 @@ public partial class ReportViewModel : ObservableObject
             .Where(x => x.Val > 0)
             .ToList();
 
-        if (data.Count == 0) { WeightSeries = Array.Empty<ISeries>(); WeightXAxes = Array.Empty<Axis>(); WeightYAxes = Array.Empty<Axis>(); return; }
-
+        // 항상 Series 생성 (빈 values여도) — LiveCharts2가 이전 렌더링을 갱신하도록
         WeightSeries = new ISeries[]
         {
             new LineSeries<double>
@@ -625,7 +623,7 @@ public partial class ReportViewModel : ObservableObject
         {
             new Axis
             {
-                Labels = data.Select(x => x.Date.ToString("M/d")).ToArray(),
+                Labels = data.Count > 0 ? data.Select(x => x.Date.ToString("M/d")).ToArray() : new[] { "" },
                 LabelsPaint = new SolidColorPaint(LabelColor) { SKTypeface = KoreanTypeface },
                 SeparatorsPaint = new SolidColorPaint(GridColor),
                 TextSize = 13
