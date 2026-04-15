@@ -127,10 +127,10 @@ export function renderSettings(container, onImport, firebaseReady = false) {
 
     <div class="setting-group">
       <h3>앱 정보</h3>
-      <div class="setting-row"><label>버전</label><span>3.0.32</span></div>
+      <div class="setting-row"><label>버전</label><span>3.0.33</span></div>
       <div class="setting-row"><label>상위 프로젝트</label><span>기찬다이어리 (WPF)</span></div>
       <div class="setting-row"><label>데이터 소스</label><span>${user ? 'Firebase 실시간' : 'IndexedDB (로컬)'}</span></div>
-      <div class="setting-row"><label>역할</label><span>${getSetting('userRole', '-')}</span></div>
+      <div class="setting-row"><label>역할</label><span>${({admin:'관리자',editor:'사용자',observer:'뷰어'})[getSetting('userRole')] || '-'}</span></div>
     </div>`;
 
   bindEvents(container);
@@ -415,11 +415,13 @@ function buildUserManagementSection() {
   return `<div class="setting-group">
     <h3 style="color:var(--cat-health);">사용자 관리 (관리자 전용)</h3>
     ${buildList('관리자', roles.admin, 'admin')}
-    ${buildList('편집자', roles.editor, 'editor')}
-    ${buildList('옵져버', roles.observer, 'observer')}
+    ${buildList('사용자', roles.editor, 'editor')}
+    ${buildList('뷰어', roles.observer, 'observer')}
     <div id="user-mgmt-status" style="text-align:center;font-size:13px;margin-top:4px;"></div>
   </div>`;
 }
+
+const ROLE_LABEL = { admin: '관리자', editor: '사용자', observer: '뷰어' };
 
 function bindUserManagementEvents(container) {
   // Add user
@@ -438,7 +440,7 @@ function bindUserManagementEvents(container) {
       const status = container.querySelector('#user-mgmt-status');
       try {
         await saveRoles(window.__firebase.db, roles);
-        status.textContent = `✓ ${email} → ${role} 추가 완료`;
+        status.textContent = `✓ ${email} → ${ROLE_LABEL[role] || role} 추가 완료`;
         status.style.color = 'var(--cat-feed)';
         input.value = '';
         // Re-render
@@ -459,7 +461,7 @@ function bindUserManagementEvents(container) {
     btn.addEventListener('click', async () => {
       const role = btn.dataset.role;
       const email = btn.dataset.email;
-      if (!confirm(`${email}을(를) ${role}에서 삭제하시겠습니까?`)) return;
+      if (!confirm(`${email}을(를) ${ROLE_LABEL[role] || role}에서 삭제하시겠습니까?`)) return;
 
       const roles = { ...getRolesData() };
       roles[role] = (roles[role] || []).filter(e => e !== email);
