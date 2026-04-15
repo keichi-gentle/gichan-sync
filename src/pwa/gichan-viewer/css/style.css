@@ -179,8 +179,9 @@ nav button svg { width: 22px; height: 22px; }
   gap: 8px;
 }
 .summary-2row .summary-card {
-  min-height: 70px;
+  min-height: 75px;
   display: flex; flex-direction: column; justify-content: center;
+  align-items: center;
 }
 
 /* 신체 카드 2열 그리드 */

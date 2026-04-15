@@ -109,90 +109,124 @@
                 </StackPanel>
             </Border>
 
-            <!-- ═══ Today Summary (6카드 1행) ═══ -->
+            <!-- ═══ Today Summary (6카드 1행, 제목:컨텐츠 = 1:2 비율) ═══ -->
             <UniformGrid Columns="6" Margin="0,0,0,12">
                 <!-- 오늘 수유 횟수 -->
                 <Border Background="{DynamicResource BgCardBrush}" CornerRadius="14"
                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                        Padding="12,10" Margin="0,0,3,0">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="오늘 수유 횟수" FontSize="16" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding TodayFeedCount}" FontSize="24" FontWeight="Bold"
-                                   Foreground="{DynamicResource CatFeedBrush}" HorizontalAlignment="Center"/>
-                    </StackPanel>
+                        Padding="8,6" Margin="0,0,3,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="2*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="오늘 수유 횟수" FontSize="14" Foreground="{DynamicResource TextMidBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Text="{Binding TodayFeedCount}" FontSize="24" FontWeight="Bold"
+                                   Foreground="{DynamicResource CatFeedBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
                 </Border>
                 <!-- 오늘 수유량 -->
                 <Border Background="{DynamicResource BgCardBrush}" CornerRadius="14"
                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                        Padding="12,10" Margin="2,0">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="오늘 수유량" FontSize="16" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding TodayFeedTotal}" FontSize="24" FontWeight="Bold"
-                                   Foreground="{DynamicResource CatFeedBrush}" HorizontalAlignment="Center"/>
-                    </StackPanel>
+                        Padding="8,6" Margin="2,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="2*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="오늘 수유량" FontSize="14" Foreground="{DynamicResource TextMidBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Text="{Binding TodayFeedTotal}" FontSize="24" FontWeight="Bold"
+                                   Foreground="{DynamicResource CatFeedBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
                 </Border>
                 <!-- 오늘 배변: 소변/대변 각각 구분색 -->
                 <Border Background="{DynamicResource BgCardBrush}" CornerRadius="14"
                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                        Padding="12,10" Margin="2,0">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="오늘 배변" FontSize="16" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock FontSize="22" FontWeight="Bold" Foreground="{DynamicResource CatUrineBrush}">
+                        Padding="8,6" Margin="2,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="2*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="오늘 배변" FontSize="14" Foreground="{DynamicResource TextMidBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock FontSize="24" FontWeight="Bold" Foreground="{DynamicResource CatUrineBrush}">
                                 <Run Text="소"/>
                                 <Run Text="{Binding TodayUrineCount}"/>
                             </TextBlock>
-                            <TextBlock Text=" / " FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextMidBrush}"/>
-                            <TextBlock FontSize="22" FontWeight="Bold" Foreground="{DynamicResource CatStoolBrush}">
+                            <TextBlock Text=" / " FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextMidBrush}"/>
+                            <TextBlock FontSize="24" FontWeight="Bold" Foreground="{DynamicResource CatStoolBrush}">
                                 <Run Text="대"/>
                                 <Run Text="{Binding TodayStoolCount}"/>
                             </TextBlock>
                         </StackPanel>
-                    </StackPanel>
+                    </Grid>
                 </Border>
                 <!-- 일평균 수유량 -->
                 <Border Background="{DynamicResource BgCardBrush}" CornerRadius="14"
                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                        Padding="12,10" Margin="2,0">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="일평균 수유량" FontSize="16" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding AvgFeedAmount}" FontSize="24" FontWeight="Bold"
-                                   Foreground="{DynamicResource CatFeedBrush}" HorizontalAlignment="Center"/>
-                    </StackPanel>
+                        Padding="8,6" Margin="2,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="2*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="일평균 수유량" FontSize="14" Foreground="{DynamicResource TextMidBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Text="{Binding AvgFeedAmount}" FontSize="24" FontWeight="Bold"
+                                   Foreground="{DynamicResource CatFeedBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
                 </Border>
                 <!-- 평균 수유텀 -->
                 <Border Background="{DynamicResource BgCardBrush}" CornerRadius="14"
                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                        Padding="12,10" Margin="2,0">
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="평균 수유텀" FontSize="16" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding AvgFeedInterval}" FontSize="24" FontWeight="Bold"
-                                   Foreground="{DynamicResource CatFeedBrush}" HorizontalAlignment="Center"/>
-                    </StackPanel>
+                        Padding="8,6" Margin="2,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="2*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="평균 수유텀" FontSize="14" Foreground="{DynamicResource TextMidBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Text="{Binding AvgFeedInterval}" FontSize="24" FontWeight="Bold"
+                                   Foreground="{DynamicResource CatFeedBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
                 </Border>
-                <!-- 신체: 키/몸무게 2열 좌측정렬 -->
+                <!-- 신체: 키/몸무게 2열 좌측정렬, 전체 중앙배치 -->
                 <Border Background="{DynamicResource BgCardBrush}" CornerRadius="14"
                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                        Padding="12,10" Margin="3,0,0,0">
-                    <StackPanel>
-                        <TextBlock Text="신체" FontSize="16" Foreground="{DynamicResource TextMidBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <Grid>
+                        Padding="8,6" Margin="3,0,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="2*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="신체" FontSize="14" Foreground="{DynamicResource TextMidBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="키" FontSize="16" Foreground="{DynamicResource CatBodyBrush}" Margin="0,0,8,0"/>
-                            <TextBlock Grid.Column="1" Text="{Binding LastHeight}" FontSize="16" FontWeight="Bold"
+                            <TextBlock Text="키" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource CatBodyBrush}" Margin="0,0,8,0"/>
+                            <TextBlock Grid.Column="1" Text="{Binding LastHeight}" FontSize="18" FontWeight="Bold"
                                        Foreground="{DynamicResource CatBodyBrush}"/>
-                            <TextBlock Grid.Row="1" Text="몸무게" FontSize="16" Foreground="{DynamicResource CatBodyBrush}" Margin="0,0,8,0"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastWeight}" FontSize="16" FontWeight="Bold"
+                            <TextBlock Grid.Row="1" Text="몸무게" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource CatBodyBrush}" Margin="0,0,8,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastWeight}" FontSize="18" FontWeight="Bold"
                                        Foreground="{DynamicResource CatBodyBrush}"/>
                         </Grid>
-                    </StackPanel>
+                    </Grid>
                 </Border>
             </UniformGrid>
 
