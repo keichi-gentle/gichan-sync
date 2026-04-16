@@ -345,5 +345,12 @@ export async function deleteEvent(eventId) {
 // ── Helpers ──
 function range(n) { return Array.from({length: n}, (_, i) => i); }
 function catShort(c) { return { '수유':'수유','배변':'배변','위생관리':'위생','신체측정':'신체','건강관리':'건강','기타':'기타' }[c] || c; }
-function toISODate(d) { return d instanceof Date ? d.toISOString().slice(0,10) : String(d).slice(0,10); }
+function toISODate(d) {
+  // 로컬 시각 기준 YYYY-MM-DD (toISOString은 UTC라 KST에서는 아침에 어제 날짜가 됨)
+  if (!(d instanceof Date)) return String(d).slice(0,10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 function setToggle(id, val) { const el = document.getElementById(id); if (el) { el.dataset.on = val.toString(); el.classList.toggle('active', val); } }

@@ -13,8 +13,13 @@ let tabSwitchCallback = null;
 
 export function renderBrowse(events, container, onTabSwitch = null) {
   allEvents = events;
-  currentPage = 1;
   tabSwitchCallback = onTabSwitch;
+
+  // WPF의 new EventListViewModel() 효과 — 탭 진입 시 모든 필터 상태 리셋
+  activeCategories = new Set(CATEGORIES);
+  keyword = '';
+  currentPage = 1;
+  sortOrder = 'desc';
 
   const today = new Date();
   const week = new Date(today); week.setDate(week.getDate() - 7);
@@ -27,17 +32,18 @@ export function renderBrowse(events, container, onTabSwitch = null) {
 }
 
 function buildFilterUI() {
+  const sortLabel = sortOrder === 'desc' ? '최신순 ▼' : '오래된순 ▲';
   return `
     <div class="filter-bar">
       <input type="date" id="f-start" value="${startDate}" style="flex:1;">
       <input type="date" id="f-end" value="${endDate}" style="flex:1;">
     </div>
     <div class="filter-bar">
-      <input type="text" id="f-keyword" placeholder="키워드 검색" style="flex:1;">
-      <button class="sort-btn" id="f-sort">최신순 ▼</button>
+      <input type="text" id="f-keyword" placeholder="키워드 검색" value="${keyword}" style="flex:1;">
+      <button class="sort-btn" id="f-sort">${sortLabel}</button>
     </div>
     <div class="category-filters" id="cat-filters">
-      ${CATEGORIES.map(c => `<button class="cat-chip active" data-cat="${c}">${catLabel(c)}</button>`).join('')}
+      ${CATEGORIES.map(c => `<button class="cat-chip${activeCategories.has(c) ? ' active' : ''}" data-cat="${c}">${catLabel(c)}</button>`).join('')}
     </div>`;
 }
 
@@ -184,5 +190,9 @@ function catLabel(cat) {
 }
 
 function fmtISO(d) {
-  return d.toISOString().slice(0, 10);
+  // 로컬 시각 기준 YYYY-MM-DD (toISOString은 UTC라 KST에서는 아침에 어제 날짜가 됨)
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
