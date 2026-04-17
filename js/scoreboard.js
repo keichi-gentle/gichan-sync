@@ -1,10 +1,11 @@
 import * as C from './calc.js';
-import { getSetting } from './storage.js';
+import { getSetting, setSetting } from './storage.js';
 
 let timerInterval = null;
 let cachedEvents = [];
 let syncOnline = false;
 let lastSyncTime = null;
+let expanded = false;
 
 export function setSyncStatus(online, time = null) {
   syncOnline = online;
@@ -13,9 +14,17 @@ export function setSyncStatus(online, time = null) {
 
 export function initScoreboard(events, container) {
   cachedEvents = events;
+  expanded = getSetting('scoreboardExpanded', false);
   if (timerInterval) clearInterval(timerInterval);
   render(container);
   timerInterval = setInterval(() => render(container), 1000);
+
+  // 전광판 터치 시 확대/축소 토글
+  container.addEventListener('click', () => {
+    expanded = !expanded;
+    setSetting('scoreboardExpanded', expanded);
+    render(container);
+  });
 }
 
 export function updateScoreboardEvents(events) {
@@ -101,7 +110,7 @@ function render(container) {
   const urgentClass = isUrgent ? ' sb-urgent' : '';
 
   container.innerHTML = `
-    <div class="scoreboard">
+    <div class="scoreboard${expanded ? ' sb-expanded' : ''}"
       <div class="sb-clock">
         <div class="sb-time">${timeStr}</div>
         <div class="sb-date">${dateStr} (${dayOfWeek})${dayNumberStr} <span class="sb-sync-lamp ${syncOnline ? 'online' : 'offline'}"></span><span class="sb-sync-status ${syncOnline ? 'online' : 'offline'}">${syncOnline ? 'On-Line' : 'Off-Line'}</span>${lastSyncTime ? ` <span class="sb-sync-time">${lastSyncTime}</span>` : ''}</div>
@@ -111,7 +120,7 @@ function render(container) {
         <div class="sb-section">
           <div class="sb-label">최근 수유</div>
           <div class="sb-value cat-feed">${feedTime}</div>
-          <div class="sb-sub cat-feed">${feedElapsed}</div>
+          <div class="sb-sub${isUrgent ? '' : ' cat-feed'}" ${isUrgent ? `style="color:var(--cat-feed-urgent)"` : ''}>${feedElapsed}</div>
         </div>
 
         <div class="sb-divider"></div>
