@@ -34,7 +34,7 @@ export function renderSettings(container, onImport, firebaseReady = false) {
         </div>
       </div>
       <div class="setting-row">
-        <label style="font-size:13px;">최근 동기화 시각</label>
+        <label style="font-size:13px;">최근 내려받기 시각</label>
         <span id="sync-time-display" style="font-size:13px;color:var(--text-light);font-weight:600;">${lastSync !== '-' ? lastSync : '-'}</span>
       </div>
       <div id="sync-status" style="text-align:center;margin-top:4px;font-size:13px;font-weight:600;color:var(--cat-feed);"></div>
@@ -116,6 +116,10 @@ export function renderSettings(container, onImport, firebaseReady = false) {
         </div>
       </div>
       <div class="setting-row">
+        <label>모유 입력 표시</label>
+        <input type="checkbox" id="set-showbreast" ${getSetting('showBreastfeed', false) ? 'checked' : ''}>
+      </div>
+      <div class="setting-row">
         <label>분유 제품</label>
         <select id="set-product" style="width:150px;">
           ${(getSetting('formulaProducts', ['트루맘 클래식'])).map(p => `<option value="${p}" ${p===getSetting('defaultFormulaProduct','트루맘 클래식')?'selected':''}>${p}</option>`).join('')}
@@ -127,7 +131,7 @@ export function renderSettings(container, onImport, firebaseReady = false) {
 
     <div class="setting-group">
       <h3>앱 정보</h3>
-      <div class="setting-row"><label>버전</label><span>3.0.37</span></div>
+      <div class="setting-row"><label>버전</label><span>3.0.38</span></div>
       <div class="setting-row"><label>상위 프로젝트</label><span>기찬다이어리 (WPF)</span></div>
       <div class="setting-row"><label>데이터 소스</label><span>${user ? 'Firebase 실시간' : 'IndexedDB (로컬)'}</span></div>
       <div class="setting-row"><label>역할</label><span>${({admin:'관리자',editor:'사용자',observer:'뷰어'})[getSetting('userRole')] || '-'}</span></div>
@@ -256,6 +260,12 @@ function bindEvents(container) {
         syncSetting(cfg.key, cfg.transform(val));
       }
     });
+  });
+
+  // Show breastfeed toggle
+  container.querySelector('#set-showbreast')?.addEventListener('change', (e) => {
+    setSetting('showBreastfeed', e.target.checked);
+    syncSetting('showBreastfeed', e.target.checked);
   });
 
   // Formula product

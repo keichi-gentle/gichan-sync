@@ -69,32 +69,67 @@ function renderCategoryFields() {
   const defBreast = getSetting('defaultBreastfeedAmount') || 20;
 
   switch (selectedCategory) {
-    case '수유':
+    case '수유': {
+      const formulaVal = editingEvent?.formulaAmount || defFormula;
+      const breastVal = editingEvent?.breastfeedAmount || defBreast;
+      const feedCountVal = editingEvent?.feedingCount || 1;
+      const showBreast = getSetting('showBreastfeed', false);
       el.innerHTML = `
         <div class="entry-section">
           <div class="entry-row"><label>분유</label>
             <div class="toggle-row">
               <input type="checkbox" id="e-formula-on" checked>
               <select id="e-formula-product">${products.map(p => `<option${p===defProduct?' selected':''}>${p}</option>`).join('')}</select>
-              <input type="number" id="e-formula-amt" value="${editingEvent?.formulaAmount || defFormula}" min="0" max="300" step="5" style="width:70px"> ml
+              <div class="stepper">
+                <button type="button" class="step-btn" data-target="e-formula-amt" data-step="-5">−</button>
+                <span id="e-formula-display">${formulaVal}</span>
+                <button type="button" class="step-btn" data-target="e-formula-amt" data-step="5">+</button>
+              </div>
+              <input type="hidden" id="e-formula-amt" value="${formulaVal}"> ml
             </div>
           </div>
-          <div class="entry-row"><label>모유</label>
+          ${showBreast ? `<div class="entry-row"><label>모유</label>
             <div class="toggle-row">
               <input type="checkbox" id="e-breast-on">
-              <input type="number" id="e-breast-amt" value="${editingEvent?.breastfeedAmount || defBreast}" min="0" max="100" step="5" style="width:70px"> ml
+              <div class="stepper">
+                <button type="button" class="step-btn" data-target="e-breast-amt" data-step="-5">−</button>
+                <span id="e-breast-display">${breastVal}</span>
+                <button type="button" class="step-btn" data-target="e-breast-amt" data-step="5">+</button>
+              </div>
+              <input type="hidden" id="e-breast-amt" value="${breastVal}"> ml
             </div>
-          </div>
+          </div>` : '<input type="hidden" id="e-breast-on"><input type="hidden" id="e-breast-amt" value="0">'}
           <div class="entry-row"><label>분할 횟수</label>
-            <select id="e-feedcount">${[1,2,3,4,5].map(n => `<option value="${n}" ${n===(editingEvent?.feedingCount||1)?'selected':''}>${n}회</option>`).join('')}</select>
+            <div class="stepper">
+              <button type="button" class="step-btn" data-target="e-feedcount" data-step="-1">−</button>
+              <span id="e-feedcount-display">${feedCountVal}회</span>
+              <button type="button" class="step-btn" data-target="e-feedcount" data-step="1">+</button>
+            </div>
+            <input type="hidden" id="e-feedcount" value="${feedCountVal}">
           </div>
         </div>`;
+      // 스테퍼 버튼 이벤트
+      el.querySelectorAll('.step-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.dataset.target;
+          const step = parseInt(btn.dataset.step);
+          const input = document.getElementById(targetId);
+          const limits = { 'e-formula-amt': [0, 300], 'e-breast-amt': [0, 100], 'e-feedcount': [1, 5] };
+          const [min, max] = limits[targetId] || [0, 999];
+          const newVal = Math.max(min, Math.min(max, parseInt(input.value) + step));
+          input.value = newVal;
+          const displayId = targetId === 'e-feedcount' ? 'e-feedcount-display' : targetId.replace('-amt', '-display');
+          const displayEl = document.getElementById(displayId);
+          if (displayEl) displayEl.textContent = targetId === 'e-feedcount' ? `${newVal}회` : newVal;
+        });
+      });
       if (editingEvent) {
         if (editingEvent.formulaAmount > 0) document.getElementById('e-formula-on').checked = true;
-        if (editingEvent.breastfeedAmount > 0) document.getElementById('e-breast-on').checked = true;
+        if (editingEvent.breastfeedAmount > 0 && showBreast) document.getElementById('e-breast-on').checked = true;
         if (editingEvent.formulaProduct) document.getElementById('e-formula-product').value = editingEvent.formulaProduct;
       }
       break;
+    }
 
     case '배변':
       el.innerHTML = `

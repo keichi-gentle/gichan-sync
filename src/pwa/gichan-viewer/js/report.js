@@ -103,6 +103,17 @@ function renderCharts(events) {
     y: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor }, beginAtZero: true },
   };
 
+  // 키/몸무게용 자동 스케일 (0부터 시작하지 않음)
+  function autoScales(values) {
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const margin = (max - min) * 0.2 || 1;
+    return {
+      x: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor }, suggestedMin: Math.floor(min - margin), suggestedMax: Math.ceil(max + margin) },
+    };
+  }
+
   const feedings = events.filter(e => C.isFeeding(e) && C.getFullDateTime(e)).sort((a,b) => C.getFullDateTime(a)-C.getFullDateTime(b));
 
   // Chart 1: Feed amount per feeding (Line)
@@ -177,7 +188,7 @@ function renderCharts(events) {
         labels: heightData.map(x => `${x.date.getMonth()+1}/${x.date.getDate()}`),
         datasets: [{ label: '키(cm)', data: heightData.map(x => x.val), borderColor: bodyColor, backgroundColor: bodyColor + '33', tension: 0.3, fill: false, pointRadius: 5 }],
       },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: defaultScales },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: autoScales(heightData.map(x => x.val)) },
     }));
   }
 
@@ -193,7 +204,7 @@ function renderCharts(events) {
         labels: weightData.map(x => `${x.date.getMonth()+1}/${x.date.getDate()}`),
         datasets: [{ label: '몸무게(kg)', data: weightData.map(x => x.val), borderColor: bodyColor, backgroundColor: bodyColor + '33', tension: 0.3, fill: false, pointRadius: 5 }],
       },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: defaultScales },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: autoScales(weightData.map(x => x.val)) },
     }));
   }
 

@@ -292,7 +292,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="버전" FontSize="19" Foreground="{DynamicResource TextMidBrush}"/>
-                        <TextBlock Grid.Column="1" Text="3.0.37" FontSize="19" FontWeight="SemiBold"
+                        <TextBlock Grid.Column="1" Text="3.0.38" FontSize="19" FontWeight="SemiBold"
                                    Foreground="{DynamicResource TextLightBrush}"/>
                     </Grid>
                     <!-- 동기화: 2컬럼 (좌: 버튼, 우: 시각정보) -->
@@ -342,7 +342,7 @@
                                     <ColumnDefinition Width="154"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="최근 동기화 시각" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
+                                <TextBlock Text="최근 내려받기 시각" FontSize="19" Foreground="{DynamicResource TextMidBrush}"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" Text="{Binding LastSyncTime}" FontSize="19" FontWeight="SemiBold"
                                            Foreground="{DynamicResource TextLightBrush}" VerticalAlignment="Center"/>

@@ -513,6 +513,12 @@ public partial class MainViewModel : ObservableObject
     {
         SelectedTab = "설정";
         var vm = new SettingsViewModel(_settingsService, _syncCoordinator, _excelService);
+        // 8번: 현재 동기화 시각을 SettingsVM에 전달
+        if (!string.IsNullOrEmpty(LastSyncDisplay))
+            vm.LastSyncTime = LastSyncDisplay;
+        // 9번: SettingsVM도 SyncTimeChanged 구독
+        if (_dataService is FirebaseSyncDataService syncSvc)
+            syncSvc.SyncTimeChanged += (dt) => vm.LastSyncTime = dt.ToString("HH:mm:ss");
         vm.SettingsSaved += async () =>
         {
             _settings = _settingsService.Load();

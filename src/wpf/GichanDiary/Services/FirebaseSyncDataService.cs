@@ -23,6 +23,7 @@ public class FirebaseSyncDataService : IDataService
     public SyncMode CurrentMode => SyncMode.FirebaseSync;
     public bool IsOnline => _isOnline;
     public DateTime? LastSyncTime { get; private set; }
+    public int CachedCount => _cachedEvents.Count;
 
     public FirebaseSyncDataService(
         IExcelService excelService,

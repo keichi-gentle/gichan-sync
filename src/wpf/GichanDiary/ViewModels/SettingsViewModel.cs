@@ -210,6 +210,10 @@ public partial class SettingsViewModel : ObservableObject
 
             _syncCts.Token.ThrowIfCancellationRequested();
             var dataService = _syncCoordinator.GetDataService();
+
+            // 내려받기 전 기존 건수 저장 (비교용)
+            var prevCount = (dataService is FirebaseSyncDataService prev) ? prev.CachedCount : 0;
+
             if (dataService is FirebaseSyncDataService syncService)
                 syncService.InvalidateCache();
             var events = await dataService.LoadEventsAsync();
@@ -223,7 +227,20 @@ public partial class SettingsViewModel : ObservableObject
                 await svc.ForceReloadAndNotifyAsync();
 
             LastSyncTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
-            SyncStatusMessage = $"내려받기 완료 ({events.Count}건)";
+
+            if (events.Count == prevCount && prevCount > 0)
+            {
+                SyncStatusMessage = $"이미 최신 상태입니다 ({events.Count}건)";
+                // 토스트: 3초 후 메시지 자동 소멸
+                _ = Task.Delay(3000).ContinueWith(_ =>
+                    System.Windows.Application.Current?.Dispatcher.Invoke(() => {
+                        if (SyncStatusMessage.StartsWith("이미 최신")) SyncStatusMessage = "";
+                    }));
+            }
+            else
+            {
+                SyncStatusMessage = $"내려받기 완료 ({events.Count}건)";
+            }
             LogService.Event($"Firebase 다운로드: {events.Count}건");
         }
         catch (OperationCanceledException)

@@ -88,6 +88,7 @@ header h1 { font-size: 15px; font-weight: 700; }
 .tab-content {
   flex: 1; overflow-y: auto; overflow-x: hidden;
   padding: 12px;
+  padding-bottom: 64px;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -99,7 +100,9 @@ nav {
   display: flex;
   background: var(--bg-sidebar);
   border-top: 1px solid var(--border);
-  flex-shrink: 0;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 100;
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
@@ -435,6 +438,7 @@ select, input[type="text"] {
   background: var(--bg-sidebar);
   border-bottom: 1px solid var(--border);
   padding: 10px 12px 8px;
+  flex-shrink: 0;
 }
 
 .sb-clock { text-align: center; margin-bottom: 8px; }
