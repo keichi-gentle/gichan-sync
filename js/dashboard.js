@@ -40,7 +40,6 @@ function buildFeedCard(events, now) {
       <div class="card-split-half">
         ${row('최근 수유', time)}
         ${row('경과', elapsed)}
-        ${row('내용', detail)}
       </div>
       <div class="card-split-divider"></div>
       <div class="card-split-half">
@@ -48,6 +47,7 @@ function buildFeedCard(events, now) {
         ${row('평균 수유텀', avgInterval)}
       </div>
     </div>
+    ${row('내용', detail)}
   </div>`;
 }
 
