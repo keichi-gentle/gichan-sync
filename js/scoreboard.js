@@ -1,11 +1,12 @@
 import * as C from './calc.js';
-import { getSetting } from './storage.js';
+import { getSetting, setSetting } from './storage.js';
 
 let timerInterval = null;
 let cachedEvents = [];
 let syncOnline = false;
 let lastSyncTime = null;
 let built = false; // DOM 구조 생성 여부
+let expanded = false;
 
 export function setSyncStatus(online, time = null) {
   syncOnline = online;
@@ -14,10 +15,18 @@ export function setSyncStatus(online, time = null) {
 
 export function initScoreboard(events, container) {
   cachedEvents = events;
+  expanded = getSetting('scoreboardExpanded', false);
   built = false;
   if (timerInterval) clearInterval(timerInterval);
   render(container);
   timerInterval = setInterval(() => render(container), 1000);
+
+  container.addEventListener('click', () => {
+    expanded = !expanded;
+    setSetting('scoreboardExpanded', expanded);
+    const sb = container.querySelector('.scoreboard');
+    if (sb) sb.className = expanded ? 'scoreboard sb-expanded' : 'scoreboard';
+  });
 }
 
 export function updateScoreboardEvents(events) {
@@ -31,7 +40,7 @@ export function stopScoreboard() {
 // 최초 1회 HTML 구조 생성
 function buildHTML(container) {
   container.innerHTML = `
-    <div class="scoreboard">
+    <div class="scoreboard${expanded ? ' sb-expanded' : ''}"
       <div class="sb-clock">
         <div class="sb-time" id="sb-time"></div>
         <div class="sb-date" id="sb-date"></div>
@@ -49,7 +58,7 @@ function buildHTML(container) {
         <div class="sb-section">
           <div class="sb-label">다음 수유</div>
           <div class="sb-value cat-feed" id="sb-next-time"></div>
-          <div class="sb-sub" id="sb-next-remain"></div>
+          <div id="sb-next-wrap"></div>
           <div class="sb-progress"><div class="sb-progress-fill" id="sb-progress"></div></div>
         </div>
 
@@ -57,8 +66,8 @@ function buildHTML(container) {
 
         <div class="sb-section">
           <div class="sb-label">오늘 수유</div>
-          <div class="sb-value cat-feed" id="sb-today-feed"></div>
-          <div class="sb-sub cat-feed" id="sb-avg-interval"></div>
+          <div id="sb-today-wrap"></div>
+          <div class="sb-sub2 cat-feed" id="sb-avg-interval"></div>
         </div>
       </div>
 
@@ -160,16 +169,30 @@ function render(container) {
   const feedElapsedEl = document.getElementById('sb-feed-elapsed');
   feedElapsedEl.textContent = feedElapsed;
   feedElapsedEl.className = isUrgent ? 'sb-sub' : 'sb-sub cat-feed';
-  feedElapsedEl.style.color = isUrgent ? 'var(--cat-feed-urgent)' : '';
+  feedElapsedEl.style.color = isUrgent ? 'var(--cat-health)' : '';
 
   document.getElementById('sb-next-time').textContent = nextFeedStr;
 
-  const nextRemainEl = document.getElementById('sb-next-remain');
-  nextRemainEl.textContent = nextRemain;
-  nextRemainEl.className = isUrgent ? 'sb-sub sb-urgent' : 'sb-sub';
+  // 다음 수유: 확대 시 "남음"을 아래줄로 분리
+  const nextWrap = document.getElementById('sb-next-wrap');
+  if (expanded) {
+    const remainTime = nextRemain.replace(' 남음', '').replace('남음', '');
+    const isRemain = nextRemain.includes('남음');
+    nextWrap.innerHTML = `<div class="sb-sub${isUrgent ? ' sb-urgent' : ''}">${remainTime}</div>${isRemain ? `<div class="sb-sub2${isUrgent ? ' sb-urgent' : ''}">남음</div>` : ''}`;
+  } else {
+    nextWrap.innerHTML = `<div class="sb-sub${isUrgent ? ' sb-urgent' : ''}">${nextRemain}</div>`;
+  }
 
   document.getElementById('sb-progress').style.width = progressPct + '%';
-  document.getElementById('sb-today-feed').textContent = `${todayTotal}ml / ${todayCount}회`;
+
+  // 오늘 수유: 확대 시 "490ml" + "/5회" 2줄
+  const todayWrap = document.getElementById('sb-today-wrap');
+  if (expanded) {
+    todayWrap.innerHTML = `<div class="sb-value cat-feed">${todayTotal}ml</div><div class="sb-sub cat-feed">/ ${todayCount}회</div>`;
+  } else {
+    todayWrap.innerHTML = `<div class="sb-value cat-feed">${todayTotal}ml / ${todayCount}회</div>`;
+  }
+
   document.getElementById('sb-avg-interval').textContent = `평균텀 ${avgInterval}`;
 
   // Bowel
