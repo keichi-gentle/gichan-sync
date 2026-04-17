@@ -75,9 +75,9 @@ export function formatElapsed(ms) {
   if (hours >= 24) {
     const days = Math.floor(hours / 24);
     const h = hours % 24;
-    return `${days}일 ${h}시간 경과`;
+    return `${days}일 ${h}시간`;
   }
-  return `${hours}시간 ${mins}분 경과`;
+  return `${hours}시간 ${mins}분`;
 }
 
 export function formatInterval(ms) {
