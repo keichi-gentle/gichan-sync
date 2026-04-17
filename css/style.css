@@ -154,12 +154,13 @@ nav button svg { width: 22px; height: 22px; }
 .bowel-count { font-size: 13px; color: var(--text-mid); margin-top: 2px; }
 
 .card-row {
-  display: flex; justify-content: space-between;
+  display: flex;
   padding: 4px 0; font-size: 14px;
+  gap: 12px;
 }
 
-.card-row .label { color: var(--text-mid); min-width: 70px; }
-.card-row .value { font-weight: 600; text-align: right; }
+.card-row .label { color: var(--text-mid); min-width: 70px; flex-shrink: 0; }
+.card-row .value { font-weight: 600; }
 .card-row .elapsed { color: var(--text-mid); font-size: 13px; margin-left: 8px; }
 
 /* ═══ Summary Cards (wrap) ═══ */
