@@ -131,7 +131,7 @@ export function renderSettings(container, onImport, firebaseReady = false) {
 
     <div class="setting-group">
       <h3>앱 정보</h3>
-      <div class="setting-row"><label>버전</label><span>3.1.2</span></div>
+      <div class="setting-row"><label>버전</label><span>3.1.3</span></div>
       <div class="setting-row"><label>상위 프로젝트</label><span>기찬다이어리 (WPF)</span></div>
       <div class="setting-row"><label>데이터 소스</label><span>${user ? 'Firebase 실시간' : 'IndexedDB (로컬)'}</span></div>
       <div class="setting-row"><label>역할</label><span>${({admin:'관리자',editor:'사용자',observer:'뷰어'})[getSetting('userRole')] || '-'}</span></div>
