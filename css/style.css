@@ -474,8 +474,8 @@ select, input[type="text"] {
 
 .sb-urgent { color: var(--cat-health) !important; font-weight: 700; }
 
-@keyframes sb-blink { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-.sb-urgent { animation: sb-blink 1s ease-in-out infinite; }
+@keyframes sb-blink { 0%,66.7% { opacity: 1; } 83.3% { opacity: 0.4; } 100% { opacity: 1; } }
+.sb-urgent { animation: sb-blink 3s linear infinite; }
 
 .sb-sync-lamp {
   display: inline-block; width: 8px; height: 8px; border-radius: 50%;
