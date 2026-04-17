@@ -88,7 +88,7 @@ header h1 { font-size: 15px; font-weight: 700; }
 .tab-content {
   flex: 1; overflow-y: auto; overflow-x: hidden;
   padding: 12px;
-  padding-bottom: 64px;
+  padding-bottom: 80px;
   -webkit-overflow-scrolling: touch;
 }
 

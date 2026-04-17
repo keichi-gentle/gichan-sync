@@ -40,7 +40,7 @@ export function stopScoreboard() {
 // 최초 1회 HTML 구조 생성
 function buildHTML(container) {
   container.innerHTML = `
-    <div class="scoreboard${expanded ? ' sb-expanded' : ''}"
+    <div class="scoreboard${expanded ? ' sb-expanded' : ''}">
       <div class="sb-clock">
         <div class="sb-time" id="sb-time"></div>
         <div class="sb-date" id="sb-date"></div>
