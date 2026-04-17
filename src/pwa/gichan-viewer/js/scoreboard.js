@@ -5,6 +5,7 @@ let timerInterval = null;
 let cachedEvents = [];
 let syncOnline = false;
 let lastSyncTime = null;
+let built = false; // DOM 구조 생성 여부
 
 export function setSyncStatus(online, time = null) {
   syncOnline = online;
@@ -13,6 +14,7 @@ export function setSyncStatus(online, time = null) {
 
 export function initScoreboard(events, container) {
   cachedEvents = events;
+  built = false;
   if (timerInterval) clearInterval(timerInterval);
   render(container);
   timerInterval = setInterval(() => render(container), 1000);
@@ -26,7 +28,71 @@ export function stopScoreboard() {
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
 }
 
+// 최초 1회 HTML 구조 생성
+function buildHTML(container) {
+  container.innerHTML = `
+    <div class="scoreboard">
+      <div class="sb-clock">
+        <div class="sb-time" id="sb-time"></div>
+        <div class="sb-date" id="sb-date"></div>
+      </div>
+
+      <div class="sb-sections">
+        <div class="sb-section">
+          <div class="sb-label">최근 수유</div>
+          <div class="sb-value cat-feed" id="sb-feed-time"></div>
+          <div class="sb-sub" id="sb-feed-elapsed"></div>
+        </div>
+
+        <div class="sb-divider"></div>
+
+        <div class="sb-section">
+          <div class="sb-label">다음 수유</div>
+          <div class="sb-value cat-feed" id="sb-next-time"></div>
+          <div class="sb-sub" id="sb-next-remain"></div>
+          <div class="sb-progress"><div class="sb-progress-fill" id="sb-progress"></div></div>
+        </div>
+
+        <div class="sb-divider"></div>
+
+        <div class="sb-section">
+          <div class="sb-label">오늘 수유</div>
+          <div class="sb-value cat-feed" id="sb-today-feed"></div>
+          <div class="sb-sub cat-feed" id="sb-avg-interval"></div>
+        </div>
+      </div>
+
+      <div class="sb-bowel">
+        <div class="sb-bowel-half">
+          <div class="sb-bowel-col">
+            <div class="sb-label" style="color:var(--cat-urine)">소변</div>
+            <div class="sb-value" id="sb-urine-time"></div>
+          </div>
+          <div class="sb-bowel-col">
+            <div class="sb-sub" style="color:var(--cat-urine)" id="sb-urine-elapsed"></div>
+            <div class="sb-sub" id="sb-urine-count"></div>
+          </div>
+        </div>
+        <div class="sb-bowel-divider"></div>
+        <div class="sb-bowel-half">
+          <div class="sb-bowel-col">
+            <div class="sb-label" style="color:var(--cat-stool)">대변</div>
+            <div class="sb-value" id="sb-stool-time"></div>
+          </div>
+          <div class="sb-bowel-col">
+            <div class="sb-sub" style="color:var(--cat-stool)" id="sb-stool-elapsed"></div>
+            <div class="sb-sub" id="sb-stool-count"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  built = true;
+}
+
+// 매초 텍스트만 갱신 (DOM 유지 → CSS 애니메이션 지속)
 function render(container) {
+  if (!built) buildHTML(container);
+
   const events = cachedEvents;
   const now = new Date();
 
@@ -36,7 +102,6 @@ function render(container) {
   const dayNames = ['일','월','화','수','목','금','토'];
   const dayOfWeek = dayNames[now.getDay()];
 
-  // Day number from birth date
   let dayNumberStr = '';
   const birthDateStr = getSetting('babyBirthDate');
   if (birthDateStr) {
@@ -46,6 +111,13 @@ function render(container) {
       dayNumberStr = ` · ${dayNum}일차`;
     }
   }
+
+  document.getElementById('sb-time').textContent = timeStr;
+
+  const dateEl = document.getElementById('sb-date');
+  const syncLampClass = syncOnline ? 'online' : 'offline';
+  const syncText = syncOnline ? 'On-Line' : 'Off-Line';
+  dateEl.innerHTML = `${dateStr} (${dayOfWeek})${dayNumberStr} <span class="sb-sync-lamp ${syncLampClass}"></span><span class="sb-sync-status ${syncLampClass}">${syncText}</span>${lastSyncTime ? ` <span class="sb-sync-time">${lastSyncTime}</span>` : ''}`;
 
   // Feed
   const lastFeed = events.filter(e => C.isFeeding(e) && C.getFullDateTime(e))
@@ -58,7 +130,6 @@ function render(container) {
     const elapsedMs = now - ft;
     feedElapsed = formatShortElapsed(elapsedMs);
 
-    // Next feed (설정의 고정수유텀 사용)
     const intervalMs = (getSetting('fixedFeedingInterval', 10800)) * 1000;
     const nextDt = new Date(ft.getTime() + intervalMs);
     nextFeedStr = nextDt.toTimeString().slice(0, 5);
@@ -80,10 +151,26 @@ function render(container) {
     }
   }
 
-  // Today feed
   const todayTotal = C.getDailyFeedTotal(events, now);
   const todayCount = C.getDailyFeedCount(events, now);
   const avgInterval = C.formatInterval(C.getAvgFeedingInterval(events, 10));
+
+  document.getElementById('sb-feed-time').textContent = feedTime;
+
+  const feedElapsedEl = document.getElementById('sb-feed-elapsed');
+  feedElapsedEl.textContent = feedElapsed;
+  feedElapsedEl.className = isUrgent ? 'sb-sub' : 'sb-sub cat-feed';
+  feedElapsedEl.style.color = isUrgent ? 'var(--cat-feed-urgent)' : '';
+
+  document.getElementById('sb-next-time').textContent = nextFeedStr;
+
+  const nextRemainEl = document.getElementById('sb-next-remain');
+  nextRemainEl.textContent = nextRemain;
+  nextRemainEl.className = isUrgent ? 'sb-sub sb-urgent' : 'sb-sub';
+
+  document.getElementById('sb-progress').style.width = progressPct + '%';
+  document.getElementById('sb-today-feed').textContent = `${todayTotal}ml / ${todayCount}회`;
+  document.getElementById('sb-avg-interval').textContent = `평균텀 ${avgInterval}`;
 
   // Bowel
   const summary = C.getDailySummary(events, now);
@@ -95,67 +182,13 @@ function render(container) {
   const lastStool = events.filter(e => e.category === '배변' && e.hasStool && C.getFullDateTime(e))
     .sort((a, b) => C.getFullDateTime(b) - C.getFullDateTime(a))[0];
 
-  const urineTime = lastUrine ? C.getFullDateTime(lastUrine).toTimeString().slice(0,5) : '-';
-  const stoolTime = lastStool ? C.getFullDateTime(lastStool).toTimeString().slice(0,5) : '-';
+  document.getElementById('sb-urine-time').textContent = lastUrine ? C.getFullDateTime(lastUrine).toTimeString().slice(0,5) : '-';
+  document.getElementById('sb-urine-elapsed').textContent = formatShortElapsed(urineMs);
+  document.getElementById('sb-urine-count').textContent = `오늘 ${summary.urineCount}회`;
 
-  const urgentClass = isUrgent ? ' sb-urgent' : '';
-
-  container.innerHTML = `
-    <div class="scoreboard"
-      <div class="sb-clock">
-        <div class="sb-time">${timeStr}</div>
-        <div class="sb-date">${dateStr} (${dayOfWeek})${dayNumberStr} <span class="sb-sync-lamp ${syncOnline ? 'online' : 'offline'}"></span><span class="sb-sync-status ${syncOnline ? 'online' : 'offline'}">${syncOnline ? 'On-Line' : 'Off-Line'}</span>${lastSyncTime ? ` <span class="sb-sync-time">${lastSyncTime}</span>` : ''}</div>
-      </div>
-
-      <div class="sb-sections">
-        <div class="sb-section">
-          <div class="sb-label">최근 수유</div>
-          <div class="sb-value cat-feed">${feedTime}</div>
-          <div class="sb-sub${isUrgent ? '' : ' cat-feed'}" ${isUrgent ? `style="color:var(--cat-feed-urgent)"` : ''}>${feedElapsed}</div>
-        </div>
-
-        <div class="sb-divider"></div>
-
-        <div class="sb-section">
-          <div class="sb-label">다음 수유</div>
-          <div class="sb-value cat-feed">${nextFeedStr}</div>
-          <div class="sb-sub${urgentClass}">${nextRemain}</div>
-          <div class="sb-progress"><div class="sb-progress-fill" style="width:${progressPct}%"></div></div>
-        </div>
-
-        <div class="sb-divider"></div>
-
-        <div class="sb-section">
-          <div class="sb-label">오늘 수유</div>
-          <div class="sb-value cat-feed">${todayTotal}ml / ${todayCount}회</div>
-          <div class="sb-sub cat-feed">평균텀 ${avgInterval}</div>
-        </div>
-      </div>
-
-      <div class="sb-bowel">
-        <div class="sb-bowel-half">
-          <div class="sb-bowel-col">
-            <div class="sb-label" style="color:var(--cat-urine)">소변</div>
-            <div class="sb-value">${urineTime}</div>
-          </div>
-          <div class="sb-bowel-col">
-            <div class="sb-sub" style="color:var(--cat-urine)">${formatShortElapsed(urineMs)}</div>
-            <div class="sb-sub">오늘 ${summary.urineCount}회</div>
-          </div>
-        </div>
-        <div class="sb-bowel-divider"></div>
-        <div class="sb-bowel-half">
-          <div class="sb-bowel-col">
-            <div class="sb-label" style="color:var(--cat-stool)">대변</div>
-            <div class="sb-value">${stoolTime}</div>
-          </div>
-          <div class="sb-bowel-col">
-            <div class="sb-sub" style="color:var(--cat-stool)">${formatShortElapsed(stoolMs)}</div>
-            <div class="sb-sub">오늘 ${summary.stoolCount}회</div>
-          </div>
-        </div>
-      </div>
-    </div>`;
+  document.getElementById('sb-stool-time').textContent = lastStool ? C.getFullDateTime(lastStool).toTimeString().slice(0,5) : '-';
+  document.getElementById('sb-stool-elapsed').textContent = formatShortElapsed(stoolMs);
+  document.getElementById('sb-stool-count').textContent = `오늘 ${summary.stoolCount}회`;
 }
 
 function formatShortElapsed(ms) {

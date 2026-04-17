@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전광판 확대 테스트 - 샘플1-2 (경과 어두운적색 + blink 느리게)</title>
+<style>
+:root {
+  --bg-dark: #242A3C;
+  --bg-sidebar: #1E2438;
+  --bg-card: #2A3248;
+  --text-light: #C8D0DC;
+  --text-mid: #8090A8;
+  --border: #2A3050;
+  --cat-feed: #1E8070;
+  --cat-feed-urgent: #E05555;
+  --cat-health: #A04040;
+  --cat-system: #A09070;
+  --cat-urine: #D4B840;
+  --cat-stool: #8B4513;
+  --cat-hygiene: #305898;
+  --cat-body: #704890;
+  --cat-etc: #506068;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  font-size: 15px;
+}
+
+#app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 16px; background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+header h1 { font-size: 15px; font-weight: 700; }
+.tab-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 12px; -webkit-overflow-scrolling: touch; }
+nav {
+  display: flex; background: var(--bg-sidebar); border-top: 1px solid var(--border);
+  flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 0);
+}
+nav button {
+  flex: 1; padding: 10px 0 8px; background: none; border: none;
+  color: var(--text-mid); font-size: 12px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+nav button.active { color: var(--cat-feed); }
+nav button svg { width: 22px; height: 22px; }
+
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+.card-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+.card-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
+.card-row .label { color: var(--text-mid); }
+.card-split { display: flex; gap: 12px; }
+.card-split-half { flex: 1; }
+.card-split-divider { width: 1px; background: var(--border); }
+
+/* ═══ 전광판 기본 ═══ */
+.scoreboard {
+  background: var(--bg-sidebar); border-bottom: 1px solid var(--border);
+  padding: 10px 12px 8px; cursor: pointer; flex-shrink: 0; transition: all 0.2s ease;
+}
+.sb-clock { text-align: center; margin-bottom: 8px; }
+.sb-time { font-size: 28px; font-weight: 700; color: var(--cat-system); font-family: 'Consolas','Courier New',monospace; letter-spacing: 2px; }
+.sb-date { font-size: 14px; color: var(--cat-system); margin-top: 2px; }
+.sb-sections { display: flex; align-items: stretch; border-top: 1px solid var(--border); padding-top: 8px; margin-bottom: 8px; }
+.sb-section { flex: 1; text-align: center; padding: 0 4px; }
+.sb-label { font-size: 12px; font-weight: 700; color: var(--text-light); margin-bottom: 3px; }
+.sb-value { font-size: 16px; font-weight: 700; }
+.sb-sub { font-size: 12px; color: var(--text-mid); margin-top: 2px; }
+.sb-sub2 { font-size: 12px; color: var(--text-mid); margin-top: 1px; }
+.sb-divider { width: 1px; background: var(--border); margin: 0 2px; align-self: stretch; }
+.sb-progress { height: 4px; background: var(--bg-dark); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+.sb-progress-fill { height: 100%; background: var(--cat-feed); border-radius: 2px; }
+.sb-urgent { color: var(--cat-health) !important; font-weight: 700; }
+@keyframes sb-blink { 0%{opacity:1;} 60%{opacity:1;} 75%{opacity:0.4;} 90%{opacity:0.4;} 100%{opacity:1;} }
+.sb-urgent { animation: sb-blink 0.9s linear infinite; }
+.sb-sync-lamp { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 8px; margin-right: 4px; vertical-align: middle; }
+.sb-sync-lamp.online { background: #4A90D9; }
+.sb-sync-status { font-weight: 700; }
+.sb-sync-status.online { color: #4A90D9; }
+.sb-sync-time { color: var(--text-mid); font-size: 11px; margin-left: 4px; }
+.sb-bowel { display: flex; border-top: 1px solid var(--border); padding-top: 6px; }
+.sb-bowel-half { flex: 1; display: flex; justify-content: center; align-items: center; gap: 12px; }
+.sb-bowel-divider { width: 1px; background: var(--border); margin: 0 4px; }
+.sb-bowel-col { text-align: center; }
+.cat-feed { color: var(--cat-feed); }
+
+/* ═══ 확대 모드 — 3열 유지, 경과/남은시간 크게, 2줄 사용 ═══ */
+.sb-expanded { padding: 16px 16px 14px; }
+.sb-expanded .sb-clock { margin-bottom: 12px; }
+.sb-expanded .sb-time { font-size: 42px; letter-spacing: 4px; }
+.sb-expanded .sb-date { font-size: 18px; margin-top: 4px; }
+.sb-expanded .sb-sync-time { font-size: 14px; }
+.sb-expanded .sb-sync-status { font-size: 16px; }
+.sb-expanded .sb-sync-lamp { width: 10px; height: 10px; }
+.sb-expanded .sb-sections { padding-top: 12px; margin-bottom: 12px; }
+.sb-expanded .sb-label { font-size: 16px; margin-bottom: 6px; }
+.sb-expanded .sb-value { font-size: 24px; }
+.sb-expanded .sb-sub { font-size: 24px; margin-top: 4px; }
+.sb-expanded .sb-sub2 { font-size: 14px; margin-top: 2px; }
+.sb-expanded .sb-progress { height: 6px; margin-top: 6px; }
+.sb-expanded .sb-bowel { padding-top: 10px; }
+.sb-expanded .sb-bowel-half { gap: 16px; }
+.sb-expanded .sb-bowel-col .sb-label { font-size: 16px; }
+.sb-expanded .sb-bowel-col .sb-value { font-size: 22px; }
+.sb-expanded .sb-bowel-col .sb-sub { font-size: 15px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header><h1>주요 이벤트 일지 - 기찬이</h1><button style="background:none;border:1px solid var(--border);color:var(--text-light);border-radius:8px;padding:6px 10px;font-size:14px;">☀️</button></header>
+  <div class="scoreboard" id="scoreboard" onclick="toggle()"></div>
+  <div class="tab-content">
+    <div class="card"><div class="card-title" style="color:var(--cat-feed)">수유</div><div class="card-split"><div class="card-split-half"><div class="card-row"><span class="label">최근 수유</span><span>23:10</span></div><div class="card-row"><span class="label">경과</span><span>0시간 32분 경과</span></div><div class="card-row"><span class="label">내용</span><span>산양분유 90ml, 분할 2회</span></div></div><div class="card-split-divider"></div><div class="card-split-half"><div class="card-row"><span class="label">오늘 누적</span><span>490ml / 5회</span></div><div class="card-row"><span class="label">평균 수유텀</span><span>3:35</span></div></div></div></div>
+    <div class="card"><div class="card-title" style="color:var(--cat-urine)">배변</div><div class="card-split"><div class="card-split-half"><div class="card-row"><span class="label" style="color:var(--cat-urine)">소변</span><span>22:48</span></div><div class="card-row"><span class="label">경과</span><span style="color:var(--cat-urine)">0시간 54분</span></div><div class="card-row"><span class="label">오늘</span><span>5회</span></div></div><div class="card-split-divider"></div><div class="card-split-half"><div class="card-row"><span class="label" style="color:var(--cat-stool)">대변</span><span>17:50</span></div><div class="card-row"><span class="label">경과</span><span style="color:var(--cat-stool)">5시간 52분</span></div><div class="card-row"><span class="label">오늘</span><span>1회</span></div></div></div></div>
+    <div class="card"><div class="card-title" style="color:var(--cat-hygiene)">위생 관리</div><div class="card-row"><span class="label">세안</span><span>04/16 22:50 <span style="color:var(--cat-hygiene)">0시간 52분 경과</span></span></div><div class="card-row"><span class="label">목욕</span><span>04/16 22:50 <span style="color:var(--cat-hygiene)">0시간 52분 경과</span></span></div><div class="card-row"><span class="label">손발톱</span><span>03/11 19:45 <span style="color:var(--cat-hygiene)">36일 3시간 경과</span></span></div></div>
+    <div class="card"><div class="card-title" style="color:var(--cat-body)">신체 측정</div><div class="card-split"><div class="card-split-half"><div class="card-row"><span class="label">키</span><span>04/10 60.5cm</span></div><div class="card-row"><span class="label">몸무게</span><span>04/10 5.12kg</span></div></div><div class="card-split-divider"></div><div class="card-split-half"><div class="card-row"><span class="label">머리둘레</span><span>04/10 38.0cm</span></div></div></div></div>
+    <div class="card"><div class="card-title" style="color:var(--cat-health)">건강 관리</div><div class="card-row"><span class="label">최근</span><span>04/15 예방접종 BCG</span></div></div>
+    <div class="card"><div class="card-title" style="color:var(--cat-etc)">기타</div><div class="card-row"><span class="label">최근</span><span>04/14 외출 소아과</span></div></div>
+  </div>
+  <nav>
+    <button class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>현황</button>
+    <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>기록</button>
+    <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>조회</button>
+    <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="6" width="4" height="15"/><rect x="17" y="3" width="4" height="18"/></svg>리포트</button>
+    <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>설정</button>
+  </nav>
+</div>
+<script>
+let expanded = false;
+function toggle() { expanded = !expanded; render(); }
+function render() {
+  const sb = document.getElementById('scoreboard');
+  sb.className = expanded ? 'scoreboard sb-expanded' : 'scoreboard';
+  const now = new Date();
+  const timeStr = now.toTimeString().slice(0,8).replace(/:/g,' : ');
+  const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+  const dayNames = ['일','월','화','수','목','금','토'];
+
+  // 확대 모드에서는 다음수유 남은시간을 2줄, 오늘수유 수유량도 2줄
+  const nextRemainHtml = expanded
+    ? `<div class="sb-sub sb-urgent">2시간 17분</div><div class="sb-sub2 sb-urgent">남음</div>`
+    : `<div class="sb-sub sb-urgent">2시간 17분 남음</div>`;
+
+  const todayFeedHtml = expanded
+    ? `<div class="sb-value cat-feed">490ml</div><div class="sb-sub cat-feed">/ 5회</div>`
+    : `<div class="sb-value cat-feed">490ml / 5회</div>`;
+
+  sb.innerHTML = `
+    <div class="sb-clock">
+      <div class="sb-time">${timeStr}</div>
+      <div class="sb-date">${dateStr} (${dayNames[now.getDay()]}) · 65일차 <span class="sb-sync-lamp online"></span><span class="sb-sync-status online">On-Line</span> <span class="sb-sync-time">23:42:05</span></div>
+    </div>
+    <div class="sb-sections">
+      <div class="sb-section">
+        <div class="sb-label">최근 수유</div>
+        <div class="sb-value cat-feed">23:10</div>
+        <div class="sb-sub" style="color:var(--cat-health)">0시간 32분</div>
+      </div>
+      <div class="sb-divider"></div>
+      <div class="sb-section">
+        <div class="sb-label">다음 수유</div>
+        <div class="sb-value cat-feed">02:00</div>
+        ${nextRemainHtml}
+        <div class="sb-progress"><div class="sb-progress-fill" style="width:35%"></div></div>
+      </div>
+      <div class="sb-divider"></div>
+      <div class="sb-section">
+        <div class="sb-label">오늘 수유</div>
+        ${todayFeedHtml}
+        <div class="sb-sub2 cat-feed">평균텀 3:35</div>
+      </div>
+    </div>
+    <div class="sb-bowel">
+      <div class="sb-bowel-half">
+        <div class="sb-bowel-col"><div class="sb-label" style="color:var(--cat-urine)">소변</div><div class="sb-value">22:48</div></div>
+        <div class="sb-bowel-col"><div class="sb-sub" style="color:var(--cat-urine)">0시간 54분</div><div class="sb-sub">오늘 5회</div></div>
+      </div>
+      <div class="sb-bowel-divider"></div>
+      <div class="sb-bowel-half">
+        <div class="sb-bowel-col"><div class="sb-label" style="color:var(--cat-stool)">대변</div><div class="sb-value">17:50</div></div>
+        <div class="sb-bowel-col"><div class="sb-sub" style="color:var(--cat-stool)">5시간 52분</div><div class="sb-sub">오늘 1회</div></div>
+      </div>
+    </div>`;
+}
+render(); setInterval(render, 1000);
+</script>
+</body>
+</html>

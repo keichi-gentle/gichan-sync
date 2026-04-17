@@ -199,10 +199,13 @@
                                     <DataTrigger Binding="{Binding IsNextFeedUrgent}" Value="True">
                                         <DataTrigger.EnterActions>
                                             <BeginStoryboard x:Name="BlinkStoryboard">
-                                                <Storyboard RepeatBehavior="Forever" AutoReverse="True">
-                                                    <DoubleAnimation
-                                                        Storyboard.TargetProperty="Opacity"
-                                                        From="1.0" To="0.5" Duration="0:0:1"/>
+                                                <Storyboard RepeatBehavior="Forever">
+                                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity">
+                                                        <LinearDoubleKeyFrame KeyTime="0:0:0" Value="1.0"/>
+                                                        <LinearDoubleKeyFrame KeyTime="0:0:2" Value="1.0"/>
+                                                        <LinearDoubleKeyFrame KeyTime="0:0:2.5" Value="0.4"/>
+                                                        <LinearDoubleKeyFrame KeyTime="0:0:3" Value="1.0"/>
+                                                    </DoubleAnimationUsingKeyFrames>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </DataTrigger.EnterActions>
