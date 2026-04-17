@@ -1,11 +1,10 @@
 import * as C from './calc.js';
-import { getSetting, setSetting } from './storage.js';
+import { getSetting } from './storage.js';
 
 let timerInterval = null;
 let cachedEvents = [];
 let syncOnline = false;
 let lastSyncTime = null;
-let expanded = false;
 
 export function setSyncStatus(online, time = null) {
   syncOnline = online;
@@ -14,17 +13,9 @@ export function setSyncStatus(online, time = null) {
 
 export function initScoreboard(events, container) {
   cachedEvents = events;
-  expanded = getSetting('scoreboardExpanded', false);
   if (timerInterval) clearInterval(timerInterval);
   render(container);
   timerInterval = setInterval(() => render(container), 1000);
-
-  // 전광판 터치 시 확대/축소 토글
-  container.addEventListener('click', () => {
-    expanded = !expanded;
-    setSetting('scoreboardExpanded', expanded);
-    render(container);
-  });
 }
 
 export function updateScoreboardEvents(events) {
@@ -110,7 +101,7 @@ function render(container) {
   const urgentClass = isUrgent ? ' sb-urgent' : '';
 
   container.innerHTML = `
-    <div class="scoreboard${expanded ? ' sb-expanded' : ''}"
+    <div class="scoreboard"
       <div class="sb-clock">
         <div class="sb-time">${timeStr}</div>
         <div class="sb-date">${dateStr} (${dayOfWeek})${dayNumberStr} <span class="sb-sync-lamp ${syncOnline ? 'online' : 'offline'}"></span><span class="sb-sync-status ${syncOnline ? 'online' : 'offline'}">${syncOnline ? 'On-Line' : 'Off-Line'}</span>${lastSyncTime ? ` <span class="sb-sync-time">${lastSyncTime}</span>` : ''}</div>
