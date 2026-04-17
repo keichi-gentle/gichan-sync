@@ -58,7 +58,8 @@ function buildHTML(container) {
         <div class="sb-section">
           <div class="sb-label">다음 수유</div>
           <div class="sb-value cat-feed" id="sb-next-time"></div>
-          <div id="sb-next-wrap"></div>
+          <div class="sb-sub" id="sb-next-remain"></div>
+          <div class="sb-sub2" id="sb-next-remain2" style="display:none"></div>
           <div class="sb-progress"><div class="sb-progress-fill" id="sb-progress"></div></div>
         </div>
 
@@ -66,7 +67,8 @@ function buildHTML(container) {
 
         <div class="sb-section">
           <div class="sb-label">오늘 수유</div>
-          <div id="sb-today-wrap"></div>
+          <div class="sb-value cat-feed" id="sb-today-feed"></div>
+          <div class="sb-sub cat-feed" id="sb-today-count" style="display:none"></div>
           <div class="sb-sub2 cat-feed" id="sb-avg-interval"></div>
         </div>
       </div>
@@ -173,24 +175,34 @@ function render(container) {
 
   document.getElementById('sb-next-time').textContent = nextFeedStr;
 
-  // 다음 수유: 확대 시 "남음"을 아래줄로 분리
-  const nextWrap = document.getElementById('sb-next-wrap');
+  // 다음 수유: DOM 유지하며 텍스트만 갱신 (blink 애니메이션 보존)
+  const nextRemainEl = document.getElementById('sb-next-remain');
+  const nextRemain2El = document.getElementById('sb-next-remain2');
   if (expanded) {
     const remainTime = nextRemain.replace(' 남음', '').replace('남음', '');
     const isRemain = nextRemain.includes('남음');
-    nextWrap.innerHTML = `<div class="sb-sub${isUrgent ? ' sb-urgent' : ''}">${remainTime}</div>${isRemain ? `<div class="sb-sub2${isUrgent ? ' sb-urgent' : ''}">남음</div>` : ''}`;
+    nextRemainEl.textContent = remainTime;
+    nextRemain2El.textContent = isRemain ? '남음' : '';
+    nextRemain2El.style.display = isRemain ? '' : 'none';
   } else {
-    nextWrap.innerHTML = `<div class="sb-sub${isUrgent ? ' sb-urgent' : ''}">${nextRemain}</div>`;
+    nextRemainEl.textContent = nextRemain;
+    nextRemain2El.style.display = 'none';
   }
+  nextRemainEl.className = isUrgent ? 'sb-sub sb-urgent' : 'sb-sub';
+  nextRemain2El.className = isUrgent ? 'sb-sub2 sb-urgent' : 'sb-sub2';
 
   document.getElementById('sb-progress').style.width = progressPct + '%';
 
-  // 오늘 수유: 확대 시 "490ml" + "/5회" 2줄
-  const todayWrap = document.getElementById('sb-today-wrap');
+  // 오늘 수유: DOM 유지
+  const todayFeedEl = document.getElementById('sb-today-feed');
+  const todayCountEl = document.getElementById('sb-today-count');
   if (expanded) {
-    todayWrap.innerHTML = `<div class="sb-value cat-feed">${todayTotal}ml</div><div class="sb-sub cat-feed">/ ${todayCount}회</div>`;
+    todayFeedEl.textContent = `${todayTotal}ml`;
+    todayCountEl.textContent = `/ ${todayCount}회`;
+    todayCountEl.style.display = '';
   } else {
-    todayWrap.innerHTML = `<div class="sb-value cat-feed">${todayTotal}ml / ${todayCount}회</div>`;
+    todayFeedEl.textContent = `${todayTotal}ml / ${todayCount}회`;
+    todayCountEl.style.display = 'none';
   }
 
   document.getElementById('sb-avg-interval').textContent = `평균텀 ${avgInterval}`;

@@ -47,7 +47,7 @@ function buildFeedCard(events, now) {
         ${row('평균 수유텀', avgInterval)}
       </div>
     </div>
-    ${row('내용', detail)}
+    <div style="padding:0 8px">${row('내용', detail)}</div>
   </div>`;
 }
 
