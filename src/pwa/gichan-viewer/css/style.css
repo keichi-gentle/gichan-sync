@@ -17,6 +17,7 @@
   --cat-system: #A09070;
   --cat-urine: #D4B840;
   --cat-stool: #8B4513;
+  --cat-feed-urgent: #E05555;
   --cat-feed-tint: #1A2E30;
   --cat-bowel-tint: #2E2A1A;
   --cat-hygiene-tint: #1A2240;
@@ -41,6 +42,7 @@
   --cat-system: #807060;
   --cat-urine: #B8A030;
   --cat-stool: #783C10;
+  --cat-feed-urgent: #D04040;
   --cat-feed-tint: #A8D0C8;
   --cat-bowel-tint: #D0C8A0;
   --cat-hygiene-tint: #A8B8D4;
@@ -494,3 +496,22 @@ select, input[type="text"] {
 .sb-bowel-half { flex: 1; display: flex; justify-content: center; align-items: center; gap: 12px; }
 .sb-bowel-divider { width: 1px; background: var(--border); margin: 0 4px; }
 .sb-bowel-col { text-align: center; }
+
+/* ═══ Scoreboard Expanded Mode ═══ */
+.sb-expanded { padding: 16px 16px 14px; }
+.sb-expanded .sb-clock { margin-bottom: 12px; }
+.sb-expanded .sb-time { font-size: 42px; letter-spacing: 4px; }
+.sb-expanded .sb-date { font-size: 18px; margin-top: 4px; }
+.sb-expanded .sb-sync-time { font-size: 14px; }
+.sb-expanded .sb-sections { padding-top: 12px; margin-bottom: 12px; }
+.sb-expanded .sb-label { font-size: 16px; margin-bottom: 6px; }
+.sb-expanded .sb-value { font-size: 24px; }
+.sb-expanded .sb-sub { font-size: 16px; margin-top: 4px; }
+.sb-expanded .sb-progress { height: 6px; margin-top: 6px; }
+.sb-expanded .sb-sync-status { font-size: 16px; }
+.sb-expanded .sb-sync-lamp { width: 10px; height: 10px; }
+.sb-expanded .sb-bowel { padding-top: 10px; }
+.sb-expanded .sb-bowel-half { gap: 16px; }
+.sb-expanded .sb-bowel-col .sb-label { font-size: 16px; }
+.sb-expanded .sb-bowel-col .sb-value { font-size: 22px; }
+.sb-expanded .sb-bowel-col .sb-sub { font-size: 15px; }
