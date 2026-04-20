@@ -121,6 +121,7 @@ function renderCharts(events) {
 
   el.innerHTML = chartCard('1회 수유량 변화 추이', 'chart1')
     + chartCard('일별 수유량 추이', 'chart2')
+    + chartCard('최근 수유텀 추이', 'chart-interval-trend')
     + chartCard('수유텀 분포', 'chart3')
     + chartCard('키 변화량', 'chart-height')
     + chartCard('몸무게 변화량', 'chart-weight')
@@ -128,15 +129,32 @@ function renderCharts(events) {
     + chartCard('카테고리별 이벤트 비율', 'chart5')
     + chartCard('일별 이벤트 현황', 'chart6');
 
-  // Chart 1
+  // Chart 1: 1회 수유량 추이 (Line, 직선, Y축 유동)
   if (feedings.length > 0) {
+    const vals = feedings.map(e => C.getTotalFeedAmount(e));
     charts.push(new Chart(el.querySelector('#chart1'), {
       type: 'line',
       data: {
         labels: feedings.map(e => fmtShort(C.getFullDateTime(e))),
-        datasets: [{ label: '수유량(ml)', data: feedings.map(e => C.getTotalFeedAmount(e)), borderColor: feedColor, backgroundColor: feedColor + '33', tension: 0.3, fill: true, pointRadius: 2 }],
+        datasets: [{ label: '수유량(ml)', data: vals, borderColor: feedColor, backgroundColor: feedColor + '33', tension: 0, fill: true, pointRadius: 2 }],
       },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: defaultScales },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: autoScales(vals) },
+    }));
+  }
+
+  // Chart: 최근 수유텀 추이 (Line, 직선, Y축 유동) — _feedingIntervalMs 활용
+  const intervalPoints = feedings
+    .filter(e => e._feedingIntervalMs != null && e._feedingIntervalMs > 0)
+    .map(e => ({ date: C.getFullDateTime(e), hours: e._feedingIntervalMs / 3600000 }));
+  if (intervalPoints.length > 0) {
+    const vals = intervalPoints.map(x => x.hours);
+    charts.push(new Chart(el.querySelector('#chart-interval-trend'), {
+      type: 'line',
+      data: {
+        labels: intervalPoints.map(x => fmtShort(x.date)),
+        datasets: [{ label: '수유텀(시간)', data: vals, borderColor: feedColor, backgroundColor: feedColor + '33', tension: 0, fill: false, pointRadius: 3 }],
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: autoScales(vals) },
     }));
   }
 
