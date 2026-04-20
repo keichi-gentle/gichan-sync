@@ -8,11 +8,9 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance vm:ReportViewModel, IsDesignTimeCreatable=False}">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
-        <StackPanel Margin="16,12">
-
-            <!-- ═══ Period Filter Bar ═══ -->
-            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,12">
+    <DockPanel>
+        <!-- ═══ Period Filter Bar (sticky at top) ═══ -->
+        <Border DockPanel.Dock="Top" Style="{DynamicResource CardBorder}" Margin="16,12,16,0">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatSystemBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
@@ -107,7 +105,11 @@
                         </Button>
                     </StackPanel>
                 </StackPanel>
-            </Border>
+        </Border>
+
+        <!-- ═══ Scrollable charts area ═══ -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+            <StackPanel Margin="16,0,16,12">
 
             <!-- ═══ Today Summary (6카드 1행, 제목:컨텐츠 = 1:2 비율) ═══ -->
             <UniformGrid Columns="6" Margin="0,0,0,12">
@@ -266,6 +268,24 @@
                 </StackPanel>
             </Border>
 
+            <!-- ═══ 최근 수유텀 추이 (신규) ═══ -->
+            <Border Style="{DynamicResource CardBorder}" Margin="0,0,0,12">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatFeedBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
+                        <TextBlock Text="최근 수유텀 추이" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatFeedBrush}"/>
+                    </StackPanel>
+                    <lvc:CartesianChart Series="{Binding FeedIntervalTrendSeries}"
+                                         XAxes="{Binding FeedIntervalTrendXAxes}"
+                                         YAxes="{Binding FeedIntervalTrendYAxes}"
+                                         Height="250"
+                                         Background="Transparent"
+                                         TooltipBackgroundPaint="{Binding TooltipBgPaint}"
+                                         TooltipTextPaint="{Binding TooltipTextPaint}"
+                                         TooltipPosition="Top"/>
+                </StackPanel>
+            </Border>
+
             <!-- ═══ 수유텀 분포 + 일별 배변 횟수 (나란히) ═══ -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
@@ -399,6 +419,7 @@
                 </Border>
             </Grid>
 
-        </StackPanel>
-    </ScrollViewer>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>

@@ -49,6 +49,11 @@ public partial class ReportViewModel : ObservableObject
     [ObservableProperty] private Axis[] _feedAmountXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _feedAmountYAxes = Array.Empty<Axis>();
 
+    // ── Chart: 최근 수유텀 추이 (Line, 직선) ────────────────
+    [ObservableProperty] private ISeries[] _feedIntervalTrendSeries = Array.Empty<ISeries>();
+    [ObservableProperty] private Axis[] _feedIntervalTrendXAxes = Array.Empty<Axis>();
+    [ObservableProperty] private Axis[] _feedIntervalTrendYAxes = Array.Empty<Axis>();
+
     // ── Chart 5: 카테고리별 이벤트 비율 (Pie) ──────────────
     [ObservableProperty] private ISeries[] _categoryPieSeries = Array.Empty<ISeries>();
     [ObservableProperty] private string _categoryPieTitle = "카테고리별 이벤트 비율";
@@ -149,6 +154,7 @@ public partial class ReportViewModel : ObservableObject
             ? $"{dailyTotals.Average():0}ml"
             : "-";
         BuildDailyFeedChart(filtered);
+        BuildFeedIntervalTrendChart(filtered);
         BuildFeedIntervalChart(filtered);
         BuildDailyBowelChart(filtered);
         BuildFeedAmountChart(filtered);
@@ -416,6 +422,67 @@ public partial class ReportViewModel : ObservableObject
             }
         };
         FeedAmountYAxes = MakeYAxes("ml");
+    }
+
+    // ── Chart: 최근 수유텀 추이 (Line, 직선) ────────────────
+    private void BuildFeedIntervalTrendChart(List<BabyEvent> events)
+    {
+        var feedEvents = events
+            .Where(e => e.IsFeeding && e.FullDateTime.HasValue)
+            .OrderBy(e => e.FullDateTime)
+            .ToList();
+
+        var points = new List<(DateTime Date, double Hours)>();
+        for (int i = 1; i < feedEvents.Count; i++)
+        {
+            var diff = feedEvents[i].FullDateTime!.Value - feedEvents[i - 1].FullDateTime!.Value;
+            var hours = diff.TotalHours;
+            if (hours > 0 && hours <= 24)
+                points.Add((feedEvents[i].FullDateTime!.Value, hours));
+        }
+
+        var values = points.Select(p => p.Hours).ToArray();
+        var fullLabels = points.Select(p => p.Date.ToString("M/d H:mm")).ToArray();
+
+        FeedIntervalTrendSeries = new ISeries[]
+        {
+            new LineSeries<double>
+            {
+                Values = values,
+                Stroke = new SolidColorPaint(FeedColor, 2),
+                Fill = null,
+                GeometrySize = 6,
+                GeometryStroke = new SolidColorPaint(FeedColor, 2),
+                GeometryFill = new SolidColorPaint(FeedColor),
+                LineSmoothness = 0, // 직선
+                Name = "수유텀",
+                YToolTipLabelFormatter = point =>
+                {
+                    var idx = (int)point.Index;
+                    var timeLabel = idx >= 0 && idx < fullLabels.Length ? fullLabels[idx] : "";
+                    var h = (int)point.Coordinate.PrimaryValue;
+                    var m = (int)((point.Coordinate.PrimaryValue - h) * 60);
+                    return $"{timeLabel}  {h}시간 {m}분";
+                }
+            }
+        };
+
+        var maxLabels = 20;
+        var step = Math.Max(1, fullLabels.Length / maxLabels);
+        var axisLabels = fullLabels.Select((l, i) => i % step == 0 ? l : "").ToArray();
+
+        FeedIntervalTrendXAxes = new Axis[]
+        {
+            new Axis
+            {
+                Labels = axisLabels.Length > 0 ? axisLabels : new[] { "" },
+                LabelsPaint = new SolidColorPaint(LabelColor),
+                SeparatorsPaint = new SolidColorPaint(GridColor),
+                TextSize = 11,
+                LabelsRotation = 45
+            }
+        };
+        FeedIntervalTrendYAxes = MakeYAxes("h");
     }
 
     // ── Chart 5: 카테고리별 이벤트 비율 ────────────────────

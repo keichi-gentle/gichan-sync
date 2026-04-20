@@ -290,7 +290,11 @@ nav button svg { width: 22px; height: 22px; }
 
 /* ═══ Report Tab ═══ */
 .period-buttons {
-  display: flex; gap: 8px; margin-bottom: 12px;
+  display: flex; gap: 8px;
+  position: sticky; top: -12px; z-index: 10;
+  background: var(--bg-dark);
+  padding: 12px 0;
+  margin: -12px 0 0 0;
 }
 
 .period-btn {
