@@ -33,26 +33,31 @@ public partial class ReportViewModel : ObservableObject
     [ObservableProperty] private ISeries[] _dailyFeedSeries = Array.Empty<ISeries>();
     [ObservableProperty] private Axis[] _dailyFeedXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _dailyFeedYAxes = Array.Empty<Axis>();
+    [ObservableProperty] private string _dailyFeedTitle = "일별 수유량 추이";
 
     // ── Chart 2: 수유텀 분포 (Bar) ─────────────────────────
     [ObservableProperty] private ISeries[] _feedIntervalSeries = Array.Empty<ISeries>();
     [ObservableProperty] private Axis[] _feedIntervalXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _feedIntervalYAxes = Array.Empty<Axis>();
+    [ObservableProperty] private string _feedIntervalTitle = "수유텀 분포";
 
     // ── Chart 3: 일별 배변 횟수 (Stacked bar) ──────────────
     [ObservableProperty] private ISeries[] _dailyBowelSeries = Array.Empty<ISeries>();
     [ObservableProperty] private Axis[] _dailyBowelXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _dailyBowelYAxes = Array.Empty<Axis>();
+    [ObservableProperty] private string _dailyBowelTitle = "일별 배변 횟수";
 
     // ── Chart 4: 1회 수유량 변화 (Line) ────────────────────
     [ObservableProperty] private ISeries[] _feedAmountSeries = Array.Empty<ISeries>();
     [ObservableProperty] private Axis[] _feedAmountXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _feedAmountYAxes = Array.Empty<Axis>();
+    [ObservableProperty] private string _feedAmountTitle = "1회 수유량 변화 추이";
 
     // ── Chart: 최근 수유텀 추이 (Line, 직선) ────────────────
     [ObservableProperty] private ISeries[] _feedIntervalTrendSeries = Array.Empty<ISeries>();
     [ObservableProperty] private Axis[] _feedIntervalTrendXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _feedIntervalTrendYAxes = Array.Empty<Axis>();
+    [ObservableProperty] private string _feedIntervalTrendTitle = "최근 수유텀 추이";
 
     // ── Chart 5: 카테고리별 이벤트 비율 (Pie) ──────────────
     [ObservableProperty] private ISeries[] _categoryPieSeries = Array.Empty<ISeries>();
@@ -62,16 +67,19 @@ public partial class ReportViewModel : ObservableObject
     [ObservableProperty] private ISeries[] _dailyCategorySeries = Array.Empty<ISeries>();
     [ObservableProperty] private Axis[] _dailyCategoryXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _dailyCategoryYAxes = Array.Empty<Axis>();
+    [ObservableProperty] private string _dailyCategoryTitle = "일별 이벤트 현황";
 
     // ── Chart 7: 키 변화량 (Line) ────────────────────────
     [ObservableProperty] private ISeries[] _heightSeries = Array.Empty<ISeries>();
     [ObservableProperty] private Axis[] _heightXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _heightYAxes = Array.Empty<Axis>();
+    [ObservableProperty] private string _heightTitle = "키 변화량";
 
     // ── Chart 8: 몸무게 변화량 (Line) ─────────────────────
     [ObservableProperty] private ISeries[] _weightSeries = Array.Empty<ISeries>();
     [ObservableProperty] private Axis[] _weightXAxes = Array.Empty<Axis>();
     [ObservableProperty] private Axis[] _weightYAxes = Array.Empty<Axis>();
+    [ObservableProperty] private string _weightTitle = "몸무게 변화량";
 
     // ── Shared chart colors (테마별 — 생성 시 결정) ─────────
     private static readonly SKTypeface KoreanTypeface = SKTypeface.FromFamilyName("Malgun Gothic");
@@ -231,6 +239,7 @@ public partial class ReportViewModel : ObservableObject
         var values = grouped.Select(g => (double)g.Sum(e => e.TotalFeedAmount)).ToArray();
 
         var dailyLabels = dates.Select(d => d.ToString("M/d")).ToArray();
+        DailyFeedTitle = "일별 수유량 추이" + (values.Length == 0 ? " 데이터 없음" : "");
         DailyFeedSeries = new ISeries[]
         {
             new LineSeries<double>
@@ -298,6 +307,7 @@ public partial class ReportViewModel : ObservableObject
             bucketCounts[idx]++;
         }
 
+        FeedIntervalTitle = "수유텀 분포" + (intervals.Count == 0 ? " 데이터 없음" : "");
         FeedIntervalSeries = new ISeries[]
         {
             new ColumnSeries<double>
@@ -336,6 +346,8 @@ public partial class ReportViewModel : ObservableObject
         var dates = grouped.Select(g => g.Key).ToArray();
         var urineValues = grouped.Select(g => (double)g.Count(e => e.HasUrine == true)).ToArray();
         var stoolValues = grouped.Select(g => (double)g.Count(e => e.HasStool == true)).ToArray();
+
+        DailyBowelTitle = "일별 배변 횟수" + (grouped.Count == 0 ? " 데이터 없음" : "");
 
         // Grouped bar (나란히) — 소변+대변 동시 기록 가능하므로 Stacked보다 정확
         DailyBowelSeries = new ISeries[]
@@ -385,6 +397,7 @@ public partial class ReportViewModel : ObservableObject
         var values = feedEvents.Select(e => (double)e.TotalFeedAmount).ToArray();
         var fullLabels = feedEvents.Select(e => e.FullDateTime!.Value.ToString("M/d H:mm")).ToArray();
 
+        FeedAmountTitle = "1회 수유량 변화 추이" + (values.Length == 0 ? " 데이터 없음" : "");
         FeedAmountSeries = new ISeries[]
         {
             new LineSeries<double>
@@ -444,6 +457,7 @@ public partial class ReportViewModel : ObservableObject
         var values = points.Select(p => p.Hours).ToArray();
         var fullLabels = points.Select(p => p.Date.ToString("M/d H:mm")).ToArray();
 
+        FeedIntervalTrendTitle = "최근 수유텀 추이" + (values.Length == 0 ? " 데이터 없음" : "");
         FeedIntervalTrendSeries = new ISeries[]
         {
             new LineSeries<double>
@@ -533,6 +547,7 @@ public partial class ReportViewModel : ObservableObject
         }
 
         CategoryPieSeries = series.ToArray();
+        CategoryPieTitle = "카테고리별 이벤트 비율" + (series.Count == 0 ? " 데이터 없음" : "");
     }
 
     // ── Chart 6: 일별 카테고리별 이벤트 비율 ─────────────────
@@ -564,11 +579,14 @@ public partial class ReportViewModel : ObservableObject
 
         if (grouped.Count == 0)
         {
+            DailyCategoryTitle = "일별 이벤트 현황 데이터 없음";
             DailyCategorySeries = Array.Empty<ISeries>();
             DailyCategoryXAxes = Array.Empty<Axis>();
             DailyCategoryYAxes = Array.Empty<Axis>();
             return;
         }
+
+        DailyCategoryTitle = "일별 이벤트 현황";
 
         var dates = grouped.Select(g => g.Key).ToArray();
         var seriesList = new List<ISeries>();
@@ -610,7 +628,10 @@ public partial class ReportViewModel : ObservableObject
 
     private void BuildHeightChart(List<BabyEvent> filtered)
     {
-        var data = filtered
+        // 14일 이하 기간은 전체에서 최근 10개 (측정 주기가 길어 짧은 기간엔 데이터 부족)
+        var shortPeriod = SelectedPeriod == "1일" || SelectedPeriod == "3일" || SelectedPeriod == "7일" || SelectedPeriod == "14일";
+        var source = shortPeriod ? _allEvents : filtered;
+        var data = source
             .Where(e => e.Category == EventCategory.신체측정 && e.Detail != null && e.Detail.Contains("키") && e.FullDateTime.HasValue)
             .OrderBy(e => e.FullDateTime)
             .Select(e => {
@@ -619,6 +640,11 @@ public partial class ReportViewModel : ObservableObject
             })
             .Where(x => x.Val > 0)
             .ToList();
+        if (shortPeriod && data.Count > 10) data = data.Skip(data.Count - 10).ToList();
+
+        var baseTitle = "키 변화량";
+        var suffix = shortPeriod ? " 최근 N개(10개) 고정" : "";
+        HeightTitle = baseTitle + suffix + (data.Count == 0 ? " 데이터 없음" : "");
 
         // 항상 Series 생성 (빈 values여도) — LiveCharts2가 이전 렌더링을 갱신하도록
         HeightSeries = new ISeries[]
@@ -656,7 +682,9 @@ public partial class ReportViewModel : ObservableObject
     // ── Chart 8: 몸무게 변화량 ────────────────────────────
     private void BuildWeightChart(List<BabyEvent> filtered)
     {
-        var data = filtered
+        var shortPeriod = SelectedPeriod == "1일" || SelectedPeriod == "3일" || SelectedPeriod == "7일" || SelectedPeriod == "14일";
+        var source = shortPeriod ? _allEvents : filtered;
+        var data = source
             .Where(e => e.Category == EventCategory.신체측정 && e.Detail != null && e.Detail.Contains("몸무게") && e.FullDateTime.HasValue)
             .OrderBy(e => e.FullDateTime)
             .Select(e => {
@@ -665,6 +693,11 @@ public partial class ReportViewModel : ObservableObject
             })
             .Where(x => x.Val > 0)
             .ToList();
+        if (shortPeriod && data.Count > 10) data = data.Skip(data.Count - 10).ToList();
+
+        var baseTitle = "몸무게 변화량";
+        var suffix = shortPeriod ? " 최근 N개(10개) 고정" : "";
+        WeightTitle = baseTitle + suffix + (data.Count == 0 ? " 데이터 없음" : "");
 
         // 항상 Series 생성 (빈 values여도) — LiveCharts2가 이전 렌더링을 갱신하도록
         WeightSeries = new ISeries[]

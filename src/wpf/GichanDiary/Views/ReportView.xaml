@@ -237,7 +237,7 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                         <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatFeedBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
-                        <TextBlock Text="1회 수유량 변화 추이" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatFeedBrush}"/>
+                        <TextBlock Text="{Binding FeedAmountTitle}" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatFeedBrush}"/>
                     </StackPanel>
                     <lvc:CartesianChart Series="{Binding FeedAmountSeries}"
                                          XAxes="{Binding FeedAmountXAxes}"
@@ -255,7 +255,7 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                         <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatFeedBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
-                        <TextBlock Text="일별 수유량 추이" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatFeedBrush}"/>
+                        <TextBlock Text="{Binding DailyFeedTitle}" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatFeedBrush}"/>
                     </StackPanel>
                     <lvc:CartesianChart Series="{Binding DailyFeedSeries}"
                                          XAxes="{Binding DailyFeedXAxes}"
@@ -273,7 +273,7 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                         <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatFeedBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
-                        <TextBlock Text="최근 수유텀 추이" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatFeedBrush}"/>
+                        <TextBlock Text="{Binding FeedIntervalTrendTitle}" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatFeedBrush}"/>
                     </StackPanel>
                     <lvc:CartesianChart Series="{Binding FeedIntervalTrendSeries}"
                                          XAxes="{Binding FeedIntervalTrendXAxes}"
@@ -298,7 +298,7 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                             <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatSystemBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
-                            <TextBlock Text="수유텀 분포" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
+                            <TextBlock Text="{Binding FeedIntervalTitle}" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
                         </StackPanel>
                         <lvc:CartesianChart Series="{Binding FeedIntervalSeries}"
                                              XAxes="{Binding FeedIntervalXAxes}"
@@ -315,7 +315,7 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                             <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatBowelBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
-                            <TextBlock Text="일별 배변 횟수" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatBowelBrush}"/>
+                            <TextBlock Text="{Binding DailyBowelTitle}" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatBowelBrush}"/>
                         </StackPanel>
                         <lvc:CartesianChart Series="{Binding DailyBowelSeries}"
                                              XAxes="{Binding DailyBowelXAxes}"
@@ -343,7 +343,7 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                             <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatBodyBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
-                            <TextBlock Text="키 변화량" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatBodyBrush}"/>
+                            <TextBlock Text="{Binding HeightTitle}" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatBodyBrush}"/>
                         </StackPanel>
                         <lvc:CartesianChart Series="{Binding HeightSeries}"
                                              XAxes="{Binding HeightXAxes}"
@@ -360,7 +360,7 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                             <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatBodyBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
-                            <TextBlock Text="몸무게 변화량" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatBodyBrush}"/>
+                            <TextBlock Text="{Binding WeightTitle}" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatBodyBrush}"/>
                         </StackPanel>
                         <lvc:CartesianChart Series="{Binding WeightSeries}"
                                              XAxes="{Binding WeightXAxes}"
@@ -403,7 +403,7 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                             <Path Data="{DynamicResource IconReport}" Stroke="{DynamicResource CatSystemBrush}" StrokeThickness="1.5" Width="20" Height="20" Stretch="Uniform" Margin="0,0,8,0"/>
-                            <TextBlock Text="일별 이벤트 현황" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
+                            <TextBlock Text="{Binding DailyCategoryTitle}" FontSize="21" FontWeight="Bold" Foreground="{DynamicResource CatSystemBrush}"/>
                         </StackPanel>
                         <lvc:CartesianChart Series="{Binding DailyCategorySeries}"
                                              XAxes="{Binding DailyCategoryXAxes}"

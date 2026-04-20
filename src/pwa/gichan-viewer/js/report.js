@@ -39,7 +39,7 @@ function refreshReport(period) {
   destroyCharts();
   const filtered = filterByPeriod(allEvents, period);
   renderSummary(filtered, period);
-  renderCharts(filtered);
+  renderCharts(filtered, period);
 }
 
 function filterByPeriod(events, period) {
@@ -88,8 +88,9 @@ function renderSummary(events, period) {
     </div>`;
 }
 
-function renderCharts(events) {
+function renderCharts(events, period) {
   const el = document.getElementById('rpt-charts');
+  const shortPeriod = ['1일','3일','7일','14일'].includes(period);
   const s = getComputedStyle(document.documentElement);
   const feedColor = s.getPropertyValue('--cat-feed').trim();
   const bowelColor = s.getPropertyValue('--cat-bowel').trim();
@@ -119,12 +120,13 @@ function renderCharts(events) {
   // Chart 1: Feed amount per feeding (Line)
   const bodyColor = s.getPropertyValue('--cat-body').trim() || '#704890';
 
+  const bodySuffix = shortPeriod ? ' 최근 N개(10개) 고정' : '';
   el.innerHTML = chartCard('1회 수유량 변화 추이', 'chart1')
     + chartCard('일별 수유량 추이', 'chart2')
     + chartCard('최근 수유텀 추이', 'chart-interval-trend')
     + chartCard('수유텀 분포', 'chart3')
-    + chartCard('키 변화량', 'chart-height')
-    + chartCard('몸무게 변화량', 'chart-weight')
+    + chartCard('키 변화량' + bodySuffix, 'chart-height')
+    + chartCard('몸무게 변화량' + bodySuffix, 'chart-weight')
     + chartCard('일별 배변 횟수', 'chart4')
     + chartCard('카테고리별 이벤트 비율', 'chart5')
     + chartCard('일별 이벤트 현황', 'chart6');
@@ -140,7 +142,7 @@ function renderCharts(events) {
       },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: autoScales(vals) },
     }));
-  }
+  } else { markEmpty('chart1'); }
 
   // Chart: 최근 수유텀 추이 (Line, 직선, Y축 유동) — _feedingIntervalMs 활용
   const intervalPoints = feedings
@@ -156,7 +158,7 @@ function renderCharts(events) {
       },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: autoScales(vals) },
     }));
-  }
+  } else { markEmpty('chart-interval-trend'); }
 
   // Chart 2: Daily total (Line)
   const dailyGroups = groupByDate(events.filter(e => C.isFeeding(e)));
@@ -169,7 +171,7 @@ function renderCharts(events) {
       },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: defaultScales },
     }));
-  }
+  } else { markEmpty('chart2'); }
 
   // Chart 3: Feeding interval distribution (Bar)
   const intervals = [];
@@ -192,13 +194,15 @@ function renderCharts(events) {
       },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: defaultScales },
     }));
-  }
+  } else { markEmpty('chart3'); }
 
-  // Chart 7: 키 변화량 (Line)
-  const heightData = events.filter(e => e.category === '신체측정' && e.detail && e.detail.includes('키') && C.getFullDateTime(e))
+  // Chart 7: 키 변화량 (Line) — 14일 이하 기간은 allEvents에서 최근 10개
+  const heightSrc = shortPeriod ? allEvents : events;
+  let heightData = heightSrc.filter(e => e.category === '신체측정' && e.detail && e.detail.includes('키') && C.getFullDateTime(e))
     .sort((a,b) => C.getFullDateTime(a) - C.getFullDateTime(b))
     .map(e => { const m = e.detail.match(/키\s*([\d.]+)/); return m ? { date: C.getFullDateTime(e), val: parseFloat(m[1]) } : null; })
     .filter(x => x && x.val > 0);
+  if (shortPeriod) heightData = heightData.slice(-10);
   if (heightData.length > 0) {
     charts.push(new Chart(el.querySelector('#chart-height'), {
       type: 'line',
@@ -208,13 +212,15 @@ function renderCharts(events) {
       },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: autoScales(heightData.map(x => x.val)) },
     }));
-  }
+  } else { markEmpty('chart-height'); }
 
-  // Chart 8: 몸무게 변화량 (Line)
-  const weightData = events.filter(e => e.category === '신체측정' && e.detail && e.detail.includes('몸무게') && C.getFullDateTime(e))
+  // Chart 8: 몸무게 변화량 (Line) — 14일 이하 기간은 allEvents에서 최근 10개
+  const weightSrc = shortPeriod ? allEvents : events;
+  let weightData = weightSrc.filter(e => e.category === '신체측정' && e.detail && e.detail.includes('몸무게') && C.getFullDateTime(e))
     .sort((a,b) => C.getFullDateTime(a) - C.getFullDateTime(b))
     .map(e => { const m = e.detail.match(/몸무게\s*([\d.]+)/); return m ? { date: C.getFullDateTime(e), val: parseFloat(m[1]) } : null; })
     .filter(x => x && x.val > 0);
+  if (shortPeriod) weightData = weightData.slice(-10);
   if (weightData.length > 0) {
     charts.push(new Chart(el.querySelector('#chart-weight'), {
       type: 'line',
@@ -224,7 +230,7 @@ function renderCharts(events) {
       },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: autoScales(weightData.map(x => x.val)) },
     }));
-  }
+  } else { markEmpty('chart-weight'); }
 
   // Chart 4: Daily bowel count (Grouped Bar)
   const bowelGroups = groupByDate(events.filter(e => e.category === '배변'));
@@ -240,42 +246,52 @@ function renderCharts(events) {
       },
       options: { responsive: true, plugins: { legend: { labels: { color: textColor } } }, scales: defaultScales },
     }));
-  }
+  } else { markEmpty('chart4'); }
 
   // Chart 5: Category pie
   const catCounts = {};
   events.forEach(e => { catCounts[e.category] = (catCounts[e.category] || 0) + 1; });
   const catLabels = Object.keys(catCounts);
-  const catColors = catLabels.map(c => C.getCategoryColor(c));
-  charts.push(new Chart(el.querySelector('#chart5'), {
-    type: 'doughnut',
-    data: {
-      labels: catLabels,
-      datasets: [{ data: catLabels.map(c => catCounts[c]), backgroundColor: catColors }],
-    },
-    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: textColor } } } },
-  }));
+  if (catLabels.length > 0) {
+    const catColors = catLabels.map(c => C.getCategoryColor(c));
+    charts.push(new Chart(el.querySelector('#chart5'), {
+      type: 'doughnut',
+      data: {
+        labels: catLabels,
+        datasets: [{ data: catLabels.map(c => catCounts[c]), backgroundColor: catColors }],
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: textColor } } } },
+    }));
+  } else { markEmpty('chart5'); }
 
   // Chart 6: Daily event status (Grouped Bar)
   const allDays = groupByDate(events);
-  const cats = ['수유','배변','위생관리','신체측정','건강관리','기타'];
-  const catColorMap = cats.map(c => C.getCategoryColor(c));
-  charts.push(new Chart(el.querySelector('#chart6'), {
-    type: 'bar',
-    data: {
-      labels: allDays.map(g => g.label),
-      datasets: cats.map((c, i) => ({
-        label: c,
-        data: allDays.map(g => g.events.filter(e => e.category === c).length),
-        backgroundColor: catColorMap[i] + 'AA',
-      })),
-    },
-    options: { responsive: true, plugins: { legend: { labels: { color: textColor, font: { size: 11 } } } }, scales: defaultScales },
-  }));
+  if (allDays.length > 0) {
+    const cats = ['수유','배변','위생관리','신체측정','건강관리','기타'];
+    const catColorMap = cats.map(c => C.getCategoryColor(c));
+    charts.push(new Chart(el.querySelector('#chart6'), {
+      type: 'bar',
+      data: {
+        labels: allDays.map(g => g.label),
+        datasets: cats.map((c, i) => ({
+          label: c,
+          data: allDays.map(g => g.events.filter(e => e.category === c).length),
+          backgroundColor: catColorMap[i] + 'AA',
+        })),
+      },
+      options: { responsive: true, plugins: { legend: { labels: { color: textColor, font: { size: 11 } } } }, scales: defaultScales },
+    }));
+  } else { markEmpty('chart6'); }
 }
 
 function chartCard(title, canvasId) {
-  return `<div class="chart-card"><h3>${title}</h3><canvas id="${canvasId}"></canvas></div>`;
+  return `<div class="chart-card"><h3 id="${canvasId}-title">${title}</h3><canvas id="${canvasId}"></canvas></div>`;
+}
+
+// 렌더 후 데이터가 없는 차트 제목에 ' 데이터 없음' 접미사
+function markEmpty(canvasId) {
+  const h = document.getElementById(canvasId + '-title');
+  if (h && !h.textContent.includes('데이터 없음')) h.textContent += ' 데이터 없음';
 }
 
 function groupByDate(events) {
