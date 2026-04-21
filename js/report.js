@@ -154,9 +154,20 @@ function renderCharts(events, period) {
       type: 'line',
       data: {
         labels: intervalPoints.map(x => fmtShort(x.date)),
-        datasets: [{ label: '수유텀(시간)', data: vals, borderColor: feedColor, backgroundColor: feedColor + '33', tension: 0, fill: false, pointRadius: 3 }],
+        datasets: [{ label: '수유텀', data: vals, borderColor: feedColor, backgroundColor: feedColor + '33', tension: 0, fill: false, pointRadius: 3 }],
       },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: autoScales(vals) },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => {
+            const h = Math.floor(ctx.parsed.y);
+            const m = Math.round((ctx.parsed.y - h) * 60);
+            return `수유텀: ${h}시간 ${m}분`;
+          }}}
+        },
+        scales: autoScales(vals),
+      },
     }));
   } else { markEmpty('chart-interval-trend'); }
 
@@ -208,9 +219,16 @@ function renderCharts(events, period) {
       type: 'line',
       data: {
         labels: heightData.map(x => `${x.date.getMonth()+1}/${x.date.getDate()}`),
-        datasets: [{ label: '키(cm)', data: heightData.map(x => x.val), borderColor: bodyColor, backgroundColor: bodyColor + '33', tension: 0.3, fill: false, pointRadius: 5 }],
+        datasets: [{ label: '키', data: heightData.map(x => x.val), borderColor: bodyColor, backgroundColor: bodyColor + '33', tension: 0.3, fill: false, pointRadius: 5 }],
       },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: autoScales(heightData.map(x => x.val)) },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => `키: ${ctx.parsed.y.toFixed(1)} cm` } }
+        },
+        scales: autoScales(heightData.map(x => x.val)),
+      },
     }));
   } else { markEmpty('chart-height'); }
 
@@ -226,9 +244,16 @@ function renderCharts(events, period) {
       type: 'line',
       data: {
         labels: weightData.map(x => `${x.date.getMonth()+1}/${x.date.getDate()}`),
-        datasets: [{ label: '몸무게(kg)', data: weightData.map(x => x.val), borderColor: bodyColor, backgroundColor: bodyColor + '33', tension: 0.3, fill: false, pointRadius: 5 }],
+        datasets: [{ label: '몸무게', data: weightData.map(x => x.val), borderColor: bodyColor, backgroundColor: bodyColor + '33', tension: 0.3, fill: false, pointRadius: 5 }],
       },
-      options: { responsive: true, plugins: { legend: { display: false } }, scales: autoScales(weightData.map(x => x.val)) },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => `몸무게: ${ctx.parsed.y.toFixed(2)} kg` } }
+        },
+        scales: autoScales(weightData.map(x => x.val)),
+      },
     }));
   } else { markEmpty('chart-weight'); }
 
