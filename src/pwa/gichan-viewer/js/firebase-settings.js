@@ -17,12 +17,14 @@ export async function subscribeToSettings(db, userId, onSettingsChanged) {
       const data = snap.data();
       // Cache to LocalStorage
       if (data.babyName) setSetting('babyName', data.babyName);
+      if (data.babyBirthDate) setSetting('babyBirthDate', data.babyBirthDate);
       if (data.fixedFeedingInterval) setSetting('fixedFeedingInterval', data.fixedFeedingInterval);
       if (data.averageFeedingCount) setSetting('averageFeedingCount', data.averageFeedingCount);
       if (data.formulaProducts) setSetting('formulaProducts', data.formulaProducts);
       if (data.defaultFormulaProduct) setSetting('defaultFormulaProduct', data.defaultFormulaProduct);
       if (data.defaultFormulaAmount) setSetting('defaultFormulaAmount', data.defaultFormulaAmount);
       if (data.defaultBreastfeedAmount) setSetting('defaultBreastfeedAmount', data.defaultBreastfeedAmount);
+      if (data.showBreastfeed !== undefined) setSetting('showBreastfeed', data.showBreastfeed);
       if (onSettingsChanged) onSettingsChanged(data);
     }
   }, (error) => {
@@ -53,12 +55,14 @@ export function unsubscribeSettings() {
 export function getDefaultSettings() {
   return {
     babyName: getSetting('babyName', ''),
+    babyBirthDate: getSetting('babyBirthDate', ''),
     fixedFeedingInterval: getSetting('fixedFeedingInterval', 10800), // 3 hours in seconds
     averageFeedingCount: getSetting('averageFeedingCount', 10),
     formulaProducts: getSetting('formulaProducts', ['트루맘 클래식']),
     defaultFormulaProduct: getSetting('defaultFormulaProduct', '트루맘 클래식'),
     defaultFormulaAmount: getSetting('defaultFormulaAmount', 100),
     defaultBreastfeedAmount: getSetting('defaultBreastfeedAmount', 20),
+    showBreastfeed: getSetting('showBreastfeed', false),
     pageSize: getSetting('pageSize', 30),
   };
 }

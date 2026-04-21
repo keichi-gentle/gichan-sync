@@ -662,7 +662,7 @@ public partial class ReportViewModel : ObservableObject
                 {
                     var idx = (int)p.Index;
                     var label = idx >= 0 && idx < data.Count ? data[idx].Date.ToString("M/d") : "";
-                    return $"{label}  {p.Coordinate.PrimaryValue:0.0}cm";
+                    return $"{label}  키: {p.Coordinate.PrimaryValue:0.0} cm";
                 }
             }
         };
@@ -715,7 +715,7 @@ public partial class ReportViewModel : ObservableObject
                 {
                     var idx = (int)p.Index;
                     var label = idx >= 0 && idx < data.Count ? data[idx].Date.ToString("M/d") : "";
-                    return $"{label}  {p.Coordinate.PrimaryValue:0.00}kg";
+                    return $"{label}  몸무게: {p.Coordinate.PrimaryValue:0.00} kg";
                 }
             }
         };
