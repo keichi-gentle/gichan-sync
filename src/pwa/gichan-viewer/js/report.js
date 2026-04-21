@@ -120,7 +120,7 @@ function renderCharts(events, period) {
   // Chart 1: Feed amount per feeding (Line)
   const bodyColor = s.getPropertyValue('--cat-body').trim() || '#704890';
 
-  const bodySuffix = shortPeriod ? ' 최근 N개(10개) 고정' : '';
+  const bodySuffix = shortPeriod ? ' 최근 10개 고정 (14일 이하 선택)' : '';
   el.innerHTML = chartCard('1회 수유량 변화 추이', 'chart1')
     + chartCard('일별 수유량 추이', 'chart2')
     + chartCard('최근 수유텀 추이', 'chart-interval-trend')

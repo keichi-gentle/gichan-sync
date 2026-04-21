@@ -643,7 +643,7 @@ public partial class ReportViewModel : ObservableObject
         if (shortPeriod && data.Count > 10) data = data.Skip(data.Count - 10).ToList();
 
         var baseTitle = "키 변화량";
-        var suffix = shortPeriod ? " 최근 N개(10개) 고정" : "";
+        var suffix = shortPeriod ? " 최근 10개 고정 (14일 이하 선택)" : "";
         HeightTitle = baseTitle + suffix + (data.Count == 0 ? " 데이터 없음" : "");
 
         // 항상 Series 생성 (빈 values여도) — LiveCharts2가 이전 렌더링을 갱신하도록
@@ -696,7 +696,7 @@ public partial class ReportViewModel : ObservableObject
         if (shortPeriod && data.Count > 10) data = data.Skip(data.Count - 10).ToList();
 
         var baseTitle = "몸무게 변화량";
-        var suffix = shortPeriod ? " 최근 N개(10개) 고정" : "";
+        var suffix = shortPeriod ? " 최근 10개 고정 (14일 이하 선택)" : "";
         WeightTitle = baseTitle + suffix + (data.Count == 0 ? " 데이터 없음" : "");
 
         // 항상 Series 생성 (빈 values여도) — LiveCharts2가 이전 렌더링을 갱신하도록
