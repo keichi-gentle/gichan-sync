@@ -11,9 +11,10 @@ let startDate = '', endDate = '', keyword = '';
 let currentPage = 1, sortOrder = 'desc';
 let tabSwitchCallback = null;
 
-export function renderBrowse(events, container, onTabSwitch = null) {
+export function renderBrowse(events, container, onTabSwitch) {
   allEvents = events;
-  tabSwitchCallback = onTabSwitch;
+  // 실시간 업데이트 시 호출부에서 콜백을 전달하지 않아 기존 콜백이 null로 덮어쓰이는 버그 방지
+  if (onTabSwitch) tabSwitchCallback = onTabSwitch;
 
   // WPF의 new EventListViewModel() 효과 — 탭 진입 시 모든 필터 상태 리셋
   activeCategories = new Set(CATEGORIES);

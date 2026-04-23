@@ -73,12 +73,18 @@ function renderCategoryFields() {
       const formulaVal = editingEvent?.formulaAmount || defFormula;
       const breastVal = editingEvent?.breastfeedAmount || defBreast;
       const feedCountVal = editingEvent?.feedingCount || 1;
-      const showBreast = getSetting('showBreastfeed', false);
+      const showBreastSetting = getSetting('showBreastfeed', false);
+      // 숨김 설정이어도 수정 모드에서 기존 모유 데이터가 있으면 표시 (데이터 보호)
+      const showBreast = showBreastSetting || (editingEvent?.breastfeedAmount > 0);
+      // 버그2: 신규 입력은 분유 기본 체크, 수정 모드는 원래 분유량 유무에 따름
+      const formulaChecked = !editingEvent || (editingEvent.formulaAmount > 0);
+      // 수정 모드 + 모유량 있음 → 모유 체크 (화면 표시 될 때만 의미 있음)
+      const breastChecked = editingEvent?.breastfeedAmount > 0;
       el.innerHTML = `
         <div class="entry-section">
           <div class="entry-row"><label>분유</label>
             <div class="toggle-row">
-              <input type="checkbox" id="e-formula-on" checked>
+              <input type="checkbox" id="e-formula-on" ${formulaChecked ? 'checked' : ''}>
               <select id="e-formula-product">${products.map(p => `<option${p===defProduct?' selected':''}>${p}</option>`).join('')}</select>
               <div class="stepper">
                 <button type="button" class="step-btn" data-target="e-formula-amt" data-step="-5">−</button>
@@ -90,7 +96,7 @@ function renderCategoryFields() {
           </div>
           ${showBreast ? `<div class="entry-row"><label>모유</label>
             <div class="toggle-row">
-              <input type="checkbox" id="e-breast-on">
+              <input type="checkbox" id="e-breast-on" ${breastChecked ? 'checked' : ''}>
               <div class="stepper">
                 <button type="button" class="step-btn" data-target="e-breast-amt" data-step="-5">−</button>
                 <span id="e-breast-display">${breastVal}</span>
@@ -123,10 +129,8 @@ function renderCategoryFields() {
           if (displayEl) displayEl.textContent = targetId === 'e-feedcount' ? `${newVal}회` : newVal;
         });
       });
-      if (editingEvent) {
-        if (editingEvent.formulaAmount > 0) document.getElementById('e-formula-on').checked = true;
-        if (editingEvent.breastfeedAmount > 0 && showBreast) document.getElementById('e-breast-on').checked = true;
-        if (editingEvent.formulaProduct) document.getElementById('e-formula-product').value = editingEvent.formulaProduct;
+      if (editingEvent?.formulaProduct) {
+        document.getElementById('e-formula-product').value = editingEvent.formulaProduct;
       }
       break;
     }
@@ -236,7 +240,7 @@ async function saveEvent(container) {
 
   try {
     const evt = buildEvent();
-    const { doc, setDoc, collection, Timestamp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const { doc, setDoc, collection, Timestamp, deleteField } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
     const db = window.__firebase.db;
     const docId = editingEvent?.id || crypto.randomUUID();
     const dataUid = getRolesData()?.dataUid || user.uid;
@@ -255,15 +259,25 @@ async function saveEvent(container) {
     };
 
     if (!editingEvent) data.createdAt = Timestamp.now();
-    if (evt.dayNumber != null) data.dayNumber = evt.dayNumber;
-    if (evt.formulaProduct) data.formulaProduct = evt.formulaProduct;
-    if (evt.formulaAmount != null) data.formulaAmount = evt.formulaAmount;
-    if (evt.breastfeedAmount != null) data.breastfeedAmount = evt.breastfeedAmount;
-    if (evt.feedingCount != null) data.feedingCount = evt.feedingCount;
-    if (evt.hasUrine != null) data.hasUrine = evt.hasUrine;
-    if (evt.hasStool != null) data.hasStool = evt.hasStool;
-    if (evt.immediateNotice != null) data.immediateNotice = evt.immediateNotice;
-    if (evt.dailyFeedTotal != null) data.dailyFeedTotal = evt.dailyFeedTotal;
+    data.dayNumber = evt.dayNumber ?? null;
+
+    // 카테고리별 필드 정의
+    const feedFields = ['formulaProduct','formulaAmount','breastfeedAmount','feedingCount','dailyFeedTotal'];
+    const bowelFields = ['hasUrine','hasStool','immediateNotice'];
+
+    // 수유 필드: 카테고리=수유면 값 반영, 아니면 Firestore에서 삭제
+    if (evt.category === '수유') {
+      feedFields.forEach(f => { data[f] = evt[f] ?? null; });
+    } else {
+      feedFields.forEach(f => { data[f] = deleteField(); });
+    }
+
+    // 배변 필드: 카테고리=배변이면 값 반영, 아니면 Firestore에서 삭제
+    if (evt.category === '배변') {
+      bowelFields.forEach(f => { data[f] = evt[f] ?? null; });
+    } else {
+      bowelFields.forEach(f => { data[f] = deleteField(); });
+    }
 
     await setDoc(docRef, data, { merge: true });
     // meta/lastUpdated 갱신 (WPF 경량 폴링용)
