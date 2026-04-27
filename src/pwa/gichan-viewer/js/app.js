@@ -5,7 +5,7 @@ import { renderReport } from './report.js';
 import { renderSettings } from './settings.js';
 import { initScoreboard, updateScoreboardEvents, setSyncStatus } from './scoreboard.js';
 import { initAuth, onAuthChange } from './firebase-auth.js';
-import { subscribeToEvents, unsubscribeEvents } from './firebase-sync.js';
+import { subscribeToEvents, unsubscribeEvents, downloadEventsOnce } from './firebase-sync.js';
 import { subscribeToSettings, unsubscribeSettings } from './firebase-settings.js';
 import { renderEntry } from './event-entry.js';
 import { loadRoles, determineRole, getRole, canWrite, canManageUsers } from './roles.js';
@@ -98,6 +98,23 @@ async function initFirebase() {
         const { getRolesData } = await import('./roles.js');
         const rolesData = getRolesData();
         const dataUid = rolesData?.dataUid || user.uid;
+
+        // 로그인 즉시 자동 내려받기 — '내려받기 버튼' 동작과 동일
+        try {
+          const events = await downloadEventsOnce(fb.db, dataUid);
+          currentEvents = events;
+          calculateFeedingIntervals(currentEvents);
+          await saveEvents(events);
+          extractFormulaProducts(events);
+          updateScoreboardEvents(currentEvents);
+          const now = new Date();
+          const timeStr = now.toLocaleString('ko-KR', { year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false }).replace(/\. /g,'.').replace('.  ','. ');
+          setSetting('lastSyncTime', timeStr);
+          setSyncStatus(true, new Date().toLocaleTimeString('ko-KR', { hour12: false }));
+        } catch (err) {
+          console.warn('로그인 후 자동 내려받기 실패:', err);
+        }
+
         subscribeToEvents(fb.db, dataUid, onFirestoreUpdate);
         subscribeToSettings(fb.db, dataUid);
         setSetting('firebaseUid', user.uid);
