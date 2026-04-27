@@ -2,13 +2,6 @@ import * as C from './calc.js';
 
 export function renderDashboard(events, container) {
   const now = new Date();
-  container.innerHTML = '';
-
-  if (!events.length) {
-    container.innerHTML = '<div class="empty-state">데이터가 없습니다.<br>설정 탭에서 Excel 파일을 가져와 주세요.</div>';
-    return;
-  }
-
   container.innerHTML = buildFeedCard(events, now)
     + buildBowelCard(events, now)
     + buildHygieneCard(events, now)
