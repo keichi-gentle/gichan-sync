@@ -3,6 +3,19 @@ import { setSyncStatus } from './scoreboard.js';
 
 let unsubscribe = null;
 
+/**
+ * 일회성 다운로드: Firestore에서 events 전체를 한 번에 가져온다.
+ * 로그인 직후 자동 동기화 등 '내려받기 버튼' 동작을 비-UI 환경에서 재현할 때 사용.
+ */
+export async function downloadEventsOnce(db, userId) {
+  const { collection, query, getDocs, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  const q = query(collection(db, 'users', userId, 'events'), orderBy('date', 'asc'));
+  const snapshot = await getDocs(q);
+  const events = [];
+  snapshot.forEach(doc => events.push(mapFirestoreToEvent(doc.data())));
+  return events;
+}
+
 export async function subscribeToEvents(db, userId, onEventsChanged) {
   // Unsubscribe previous listener if any
   if (unsubscribe) { unsubscribe(); unsubscribe = null; }
