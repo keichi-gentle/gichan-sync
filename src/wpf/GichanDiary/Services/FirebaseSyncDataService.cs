@@ -15,6 +15,7 @@ public class FirebaseSyncDataService : IDataService
     private readonly IExcelService _excelService;
     private readonly ISettingsService _settingsService;
     private readonly FirestoreService _firestoreService;
+    private readonly FirebaseAuthService? _authService;
     private List<BabyEvent> _cachedEvents = new();
     private bool _isOnline;
 
@@ -28,12 +29,23 @@ public class FirebaseSyncDataService : IDataService
     public FirebaseSyncDataService(
         IExcelService excelService,
         ISettingsService settingsService,
-        FirestoreService firestoreService)
+        FirestoreService firestoreService,
+        FirebaseAuthService? authService = null)
     {
         _excelService = excelService;
         _settingsService = settingsService;
         _firestoreService = firestoreService;
+        _authService = authService;
+    }
 
+    /// <summary>
+    /// 모든 Firestore 호출 직전 호출 — 토큰 만료 5분 이내면 자동 갱신.
+    /// </summary>
+    private async Task EnsureAuthAsync()
+    {
+        if (_authService == null) return;
+        if (await _authService.EnsureValidTokenAsync())
+            _firestoreService.UpdateAuthToken(_authService.IdToken);
     }
 
     public void InvalidateCache() => _cachedEvents = new();
@@ -49,7 +61,7 @@ public class FirebaseSyncDataService : IDataService
         NotifyUI();
     }
 
-    private string ExcelPath => _settingsService.Load().ExcelFilePath;
+    private string ExcelPath => _settingsService.Load().ExcelFilePath!;
 
     public async Task<List<BabyEvent>> LoadEventsAsync()
     {
@@ -61,6 +73,7 @@ public class FirebaseSyncDataService : IDataService
         {
             if (_firestoreService.IsConfigured)
             {
+                await EnsureAuthAsync();
                 _cachedEvents = await _firestoreService.LoadEventsAsync();
                 _isOnline = true;
                 UpdateSyncTime();
@@ -83,6 +96,7 @@ public class FirebaseSyncDataService : IDataService
         {
             if (_firestoreService.IsConfigured)
             {
+                await EnsureAuthAsync();
                 await _firestoreService.AddEventAsync(newEvent);
                 await _firestoreService.TouchLastUpdatedAsync();
                 _isOnline = true;
@@ -107,6 +121,7 @@ public class FirebaseSyncDataService : IDataService
         {
             if (_firestoreService.IsConfigured)
             {
+                await EnsureAuthAsync();
                 await _firestoreService.UpdateEventAsync(updated);
                 await _firestoreService.TouchLastUpdatedAsync();
                 _isOnline = true;
@@ -131,6 +146,7 @@ public class FirebaseSyncDataService : IDataService
         {
             if (_firestoreService.IsConfigured)
             {
+                await EnsureAuthAsync();
                 await _firestoreService.DeleteEventAsync(target.Id.ToString());
                 await _firestoreService.TouchLastUpdatedAsync();
                 _isOnline = true;
@@ -156,6 +172,8 @@ public class FirebaseSyncDataService : IDataService
     {
         if (!_firestoreService.IsConfigured)
             throw new InvalidOperationException("Firebase가 구성되지 않았습니다.");
+
+        await EnsureAuthAsync();
 
         // 1. 기존 Firebase 데이터 전체 삭제
         await _firestoreService.DeleteAllEventsAsync(progress, ct);

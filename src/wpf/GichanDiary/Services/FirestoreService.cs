@@ -23,6 +23,14 @@ public class FirestoreService
     public void SetCredentials(string userId, string? idToken = null)
     {
         _userId = userId;
+        UpdateAuthToken(idToken);
+    }
+
+    /// <summary>
+    /// idToken만 갱신 (userId는 그대로). 토큰 만료 갱신 후 호출.
+    /// </summary>
+    public void UpdateAuthToken(string? idToken)
+    {
         _idToken = idToken;
         if (!string.IsNullOrEmpty(idToken))
             _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", idToken);

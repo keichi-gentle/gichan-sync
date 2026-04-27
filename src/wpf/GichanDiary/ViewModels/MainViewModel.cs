@@ -95,7 +95,7 @@ public partial class MainViewModel : ObservableObject
             {
                 IsSyncOnline = true;
                 SyncStatusText = "On-Line";
-                LastSyncDisplay = dt.ToString("HH:mm:ss");
+                LastSyncDisplay = dt.ToString("yyyy.MM.dd HH:mm:ss");
             };
         }
 
@@ -518,7 +518,7 @@ public partial class MainViewModel : ObservableObject
             vm.LastSyncTime = LastSyncDisplay;
         // 9번: SettingsVM도 SyncTimeChanged 구독
         if (_dataService is FirebaseSyncDataService syncSvc)
-            syncSvc.SyncTimeChanged += (dt) => vm.LastSyncTime = dt.ToString("HH:mm:ss");
+            syncSvc.SyncTimeChanged += (dt) => vm.LastSyncTime = dt.ToString("yyyy.MM.dd HH:mm:ss");
         vm.SettingsSaved += async () =>
         {
             _settings = _settingsService.Load();

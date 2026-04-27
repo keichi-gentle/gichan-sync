@@ -53,6 +53,7 @@ public partial class EventEntryViewModel : ObservableObject
     // ── Hygiene ───────────────────────────────────────────
 
     [ObservableProperty] private bool _hygieneShower;       // 샤워
+    [ObservableProperty] private bool _hygieneHairWash;     // 머리감기
     [ObservableProperty] private bool _hygieneFaceWash;     // 세안
     [ObservableProperty] private bool _hygieneNails;        // 손발톱정리
     [ObservableProperty] private bool _hygieneNose;         // 코청소
@@ -158,6 +159,7 @@ public partial class EventEntryViewModel : ObservableObject
 
         // Hygiene
         HygieneShower = false;
+        HygieneHairWash = false;
         HygieneFaceWash = false;
         HygieneNails = false;
         HygieneNose = false;
@@ -291,6 +293,7 @@ public partial class EventEntryViewModel : ObservableObject
             case EventCategory.위생관리:
                 var detail = evt.Detail ?? "";
                 HygieneShower = detail.Contains("샤워");
+                HygieneHairWash = detail.Contains("머리감기");
                 HygieneFaceWash = detail.Contains("세안");
                 HygieneNails = detail.Contains("손발톱정리");
                 HygieneNose = detail.Contains("코청소");
@@ -474,6 +477,7 @@ public partial class EventEntryViewModel : ObservableObject
     {
         var list = new List<HygieneType>();
         if (HygieneShower) list.Add(HygieneType.샤워);
+        if (HygieneHairWash) list.Add(HygieneType.머리감기);
         if (HygieneFaceWash) list.Add(HygieneType.세안);
         if (HygieneNails) list.Add(HygieneType.손발톱정리);
         if (HygieneNose) list.Add(HygieneType.코청소);

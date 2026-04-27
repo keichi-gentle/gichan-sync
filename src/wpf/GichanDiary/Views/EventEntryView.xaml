@@ -607,6 +607,8 @@
                     <WrapPanel Margin="0,0,0,12">
                         <ToggleButton Style="{DynamicResource HygieneToggle}" Content="샤워"
                                       IsChecked="{Binding HygieneShower}" Margin="0,0,6,6"/>
+                        <ToggleButton Style="{DynamicResource HygieneToggle}" Content="머리감기"
+                                      IsChecked="{Binding HygieneHairWash}" Margin="0,0,6,6"/>
                         <ToggleButton Style="{DynamicResource HygieneToggle}" Content="세안"
                                       IsChecked="{Binding HygieneFaceWash}" Margin="0,0,6,6"/>
                         <ToggleButton Style="{DynamicResource HygieneToggle}" Content="손발톱"

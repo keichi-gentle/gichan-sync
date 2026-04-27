@@ -176,11 +176,24 @@ public partial class App : Application
         }
 
         // Firebase 항상 활성화 (올리기/내려받기 수동 동기화용, 자동 폴링 없음)
+        // 1) 저장된 토큰으로 세션 복원 시도 → 2) 실패 시 LoginDialog 띄움 → 3) 사용자 취소 시 ExcelOnly
         try
         {
             var coordinator = _serviceProvider.GetRequiredService<SyncCoordinator>();
+            var authService = _serviceProvider.GetRequiredService<FirebaseAuthService>();
             var syncEnabled = await coordinator.TryEnableFirebaseSync();
-            LogService.System($"Firebase 연결: {(syncEnabled ? "성공" : "실패 (ExcelOnly)")}");
+            if (!syncEnabled)
+            {
+                // 저장된 세션 없음/만료 → 로그인 다이얼로그 표시
+                var loginDialog = new LoginDialog(authService, defaultEmail: authService.Email);
+                var loginResult = loginDialog.ShowDialog();
+                if (loginResult == true && loginDialog.LoginSucceeded)
+                {
+                    coordinator.OnSignedIn();
+                    syncEnabled = true;
+                }
+            }
+            LogService.System($"Firebase 연결: {(syncEnabled ? "성공" : "취소/실패 (ExcelOnly로 계속)")}");
         }
         catch (Exception ex)
         {

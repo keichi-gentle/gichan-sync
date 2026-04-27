@@ -1,0 +1,72 @@
+// gichan-diary Firestore 보안 규칙
+// 작성일: 2026-04-27
+// 적용 대상: 테스트 모드 만료 대응 (30일 만료 → 역할 기반 ACL)
+//
+// 데이터 구조:
+//   config/roles                          ← 역할 매핑 + dataUid
+//   users/{dataUid}/events/{eventId}      ← 이벤트
+//   users/{dataUid}/settings/app          ← 공유 설정
+//   users/{dataUid}/meta/{doc}            ← 동기화 메타 (lastUpdated 등)
+//
+// 핵심: 모든 사용자가 admin uid 데이터를 공유 → 역할 기반 ACL
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email != null;
+    }
+
+    function rolesDoc() {
+      return get(/databases/$(database)/documents/config/roles).data;
+    }
+
+    function userEmail() { return request.auth.token.email; }
+
+    function hasRole(role) {
+      return isSignedIn()
+        && rolesDoc()[role] is list
+        && userEmail() in rolesDoc()[role];
+    }
+
+    function isAdmin()    { return hasRole('admin'); }
+    function isEditor()   { return hasRole('editor'); }
+    function isObserver() { return hasRole('observer'); }
+    function canRead()    { return isAdmin() || isEditor() || isObserver(); }
+    function canWrite()   { return isAdmin() || isEditor(); }
+
+    // ── 이벤트 ───────────────────────────────────────────
+    // admin/editor: 읽기/쓰기, observer: 읽기만
+    match /users/{userId}/events/{eventId} {
+      allow read:                   if canRead();
+      allow create, update, delete: if canWrite();
+    }
+
+    // ── 공유 설정 ────────────────────────────────────────
+    match /users/{userId}/settings/{doc} {
+      allow read:  if canRead();
+      allow write: if canWrite();
+    }
+
+    // ── 동기화 메타 (lastUpdated 등) ─────────────────────
+    match /users/{userId}/meta/{doc} {
+      allow read:  if canRead();
+      allow write: if canWrite();
+    }
+
+    // ── 역할 문서 ────────────────────────────────────────
+    // 인증된 모든 사용자: 자기 역할 확인을 위해 읽기 허용
+    // admin만 변경 가능 (사용자 추가/제거)
+    match /config/roles {
+      allow read:  if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ── 그 외 모두 차단 (기본 거부) ──────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

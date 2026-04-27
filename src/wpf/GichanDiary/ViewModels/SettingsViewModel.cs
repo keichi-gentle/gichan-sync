@@ -158,7 +158,7 @@ public partial class SettingsViewModel : ObservableObject
                 await _syncCoordinator.TryEnableFirebaseSync();
 
             var dataService = _syncCoordinator.GetDataService();
-            var events = await _excelService.LoadEventsAsync(_settingsService.Load().ExcelFilePath);
+            var events = await _excelService.LoadEventsAsync(_settingsService.Load().ExcelFilePath!);
 
             if (dataService is FirebaseSyncDataService syncService)
             {
@@ -219,7 +219,7 @@ public partial class SettingsViewModel : ObservableObject
             var events = await dataService.LoadEventsAsync();
 
             _syncCts.Token.ThrowIfCancellationRequested();
-            var excelPath = _settingsService.Load().ExcelFilePath;
+            var excelPath = _settingsService.Load().ExcelFilePath!;
             await _excelService.ExportEventsAsync(excelPath, events);
 
             // 캐시 갱신 + UI 통지 (대시보드/전광판 즉시 반영)

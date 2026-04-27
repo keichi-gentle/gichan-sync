@@ -22,7 +22,7 @@ public class ExcelOnlyDataService : IDataService
         _settingsService = settingsService;
     }
 
-    private string ExcelPath => _settingsService.Load().ExcelFilePath;
+    private string ExcelPath => _settingsService.Load().ExcelFilePath!;
 
     public Task<List<BabyEvent>> LoadEventsAsync()
         => _excelService.LoadEventsAsync(ExcelPath);
