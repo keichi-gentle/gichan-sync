@@ -4,7 +4,7 @@ import { getSetting, saveEventToLocal } from './storage.js';
 import { getRolesData } from './roles.js';
 
 const CATEGORIES = ['수유', '배변', '위생관리', '신체측정', '건강관리', '기타'];
-const HYGIENE_TYPES = ['샤워', '세안', '손발톱정리', '코청소', '눈꼽청소', '입안청소', '배꼽청소', '기타'];
+const HYGIENE_TYPES = ['샤워', '머리감기', '세안', '손발톱정리', '코청소', '눈꼽청소', '입안청소', '배꼽청소', '기타'];
 
 let selectedCategory = '수유';
 let editingEvent = null; // for edit mode
