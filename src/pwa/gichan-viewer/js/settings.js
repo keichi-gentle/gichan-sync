@@ -41,6 +41,7 @@ export function renderSettings(container, onImport, firebaseReady = false) {
       ` : ''}
     </div>
 
+    ${user ? `
     <div class="setting-group">
       <h3>데이터 관리</h3>
       <button class="import-btn" id="import-btn" style="background:var(--cat-etc);">📂 Excel 파일 가져오기 (수동)</button>
@@ -48,7 +49,9 @@ export function renderSettings(container, onImport, firebaseReady = false) {
       <div class="import-info" id="import-info">${importInfo}</div>
       <div id="import-status" style="text-align:center;margin-top:8px;color:var(--cat-feed);font-weight:600;"></div>
     </div>
+    ` : ''}
 
+    ${user ? `
     <div class="setting-group">
       <h3>표시 설정</h3>
       <div class="setting-row">
@@ -66,7 +69,9 @@ export function renderSettings(container, onImport, firebaseReady = false) {
         <input type="date" id="set-birthdate" value="${getSetting('babyBirthDate', '')}" style="width:150px;">
       </div>
     </div>
+    ` : ''}
 
+    ${user ? `
     <div class="setting-group">
       <h3>수유 설정</h3>
       <div class="setting-row">
@@ -126,15 +131,17 @@ export function renderSettings(container, onImport, firebaseReady = false) {
         </select>
       </div>
     </div>
+    ` : ''}
 
-    ${canManageUsers() ? buildUserManagementSection() : ''}
+    ${user && canManageUsers() ? buildUserManagementSection() : ''}
 
     <div class="setting-group">
       <h3>앱 정보</h3>
-      <div class="setting-row"><label>버전</label><span>3.2.0</span></div>
-      <div class="setting-row"><label>상위 프로젝트</label><span>기찬다이어리 (WPF)</span></div>
-      <div class="setting-row"><label>데이터 소스</label><span>${user ? 'Firebase 실시간' : 'IndexedDB (로컬)'}</span></div>
+      <div class="setting-row"><label>버전</label><span>3.2.1</span></div>
+      ${user ? `
+      <div class="setting-row"><label>데이터 소스</label><span>Firebase 실시간</span></div>
       <div class="setting-row"><label>역할</label><span>${({admin:'관리자',editor:'사용자',observer:'뷰어'})[getSetting('userRole')] || '-'}</span></div>
+      ` : ''}
     </div>`;
 
   bindEvents(container);
