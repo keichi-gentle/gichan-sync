@@ -21,9 +21,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   initTabs();
 
-  // 로그인 전: 데이터 표시 안 함 (전광판 숨김 + 모든 탭 로그인 안내)
-  document.getElementById('scoreboard').style.display = 'none';
+  // 로그인 전: 레이아웃은 그대로, 데이터만 비움 (currentEvents = [] 유지)
   document.getElementById('app-title').textContent = '주요 이벤트 일지';
+  initScoreboard(currentEvents, document.getElementById('scoreboard'));
 
   switchTab('dashboard');
 
@@ -76,7 +76,6 @@ async function initFirebase() {
         if (!role) {
           // Not registered — show access denied
           isLoggedIn = false;
-          document.getElementById('scoreboard').style.display = 'none';
           document.querySelector('.tab-content').innerHTML =
             '<div class="empty-state" style="padding-top:60px;"><h2>접근 권한이 없습니다</h2><p>관리자에게 계정 등록을 요청하세요.</p><p style="color:var(--text-mid);margin-top:8px;">' + user.email + '</p></div>';
           updateTabVisibility(null);
@@ -85,12 +84,10 @@ async function initFirebase() {
 
         isLoggedIn = true;
 
-        // 로그인 후: 캐시 로드 + 전광판 활성화
+        // 로그인 후: 캐시 로드 + 전광판 데이터 갱신
         currentEvents = await loadEvents();
         calculateFeedingIntervals(currentEvents);
-        const sbEl = document.getElementById('scoreboard');
-        sbEl.style.display = '';
-        initScoreboard(currentEvents, sbEl);
+        updateScoreboardEvents(currentEvents);
 
         const babyName = getSetting('babyName', '');
         document.getElementById('app-title').textContent = babyName ? `주요 이벤트 일지 - ${babyName}` : '주요 이벤트 일지';
@@ -111,7 +108,7 @@ async function initFirebase() {
       } else {
         isLoggedIn = false;
         currentEvents = [];
-        document.getElementById('scoreboard').style.display = 'none';
+        updateScoreboardEvents(currentEvents);
         document.getElementById('app-title').textContent = '주요 이벤트 일지';
         unsubscribeEvents();
         unsubscribeSettings();
@@ -181,12 +178,6 @@ export function switchTab(tab, payload = null) {
   });
 
   const container = document.getElementById(`page-${tab}`);
-
-  // 로그인 전: 데이터 표시 탭은 안내 메시지로 대체 (entry는 자체 처리, settings는 로그인 버튼 노출)
-  if (!isLoggedIn && (tab === 'dashboard' || tab === 'browse' || tab === 'report')) {
-    container.innerHTML = '<div class="empty-state" style="padding-top:60px;"><h2>로그인이 필요합니다</h2><p style="color:var(--text-mid);margin-top:8px;">설정 탭에서 로그인 후 이용해 주세요.</p></div>';
-    return;
-  }
 
   switch (tab) {
     case 'dashboard': renderDashboard(currentEvents, container); break;

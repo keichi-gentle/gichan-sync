@@ -9,86 +9,88 @@ let onImportCallback = null;
 export function renderSettings(container, onImport, firebaseReady = false) {
   onImportCallback = onImport;
 
-  const lastDate = getSetting('lastImportDate');
-  const lastCount = getSetting('lastImportCount', 0);
-  const pageSize = getSetting('pageSize', 30);
-  const babyName = getSetting('babyName', '');
+  const user = getCurrentUser();
+  const authSection = firebaseReady ? buildAuthSection(user) : '<div class="import-info">Firebase 연결 중...</div>';
+
+  // 로그인 전: 데이터 값은 모두 빈 값/기본값으로 (레이아웃은 유지)
+  const lastDate = user ? getSetting('lastImportDate') : null;
+  const lastCount = user ? getSetting('lastImportCount', 0) : 0;
+  const pageSize = user ? getSetting('pageSize', 30) : 30;
+  const babyName = user ? getSetting('babyName', '') : '';
+  const babyBirthDate = user ? getSetting('babyBirthDate', '') : '';
+  const fixedInterval = user ? getSetting('fixedFeedingInterval', 10800) : 10800;
+  const avgFeedCount = user ? getSetting('averageFeedingCount', 10) : 10;
+  const defFormula = user ? getSetting('defaultFormulaAmount', 100) : 100;
+  const defBreast = user ? getSetting('defaultBreastfeedAmount', 20) : 20;
+  const showBreast = user ? getSetting('showBreastfeed', false) : false;
+  const formulaProducts = user ? getSetting('formulaProducts', ['트루맘 클래식']) : [];
+  const defProduct = user ? getSetting('defaultFormulaProduct', '트루맘 클래식') : '';
   const importInfo = lastDate
     ? `마지막 가져오기: ${new Date(lastDate).toLocaleString('ko-KR')} (${lastCount}건)`
     : '아직 가져온 파일이 없습니다.';
-
-  const user = getCurrentUser();
-  const authSection = firebaseReady ? buildAuthSection(user) : '<div class="import-info">Firebase 연결 중...</div>';
-  const lastSync = getSetting('lastSyncTime', '-');
+  const lastSync = user ? getSetting('lastSyncTime', '-') : '-';
 
   container.innerHTML = `
     <div class="setting-group">
       <h3>클라우드 동기화</h3>
       <div id="auth-section">${authSection}</div>
-      ${user ? `
       <div class="setting-row" style="margin-top:10px;">
         <label>동기화(Firebase)</label>
         <div style="display:flex;gap:8px;align-items:center;">
-          <button class="step-btn" id="sync-upload-btn" style="padding:6px 14px;min-width:80px;font-size:13px;background:var(--cat-system);color:var(--white);border-radius:8px;">올리기</button>
-          <button class="step-btn" id="sync-download-btn" style="padding:6px 14px;min-width:80px;font-size:13px;background:var(--cat-system);color:var(--white);border-radius:8px;">내려받기</button>
+          <button class="step-btn" id="sync-upload-btn" ${user ? '' : 'disabled'} style="padding:6px 14px;min-width:80px;font-size:13px;background:var(--cat-system);color:var(--white);border-radius:8px;${user ? '' : 'opacity:0.5;cursor:not-allowed;'}">올리기</button>
+          <button class="step-btn" id="sync-download-btn" ${user ? '' : 'disabled'} style="padding:6px 14px;min-width:80px;font-size:13px;background:var(--cat-system);color:var(--white);border-radius:8px;${user ? '' : 'opacity:0.5;cursor:not-allowed;'}">내려받기</button>
         </div>
       </div>
       <div class="setting-row">
         <label style="font-size:13px;">최근 내려받기 시각</label>
-        <span id="sync-time-display" style="font-size:13px;color:var(--text-light);font-weight:600;">${lastSync !== '-' ? lastSync : '-'}</span>
+        <span id="sync-time-display" style="font-size:13px;color:var(--text-light);font-weight:600;">${lastSync}</span>
       </div>
       <div id="sync-status" style="text-align:center;margin-top:4px;font-size:13px;font-weight:600;color:var(--cat-feed);"></div>
-      ` : ''}
     </div>
 
-    ${user ? `
     <div class="setting-group">
       <h3>데이터 관리</h3>
-      <button class="import-btn" id="import-btn" style="background:var(--cat-etc);">📂 Excel 파일 가져오기 (수동)</button>
+      <button class="import-btn" id="import-btn" ${user ? '' : 'disabled'} style="background:var(--cat-etc);${user ? '' : 'opacity:0.5;cursor:not-allowed;'}">📂 Excel 파일 가져오기 (수동)</button>
       <input type="file" id="file-input" accept=".xlsx,.xls" style="display:none">
       <div class="import-info" id="import-info">${importInfo}</div>
       <div id="import-status" style="text-align:center;margin-top:8px;color:var(--cat-feed);font-weight:600;"></div>
     </div>
-    ` : ''}
 
-    ${user ? `
     <div class="setting-group">
       <h3>표시 설정</h3>
       <div class="setting-row">
         <label>페이지당 표시 건수</label>
-        <select id="set-pagesize">
+        <select id="set-pagesize" ${user ? '' : 'disabled'}>
           ${[10,20,30,50,100].map(n => `<option value="${n}" ${n===pageSize?'selected':''}>${n}건</option>`).join('')}
         </select>
       </div>
       <div class="setting-row">
         <label>아기 이름</label>
-        <input type="text" id="set-babyname" value="${babyName}" placeholder="이름 입력" style="width:120px;text-align:right;">
+        <input type="text" id="set-babyname" value="${babyName}" placeholder="이름 입력" ${user ? '' : 'disabled'} style="width:120px;text-align:right;">
       </div>
       <div class="setting-row">
         <label>생년월일</label>
-        <input type="date" id="set-birthdate" value="${getSetting('babyBirthDate', '')}" style="width:150px;">
+        <input type="date" id="set-birthdate" value="${babyBirthDate}" ${user ? '' : 'disabled'} style="width:150px;">
       </div>
     </div>
-    ` : ''}
 
-    ${user ? `
     <div class="setting-group">
       <h3>수유 설정</h3>
       <div class="setting-row">
         <label>고정 수유텀</label>
         <div style="display:flex;align-items:center;gap:2px;">
           <div class="stepper">
-            <button class="step-btn" data-target="set-interval-h" data-step="-1">−</button>
-            <span id="set-interval-h-display">${Math.floor(getSetting('fixedFeedingInterval', 10800) / 3600)}</span>
-            <input type="hidden" id="set-interval-h" value="${Math.floor(getSetting('fixedFeedingInterval', 10800) / 3600)}">
-            <button class="step-btn" data-target="set-interval-h" data-step="1">+</button>
+            <button class="step-btn" data-target="set-interval-h" data-step="-1" ${user ? '' : 'disabled'}>−</button>
+            <span id="set-interval-h-display">${Math.floor(fixedInterval / 3600)}</span>
+            <input type="hidden" id="set-interval-h" value="${Math.floor(fixedInterval / 3600)}">
+            <button class="step-btn" data-target="set-interval-h" data-step="1" ${user ? '' : 'disabled'}>+</button>
           </div>
           <span style="font-size:13px;color:var(--text-mid);margin:0 2px;">시간</span>
           <div class="stepper">
-            <button class="step-btn" data-target="set-interval-m" data-step="-5">−</button>
-            <span id="set-interval-m-display">${Math.floor((getSetting('fixedFeedingInterval', 10800) % 3600) / 60)}</span>
-            <input type="hidden" id="set-interval-m" value="${Math.floor((getSetting('fixedFeedingInterval', 10800) % 3600) / 60)}">
-            <button class="step-btn" data-target="set-interval-m" data-step="5">+</button>
+            <button class="step-btn" data-target="set-interval-m" data-step="-5" ${user ? '' : 'disabled'}>−</button>
+            <span id="set-interval-m-display">${Math.floor((fixedInterval % 3600) / 60)}</span>
+            <input type="hidden" id="set-interval-m" value="${Math.floor((fixedInterval % 3600) / 60)}">
+            <button class="step-btn" data-target="set-interval-m" data-step="5" ${user ? '' : 'disabled'}>+</button>
           </div>
           <span style="font-size:13px;color:var(--text-mid);margin:0 2px;">분</span>
         </div>
@@ -96,52 +98,49 @@ export function renderSettings(container, onImport, firebaseReady = false) {
       <div class="setting-row">
         <label>평균 계산 횟수</label>
         <div class="stepper">
-          <button class="step-btn" data-target="set-avgcount" data-step="-1">−</button>
-          <span id="set-avgcount-display">${getSetting('averageFeedingCount', 10)}회</span>
-          <input type="hidden" id="set-avgcount" value="${getSetting('averageFeedingCount', 10)}">
-          <button class="step-btn" data-target="set-avgcount" data-step="1">+</button>
+          <button class="step-btn" data-target="set-avgcount" data-step="-1" ${user ? '' : 'disabled'}>−</button>
+          <span id="set-avgcount-display">${avgFeedCount}회</span>
+          <input type="hidden" id="set-avgcount" value="${avgFeedCount}">
+          <button class="step-btn" data-target="set-avgcount" data-step="1" ${user ? '' : 'disabled'}>+</button>
         </div>
       </div>
       <div class="setting-row">
         <label>기본 분유량</label>
         <div class="stepper">
-          <button class="step-btn" data-target="set-defformula" data-step="-5">−</button>
-          <span id="set-defformula-display">${getSetting('defaultFormulaAmount', 100)}ml</span>
-          <input type="hidden" id="set-defformula" value="${getSetting('defaultFormulaAmount', 100)}">
-          <button class="step-btn" data-target="set-defformula" data-step="5">+</button>
+          <button class="step-btn" data-target="set-defformula" data-step="-5" ${user ? '' : 'disabled'}>−</button>
+          <span id="set-defformula-display">${defFormula}ml</span>
+          <input type="hidden" id="set-defformula" value="${defFormula}">
+          <button class="step-btn" data-target="set-defformula" data-step="5" ${user ? '' : 'disabled'}>+</button>
         </div>
       </div>
       <div class="setting-row">
         <label>기본 모유량</label>
         <div class="stepper">
-          <button class="step-btn" data-target="set-defbreast" data-step="-5">−</button>
-          <span id="set-defbreast-display">${getSetting('defaultBreastfeedAmount', 20)}ml</span>
-          <input type="hidden" id="set-defbreast" value="${getSetting('defaultBreastfeedAmount', 20)}">
-          <button class="step-btn" data-target="set-defbreast" data-step="5">+</button>
+          <button class="step-btn" data-target="set-defbreast" data-step="-5" ${user ? '' : 'disabled'}>−</button>
+          <span id="set-defbreast-display">${defBreast}ml</span>
+          <input type="hidden" id="set-defbreast" value="${defBreast}">
+          <button class="step-btn" data-target="set-defbreast" data-step="5" ${user ? '' : 'disabled'}>+</button>
         </div>
       </div>
       <div class="setting-row">
         <label>모유 입력 표시</label>
-        <input type="checkbox" id="set-showbreast" ${getSetting('showBreastfeed', false) ? 'checked' : ''}>
+        <input type="checkbox" id="set-showbreast" ${showBreast ? 'checked' : ''} ${user ? '' : 'disabled'}>
       </div>
       <div class="setting-row">
         <label>분유 제품</label>
-        <select id="set-product" style="width:150px;">
-          ${(getSetting('formulaProducts', ['트루맘 클래식'])).map(p => `<option value="${p}" ${p===getSetting('defaultFormulaProduct','트루맘 클래식')?'selected':''}>${p}</option>`).join('')}
+        <select id="set-product" ${user ? '' : 'disabled'} style="width:150px;">
+          ${formulaProducts.map(p => `<option value="${p}" ${p===defProduct?'selected':''}>${p}</option>`).join('')}
         </select>
       </div>
     </div>
-    ` : ''}
 
     ${user && canManageUsers() ? buildUserManagementSection() : ''}
 
     <div class="setting-group">
       <h3>앱 정보</h3>
-      <div class="setting-row"><label>버전</label><span>3.2.1</span></div>
-      ${user ? `
-      <div class="setting-row"><label>데이터 소스</label><span>Firebase 실시간</span></div>
-      <div class="setting-row"><label>역할</label><span>${({admin:'관리자',editor:'사용자',observer:'뷰어'})[getSetting('userRole')] || '-'}</span></div>
-      ` : ''}
+      <div class="setting-row"><label>버전</label><span>3.2.2</span></div>
+      <div class="setting-row"><label>데이터 소스</label><span>${user ? 'Firebase 실시간' : '-'}</span></div>
+      <div class="setting-row"><label>역할</label><span>${user ? (({admin:'관리자',editor:'사용자',observer:'뷰어'})[getSetting('userRole')] || '-') : '-'}</span></div>
     </div>`;
 
   bindEvents(container);
