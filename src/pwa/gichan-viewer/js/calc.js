@@ -128,7 +128,12 @@ export function calculateFeedingIntervals(events) {
   }
 }
 
-function toDateStr(d) {
+/**
+ * 로컬(KST) 기준 YYYY-MM-DD 문자열.
+ * Date.toISOString()은 UTC라 KST 새벽 데이터가 어제로 분류되는 버그를 유발하므로,
+ * 모든 일자 그룹화/비교는 반드시 이 함수를 사용한다.
+ */
+export function toDateStr(d) {
   if (!d) return '';
   if (d instanceof Date) {
     const y = d.getFullYear();
