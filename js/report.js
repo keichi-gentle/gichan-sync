@@ -56,10 +56,10 @@ function renderSummary(events, period) {
   const summary = C.getDailySummary(events, now);
   const avgInterval = C.formatInterval(C.getAvgFeedingInterval(events, null));
 
-  // Daily average feed amount
+  // Daily average feed amount — 로컬(KST) 날짜 기준 그룹화
   const dailyTotals = {};
   events.filter(e => C.isFeeding(e)).forEach(e => {
-    const d = e.date.toISOString().slice(0,10);
+    const d = C.toDateStr(e.date);
     dailyTotals[d] = (dailyTotals[d] || 0) + C.getTotalFeedAmount(e);
   });
   const vals = Object.values(dailyTotals);
@@ -323,7 +323,8 @@ function groupByDate(events) {
   const map = {};
   events.forEach(e => {
     if (!e.date) return;
-    const key = e.date.toISOString().slice(0, 10);
+    // 로컬(KST) 기준 YYYY-MM-DD — toISOString은 UTC라 KST 새벽 데이터를 어제로 분류하는 버그 유발
+    const key = C.toDateStr(e.date);
     if (!map[key]) map[key] = { label: key.slice(5).replace('-','/'), date: e.date, events: [] };
     map[key].events.push(e);
   });
