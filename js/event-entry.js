@@ -2,12 +2,18 @@
 import { getCurrentUser } from './firebase-auth.js';
 import { getSetting, saveEventToLocal } from './storage.js';
 import { getRolesData } from './roles.js';
+import { getFullDateTime } from './calc.js';
 
 const CATEGORIES = ['수유', '배변', '위생관리', '신체측정', '건강관리', '기타'];
 const HYGIENE_TYPES = ['샤워', '머리감기', '세안', '손발톱정리', '코청소', '눈꼽청소', '입안청소', '배꼽청소', '기타'];
 
 let selectedCategory = '수유';
 let editingEvent = null; // for edit mode
+
+//2026-08-31 KJY [DUP-GUARD]: 더블클릭/연타로 같은 기록이 여러 번 저장되는 문제 방지
+const DUP_WINDOW_MS = 2 * 60 * 1000; // 동일 카테고리 근접 중복 판정 구간 (2분)
+let isSaving = false;      // 저장 진행 중 재진입 차단
+let lastSavedMark = null;  // 직전 저장분 { category, timeMs } — 실시간 리스너 반영 지연 대비
 
 export function renderEntry(container, editEvent = null) {
   editingEvent = editEvent;
@@ -232,14 +238,37 @@ function bindEntryEvents(container) {
 
 async function saveEvent(container) {
   const status = container.querySelector('#e-status');
+  const saveBtn = container.querySelector('#e-save');
   const user = getCurrentUser();
   if (!user) { status.textContent = '로그인이 필요합니다.'; return; }
 
-  status.textContent = '저장 중...';
-  status.style.color = 'var(--cat-feed)';
+  //2026-08-31 KJY [DUP-GUARD]: 연타 차단. await 이전에 동기적으로 잠가야
+  //                            두 번째 클릭 핸들러가 가드를 통과하지 못한다
+  if (isSaving) return;
+  isSaving = true;
+  if (saveBtn) saveBtn.disabled = true;
+
+  const evt = buildEvent();
 
   try {
-    const evt = buildEvent();
+    //2026-08-31 KJY [DUP-GUARD]: 신규 입력만 검사 (수정은 기존 docId 재사용이라 중복 생성 안 됨)
+    if (!editingEvent) {
+      const dup = await findNearDuplicate(evt.category, evt.fullDate);
+      if (dup) {
+        const mins = Math.floor(Math.abs(evt.fullDate - dup) / 60000);
+        const dupTime = `${String(dup.getHours()).padStart(2,'0')}:${String(dup.getMinutes()).padStart(2,'0')}`;
+        const gap = mins === 0 ? '1분 이내' : `${mins}분 차이`;
+        if (!confirm(`'${evt.category}' 기록이 ${dupTime} 에 이미 있습니다 (${gap}).\n중복 저장일 수 있습니다. 그래도 저장하시겠습니까?`)) {
+          status.textContent = '중복으로 판단되어 저장하지 않았습니다.';
+          status.style.color = 'var(--cat-bowel)';
+          return;
+        }
+      }
+    }
+
+    status.textContent = '저장 중...';
+    status.style.color = 'var(--cat-feed)';
+
     const { doc, setDoc, collection, Timestamp, deleteField } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
     const db = window.__firebase.db;
     const docId = editingEvent?.id || crypto.randomUUID();
@@ -286,6 +315,8 @@ async function saveEvent(container) {
     status.textContent = editingEvent ? '✓ 수정 완료!' : '✓ 저장 완료!';
 
     if (!editingEvent) {
+      //2026-08-31 KJY [DUP-GUARD]: 실시간 리스너가 아직 반영 안 됐어도 중복 판정되도록 직전 저장분 기억
+      lastSavedMark = { category: evt.category, timeMs: evt.fullDate.getTime() };
       // Reset time to now for next entry
       const now = new Date();
       document.getElementById('e-hour').value = now.getHours();
@@ -303,7 +334,36 @@ async function saveEvent(container) {
       status.textContent = `✗ 오류: ${err.message}`;
       status.style.color = 'var(--cat-health)';
     }
+  } finally {
+    //2026-08-31 KJY [DUP-GUARD]: 성공/실패 무관하게 재진입 잠금 해제
+    isSaving = false;
+    if (saveBtn) saveBtn.disabled = false;
   }
+}
+
+//2026-08-31 KJY [DUP-GUARD]: 동일 카테고리 기록이 DUP_WINDOW_MS 내에 있으면 그 기록 시각을 반환
+async function findNearDuplicate(category, fullDate) {
+  const targetMs = fullDate.getTime();
+  let nearest = null;
+
+  if (lastSavedMark && lastSavedMark.category === category
+      && Math.abs(targetMs - lastSavedMark.timeMs) < DUP_WINDOW_MS) {
+    nearest = new Date(lastSavedMark.timeMs);
+  }
+
+  try {
+    const { getCurrentEvents } = await import('./app.js');
+    for (const e of getCurrentEvents()) {
+      if (e.category !== category) continue;
+      const dt = getFullDateTime(e);
+      if (!dt) continue;
+      const diff = Math.abs(targetMs - dt.getTime());
+      if (diff >= DUP_WINDOW_MS) continue;
+      if (!nearest || diff < Math.abs(targetMs - nearest.getTime())) nearest = dt;
+    }
+  } catch { /* 이벤트 목록을 못 읽으면 직전 저장분 기준으로만 판정 */ }
+
+  return nearest;
 }
 
 function buildEvent() {
