@@ -16,6 +16,9 @@ let currentTab = 'dashboard';
 let firebaseReady = false;
 let isLoggedIn = false;
 
+//2026-08-31 KJY [DUP-GUARD]: 기록 입력 시 근접 중복 검사용 — 현재 로드된 이벤트 목록 제공
+export function getCurrentEvents() { return currentEvents; }
+
 // ── Init ──
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
