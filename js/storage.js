@@ -48,17 +48,8 @@ export async function loadEvents() {
   });
 }
 
-// Save or update a single event in IndexedDB (for offline fallback)
-export async function saveEventToLocal(event) {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    store.put(event);
-    tx.oncomplete = () => resolve();
-    tx.onerror = (e) => reject(e.target.error);
-  });
-}
+//2026-09-01 KJY [OFFLINE-ACK]: saveEventToLocal 제거 — 유일한 호출부였던 event-entry.js 의
+//                              오프라인 폴백이 없어져 미사용이 됨 (오프라인 보존은 Firestore SDK 큐 담당)
 
 // LocalStorage helpers
 export function getSetting(key, defaultVal = null) {
