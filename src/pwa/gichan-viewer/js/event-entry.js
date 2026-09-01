@@ -1,6 +1,6 @@
 // Event Entry — write new events to Firestore
 import { getCurrentUser } from './firebase-auth.js';
-import { getSetting, saveEventToLocal } from './storage.js';
+import { getSetting } from './storage.js';
 import { getRolesData } from './roles.js';
 import { getFullDateTime } from './calc.js';
 
@@ -12,6 +12,8 @@ let editingEvent = null; // for edit mode
 
 //2026-08-31 KJY [DUP-GUARD]: 더블클릭/연타로 같은 기록이 여러 번 저장되는 문제 방지
 const DUP_WINDOW_MS = 2 * 60 * 1000; // 동일 카테고리 근접 중복 판정 구간 (2분)
+//2026-09-01 KJY [OFFLINE-ACK]: Firestore 서버 확인 대기 상한. 초과 시 대기 안내 후 잠금 해제
+const SAVE_ACK_TIMEOUT_MS = 5000;
 let isSaving = false;      // 저장 진행 중 재진입 차단
 let lastSavedMark = null;  // 직전 저장분 { category, timeMs } — 실시간 리스너 반영 지연 대비
 
@@ -308,14 +310,33 @@ async function saveEvent(container) {
       bowelFields.forEach(f => { data[f] = deleteField(); });
     }
 
-    await setDoc(docRef, data, { merge: true });
-    // meta/lastUpdated 갱신 (WPF 경량 폴링용)
-    const metaRef = doc(db, 'users', dataUid, 'meta', 'lastUpdated');
-    await setDoc(metaRef, { updatedAt: Timestamp.now(), source: 'pwa' }, { merge: true });
-    status.textContent = editingEvent ? '✓ 수정 완료!' : '✓ 저장 완료!';
+    //2026-09-01 KJY [OFFLINE-ACK]: setDoc 은 서버 확인 시점에 resolve 되므로 오프라인이면
+    //                              영원히 pending 이다. 무한정 기다리면 저장 버튼이 잠긴 채 풀리지
+    //                              않으므로 서버 확인 대기에 상한을 둔다. 기록 자체는 SDK 오프라인
+    //                              큐(enableIndexedDbPersistence)에 즉시 반영되어 복구 시 자동 전송된다.
+    const write = (async () => {
+      await setDoc(docRef, data, { merge: true });
+      // meta/lastUpdated 갱신 (WPF 경량 폴링용)
+      const metaRef = doc(db, 'users', dataUid, 'meta', 'lastUpdated');
+      await setDoc(metaRef, { updatedAt: Timestamp.now(), source: 'pwa' }, { merge: true });
+    })().then(() => ({ acked: true }), e => ({ acked: false, err: e }));
+
+    const outcome = await Promise.race([
+      write,
+      new Promise(r => setTimeout(() => r({ pending: true }), SAVE_ACK_TIMEOUT_MS)),
+    ]);
+    if (outcome.err) throw outcome.err;
+
+    if (outcome.pending) {
+      status.textContent = '⏳ 저장 대기 중 (연결되면 자동 반영)';
+      status.style.color = 'var(--cat-bowel)';
+    } else {
+      status.textContent = editingEvent ? '✓ 수정 완료!' : '✓ 저장 완료!';
+    }
 
     if (!editingEvent) {
       //2026-08-31 KJY [DUP-GUARD]: 실시간 리스너가 아직 반영 안 됐어도 중복 판정되도록 직전 저장분 기억
+      //                            (서버 확인 전이어도 큐에는 들어갔으므로 동일하게 기억한다)
       lastSavedMark = { category: evt.category, timeMs: evt.fullDate.getTime() };
       // Reset time to now for next entry
       const now = new Date();
@@ -323,17 +344,11 @@ async function saveEvent(container) {
       document.getElementById('e-min').value = now.getMinutes();
     }
   } catch (err) {
-    // Firestore 실패 시 IndexedDB에 로컬 저장
-    try {
-      const localData = { ...data, date: evt.fullDate, updatedAt: new Date() };
-      if (localData.createdAt) localData.createdAt = new Date();
-      await saveEventToLocal(localData);
-      status.textContent = `⚠ 오프라인 저장됨 (동기화 대기)`;
-      status.style.color = 'var(--cat-bowel)';
-    } catch {
-      status.textContent = `✗ 오류: ${err.message}`;
-      status.style.color = 'var(--cat-health)';
-    }
+    //2026-09-01 KJY [OFFLINE-ACK]: 오프라인 기록 보존은 SDK 큐가 담당하므로 자체 IndexedDB 폴백은 제거.
+    //                              (기존 폴백은 try 스코프의 data 를 참조해 동작하지 않았고, 저장되더라도
+    //                               다음 동기화의 saveEvents() store.clear() 로 지워지는 구조였다)
+    status.textContent = `✗ 오류: ${err.message}`;
+    status.style.color = 'var(--cat-health)';
   } finally {
     //2026-08-31 KJY [DUP-GUARD]: 성공/실패 무관하게 재진입 잠금 해제
     isSaving = false;
